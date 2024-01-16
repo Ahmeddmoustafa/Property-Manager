@@ -1,6 +1,5 @@
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
-import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

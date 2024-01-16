@@ -66,8 +66,7 @@ class _FileInfoCardState extends State<FileInfoCard> {
                         child: SvgPicture.asset(
                           widget.info.svgSrc,
                           colorFilter: ColorFilter.mode(
-                              widget.info.color ?? Colors.black,
-                              BlendMode.srcIn),
+                              widget.info.color, BlendMode.srcIn),
                         ),
                         // child: Image(
                         //   image: AssetImage(widget.info.svgSrc),
@@ -97,7 +96,7 @@ class _FileInfoCardState extends State<FileInfoCard> {
                             .copyWith(color: Colors.white70),
                       ),
                       Text(
-                        widget.info.totalMoney!,
+                        widget.info.totalMoney,
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall!

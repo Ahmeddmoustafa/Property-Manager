@@ -2,9 +2,7 @@ import 'package:admin/constants.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/resources/Managers/values_manager.dart';
-import 'package:admin/responsive.dart';
-import 'package:admin/screens/dashboard/components/add_property_modal.dart';
+import 'package:admin/screens/property_modal/property_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -69,11 +67,8 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                       clipBehavior: Clip.antiAlias,
                       insetAnimationDuration: const Duration(milliseconds: 500),
                       insetAnimationCurve: Curves.easeIn,
-                      child: AddPropertyModal(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        width: Responsive.isDesktop(context)
-                            ? MediaQuery.of(context).size.width * 0.6
-                            : MediaQuery.of(context).size.width * 0.9,
+                      child: PropertyModalWidget(
+                        propertyModel: widget.properties[index],
                       ),
                     ),
                   ),

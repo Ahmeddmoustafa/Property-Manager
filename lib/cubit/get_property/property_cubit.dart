@@ -24,6 +24,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   void getProperties(int index) async {
     loading = true;
     try {
+      // await localSource.clearProperties();
       // await localSource.addProperties(demoPropertyModels);
       final List<PropertyModel> list = await localSource.getProperties();
       // final List<PropertyModel> list = [];

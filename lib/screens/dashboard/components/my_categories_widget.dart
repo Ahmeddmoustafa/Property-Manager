@@ -1,7 +1,7 @@
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/responsive.dart';
-import 'package:admin/screens/dashboard/components/add_property_modal.dart';
+import 'package:admin/screens/add_property/add_property_modal.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';

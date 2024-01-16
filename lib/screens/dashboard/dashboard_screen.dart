@@ -1,8 +1,6 @@
-import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/responsive.dart';
 import 'package:admin/screens/dashboard/components/my_categories_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../constants.dart';
 import 'components/header.dart';

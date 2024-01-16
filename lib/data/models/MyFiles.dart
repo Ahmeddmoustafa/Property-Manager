@@ -52,4 +52,12 @@ List<CloudStorageInfo> demoMyFiles = [
     color: Color.fromARGB(255, 199, 54, 90),
     percentage: 10,
   ),
+  // CloudStorageInfo(
+  //   title: "UnSold",
+  //   numOfProperties: 1328,
+  //   svgSrc: AssetsManager.AllPropertiesIcon,
+  //   totalMoney: "128M",
+  //   color: ColorManager.DarkGrey,
+  //   percentage: 35,
+  // ),
 ];

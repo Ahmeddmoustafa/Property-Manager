@@ -35,6 +35,14 @@ class PropertyModel {
       "installments": installmentsToJson(installments)
     };
   }
+
+  double calculateInstallments() {
+    double total = 0.0;
+    installments.forEach((element) {
+      total += double.parse(element.amount);
+    });
+    return total;
+  }
 }
 
 @HiveType(typeId: 2)
@@ -73,9 +81,9 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Mohamed Mostafa Hussein",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
+      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
     ],
   ),
   PropertyModel(
@@ -85,11 +93,11 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Mahmoud Waheed",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
+      Installment(name: "1", date: DateTime.now(), amount: "500000"),
+      Installment(name: "1", date: DateTime.now(), amount: "500000"),
+      Installment(name: "1", date: DateTime.now(), amount: "500000"),
+      Installment(name: "1", date: DateTime.now(), amount: "250000"),
+      Installment(name: "1", date: DateTime.now(), amount: "250000"),
     ],
   ),
   PropertyModel(
@@ -99,24 +107,24 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Hassan Khalid",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "500000"),
+      Installment(name: "1", date: DateTime.now(), amount: "500000"),
+      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
     ],
   ),
   PropertyModel(
     description: "Villa 37 Compound Princess",
-    price: "10000000",
-    paid: "5000000",
+    price: "5000000",
+    paid: "1000000",
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
-      Installment(name: "1", date: DateTime.now(), amount: "amount"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
     ],
   )
 ];

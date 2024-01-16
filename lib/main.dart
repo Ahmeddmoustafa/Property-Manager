@@ -1,4 +1,5 @@
 import 'package:admin/constants.dart';
+import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
@@ -19,8 +20,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PropertyCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => PropertyCubit(),
+        ),
+        BlocProvider(
+          create: (context) => PropertyModalCubit(),
+        ),
+      ],
       child: MaterialApp(
         scrollBehavior: MaterialScrollBehavior().copyWith(
           dragDevices: {

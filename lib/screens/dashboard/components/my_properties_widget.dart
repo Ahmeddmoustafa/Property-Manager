@@ -1,13 +1,9 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
-import 'package:admin/data/models/property_model.dart';
-import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:admin/screens/dashboard/components/no_data.dart';
 import 'package:admin/screens/dashboard/components/properties_table_widget.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 
 import '../../../constants.dart';
 
