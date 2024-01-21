@@ -1,4 +1,4 @@
-# Flutter Responsive Admin/Dashboard Template
+<!-- # Flutter Responsive Admin/Dashboard Template
 
 ## [Live Preview](https://abuanwar072.github.io/Flutter-Responsive-Admin-Panel-or-Dashboard/#/)
 
@@ -22,4 +22,4 @@ This flutter dashboard library is versatile; it's tailored to work seamlessly on
 
 ![Preview](/gif.gif)
 
-![App UI](/ui.png)
+![App UI](/ui.png) -->
