@@ -1,8 +1,10 @@
+import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/responsive.dart';
 import 'package:admin/screens/add_property/add_property_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constants.dart';
 import 'file_info_card.dart';
@@ -35,16 +37,19 @@ class MyCategoriesWidget extends StatelessWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: ColorManager.BackgroundColor,
-                    clipBehavior: Clip.antiAlias,
-                    insetAnimationDuration: const Duration(milliseconds: 500),
-                    insetAnimationCurve: Curves.easeIn,
-                    child: AddPropertyModal(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      width: Responsive.isDesktop(context)
-                          ? MediaQuery.of(context).size.width * 0.6
-                          : MediaQuery.of(context).size.width * 0.9,
+                  builder: (context) => BlocProvider(
+                    create: (context) => AddPropertyCubit(),
+                    child: Dialog(
+                      backgroundColor: ColorManager.BackgroundColor,
+                      clipBehavior: Clip.antiAlias,
+                      insetAnimationDuration: const Duration(milliseconds: 500),
+                      insetAnimationCurve: Curves.easeIn,
+                      child: AddPropertyModal(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        width: Responsive.isDesktop(context)
+                            ? MediaQuery.of(context).size.width * 0.6
+                            : MediaQuery.of(context).size.width * 0.9,
+                      ),
                     ),
                   ),
                 );

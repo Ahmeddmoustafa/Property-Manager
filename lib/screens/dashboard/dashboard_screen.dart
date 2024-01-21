@@ -14,7 +14,8 @@ class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key, required this.width}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      padding: EdgeInsets.all(defaultPadding),
       width: width,
       child: SafeArea(
         child: SingleChildScrollView(
@@ -25,7 +26,7 @@ class DashboardScreen extends StatelessWidget {
               Header(),
               SizedBox(height: defaultPadding),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(

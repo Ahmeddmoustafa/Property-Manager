@@ -1,10 +1,9 @@
 import 'package:admin/constants.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/screens/property_modal/property_modal_widget.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class PropertyChart extends StatelessWidget {
   const PropertyChart({super.key, required this.propertyModel});
@@ -30,7 +29,7 @@ class PropertyChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  formatPrice(double.parse(propertyModel.paid)) + "M",
+                  chartFormatPrice(double.parse(propertyModel.paid)) + "M",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -39,7 +38,7 @@ class PropertyChart extends StatelessWidget {
                 ),
                 SizedBox(height: defaultPadding),
                 Text(
-                    "of ${formatPrice(double.parse(propertyModel.price))}M EGP"),
+                    "of ${chartFormatPrice(double.parse(propertyModel.price))}M EGP"),
               ],
             ),
           ),
@@ -83,14 +82,4 @@ class PropertyChart extends StatelessWidget {
   //   showTitle: false,
   //   radius: 13,
   // ),
-
-  String formatPrice(double price) {
-    String formattedPrice = (price / 1000000).toStringAsFixed(2);
-
-    // Remove trailing zeros and decimal point if necessary
-    formattedPrice = formattedPrice.replaceAll(RegExp(r'0*$'), '');
-    formattedPrice = formattedPrice.replaceAll(RegExp(r'\.$'), '');
-
-    return formattedPrice;
-  }
 }

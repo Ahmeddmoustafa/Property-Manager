@@ -11,15 +11,46 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   final TextEditingController paidAmountController = TextEditingController();
   final TextEditingController buyerNameController = TextEditingController();
   final TextEditingController buyerNumberController = TextEditingController();
+  late List<TextEditingController> installmentsConttrollers =
+      getInstallmentControllers(5);
+  late List<DateTime?> installmentDates = getInstallmentDates(5);
 
   AddPropertyCubit() : super(AddPropertyInitial());
 
-  void addProperty() {
+  void addInstallmentDate(DateTime date, int index) {
+    installmentDates.insert(index, date);
     emit(AddPropertyLoading());
+  }
+
+  List<DateTime?> getInstallmentDates(int number) {
+    return List<DateTime?>.generate(number, (index) => null);
+  }
+
+  List<TextEditingController> getInstallmentControllers(int number) {
+    return List<TextEditingController>.generate(
+      number,
+      (index) => TextEditingController(),
+    );
+  }
+
+  void addInstallmentController() {
+    installmentDates.add(null);
+    installmentsConttrollers.add(TextEditingController());
+    emit(AddPropertyLoading());
+  }
+
+  void removeInstallment(int index) {
+    installmentDates.removeAt(index);
+    installmentsConttrollers.removeAt(index);
+    emit(AddPropertyLoading());
+  }
+
+  void addProperty() {
+    // emit(AddPropertyLoading());
     //init variables
     final String description = descriptionController.text;
-    final String price = priceController.text;
-    final String paidAmount = paidAmountController.text;
+    final String price = priceController.text.replaceAll(',', '');
+    final String paidAmount = paidAmountController.text.replaceAll(',', '');
     final String buyerName = buyerNameController.text;
     final String buyerNumber = buyerNumberController.text;
     //
@@ -40,9 +71,11 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         paidAmountError ||
         buyerNameError ||
         buyerNumberError) {
+      print("property error");
       emit(AddPropertyError());
     } else {
       final model = PropertyModel(
+        id: "5",
         description: description,
         price: price,
         paid: paidAmount,
@@ -50,6 +83,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         buyerNumber: buyerNumber,
         installments: [],
       );
+      print(model);
 
       emit(PropertyAdded(propertyModel: model));
 

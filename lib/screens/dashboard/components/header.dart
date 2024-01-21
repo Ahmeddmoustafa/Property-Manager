@@ -20,11 +20,11 @@ class Header extends StatelessWidget {
       padding: EdgeInsets.all(defaultPadding),
       child: Row(
         children: [
-          if (!Responsive.isDesktop(context))
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: context.read<MenuAppController>().controlMenu,
-            ),
+          // if (!Responsive.isDesktop(context))
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: context.read<MenuAppController>().controlMenu,
+          ),
           if (!Responsive.isMobile(context))
             Text(
               "Dashboard",

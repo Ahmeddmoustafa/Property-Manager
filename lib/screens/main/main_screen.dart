@@ -16,18 +16,20 @@ class MainScreen extends StatelessWidget {
       body: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // We want this side menu only for large screen
-            if (Responsive.isDesktop(context))
-              SizedBox(
-                width: width * 0.15,
-                // default flex = 1
-                // and it takes 1/6 part of the screen
-                child: SideMenu(),
-              ),
+            // if (Responsive.isDesktop(context))
+            //   SizedBox(
+            //     width: width * 0.15,
+            //     // default flex = 1
+            //     // and it takes 1/6 part of the screen
+            //     child: SideMenu(),
+            //   ),
+            // LoadPage()
             DashboardScreen(
-              width: Responsive.isDesktop(context) ? width * 0.85 : width,
-            ),
+              width: Responsive.isDesktop(context) ? width : width,
+            )
           ],
         ),
       ),

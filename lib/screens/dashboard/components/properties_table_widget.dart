@@ -2,11 +2,11 @@ import 'package:admin/constants.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:admin/screens/property_modal/property_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 
 class PropertiesTableWidget extends StatefulWidget {
   final double width;
@@ -32,8 +32,9 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             tableText(flex: 3, text: "Property Description", padding: 0),
-            tableText(flex: 1, text: "Price in EGP", padding: 0),
-            tableText(flex: 1, text: "Installment Date", padding: 0),
+            tableText(flex: 1, text: "PAID", padding: 0),
+            tableText(flex: 1, text: "Total Price", padding: 0),
+            tableText(flex: 1, text: "Next Date", padding: 0),
             tableText(flex: 2, text: "Buyer Name", padding: 0),
             tableText(flex: 2, text: "Buyer Number", padding: 0),
           ],
@@ -93,6 +94,12 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                               flex: 3,
                               text: widget.properties[index].description,
                               padding: 10.0,
+                            ),
+                            tableText(
+                              flex: 1,
+                              text: formatPrice(
+                                  double.parse(widget.properties[index].paid)),
+                              padding: 8.0,
                             ),
                             tableText(
                               flex: 1,
@@ -179,14 +186,5 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
         ],
       ),
     );
-  }
-
-  String formatDate(DateTime date) {
-    return "${date.day}-${date.month}-${date.year}";
-  }
-
-  String formatPrice(double price) {
-    NumberFormat formatter = NumberFormat("#,###");
-    return formatter.format(price);
   }
 }

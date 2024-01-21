@@ -26,9 +26,11 @@ class FileInfoCard extends StatefulWidget {
 class _FileInfoCardState extends State<FileInfoCard> {
   @override
   Widget build(BuildContext context) {
+    // final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
     return GestureDetector(
       onTap: () {
-        BlocProvider.of<PropertyCubit>(context).getProperties(widget.index);
+        BlocProvider.of<PropertyCubit>(context)
+            .getPropertiesByCategory(widget.index);
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -81,35 +83,54 @@ class _FileInfoCardState extends State<FileInfoCard> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  categoryInfo(widget.index),
                   // ProgressLine(
                   //   color: info.color,
                   //   percentage: info.percentage,
                   // ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${widget.info.numOfProperties} Property",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall!
-                            .copyWith(color: Colors.white70),
-                      ),
-                      Text(
-                        widget.info.totalMoney,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall!
-                            .copyWith(color: Colors.white),
-                      ),
-                    ],
-                  )
                 ],
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget categoryInfo(int index) {
+    final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
+    String length = "50";
+    String price = "1M";
+
+    switch (index) {
+      case 0:
+        length = cubit.properties.length.toString();
+      case 1:
+        length = cubit.paidproperties.length.toString();
+      case 2:
+        length = cubit.upcomingproperties.length.toString();
+      case 3:
+        length = cubit.notPaidproperties.length.toString();
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "$length Property",
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall!
+              .copyWith(color: Colors.white70),
+        ),
+        Text(
+          price,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall!
+              .copyWith(color: Colors.white),
+        ),
+      ],
     );
   }
 }

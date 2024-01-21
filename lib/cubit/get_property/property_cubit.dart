@@ -16,60 +16,73 @@ class PropertyCubit extends Cubit<PropertyState> {
   Color categoryColor = ColorManager.PrimaryColor;
   String icon = AssetsManager.AllPropertiesIcon;
   List<PropertyModel> properties = [];
+  List<PropertyModel> notPaidproperties = [];
+  List<PropertyModel> upcomingproperties = [];
+  List<PropertyModel> paidproperties = [];
+
   bool loading = false;
   bool hasError = false;
   String error = '';
   PropertyCubit() : super(PropertyState(properties: []));
 
-  void getProperties(int index) async {
+  void getPropertiesByCategory(int index) async {
     loading = true;
+    error = "";
     try {
       // await localSource.clearProperties();
       // await localSource.addProperties(demoPropertyModels);
-      final List<PropertyModel> list = await localSource.getProperties();
       // final List<PropertyModel> list = [];
       switch (index) {
         case 0:
+          properties = await localSource.getProperties(0);
+
           selectedCategory = 0;
           icon = AssetsManager.AllPropertiesIcon;
-          properties = list;
+          // properties = list;
           categoryColor = ColorManager.PrimaryColor;
           loading = false;
           hasError = false;
-          emit(state.copyWith(list: list));
+          emit(state.copyWith(list: properties));
           return;
         case 1:
+          paidproperties = await localSource.getProperties(1);
+
           selectedCategory = 1;
           icon = AssetsManager.PaidPropertiesIcon;
           categoryColor = ColorManager.Green;
           loading = false;
           hasError = false;
-          properties = list;
+          // properties = list;
 
-          emit(state.copyWith(list: list));
+          emit(state.copyWith(list: paidproperties));
           return;
         case 2:
+          upcomingproperties = await localSource.getProperties(2);
+
           selectedCategory = 2;
           icon = AssetsManager.UpcomingPropertiesIcon;
           categoryColor = ColorManager.Orange;
           loading = false;
           hasError = false;
-          properties = list;
+          // properties = list;
 
-          emit(state.copyWith(list: list));
+          emit(state.copyWith(list: upcomingproperties));
           return;
         case 3:
+          notPaidproperties = await localSource.getProperties(3);
+
           selectedCategory = 3;
           categoryColor = ColorManager.error;
           icon = AssetsManager.NotPaidPropertiesIcon;
           loading = false;
           hasError = false;
-          properties = list;
+          // properties = list;
 
-          emit(state.copyWith(list: list));
+          emit(state.copyWith(list: notPaidproperties));
           return;
       }
     } catch (err) {
+      loading = false;
       hasError = true;
       error = err.toString();
       emit(state.copyWith(list: []));
@@ -110,5 +123,61 @@ class PropertyCubit extends Cubit<PropertyState> {
         }).toList()));
         return;
     }
+  }
+
+  void fetchData() async {
+    loading = true;
+    hasError = false;
+    error = "";
+
+    late List<PropertyModel> list = [];
+    try {
+      list = await localSource.getProperties(0);
+      properties = list;
+      list = await localSource.getProperties(1);
+      paidproperties = list;
+      list = await localSource.getProperties(2);
+      upcomingproperties = list;
+      list = await localSource.getProperties(3);
+      notPaidproperties = list;
+      emit(state.copyWith(list: []));
+    } catch (err) {
+      loading = false;
+      hasError = true;
+      error = err.toString();
+      emit(state.copyWith(list: []));
+    }
+  }
+
+  String calculateAllProperties() {
+    double price = 0;
+    properties.forEach((property) {
+      price += double.parse(property.price);
+    });
+    return price.toString();
+  }
+
+  String calculatePaidProperties() {
+    double price = 0;
+    paidproperties.forEach((property) {
+      price += double.parse(property.price);
+    });
+    return price.toString();
+  }
+
+  String calculateNotPaidProperties() {
+    double price = 0;
+    notPaidproperties.forEach((property) {
+      price += double.parse(property.price);
+    });
+    return price.toString();
+  }
+
+  String calculateUpcomingProperties() {
+    double price = 0;
+    upcomingproperties.forEach((property) {
+      price += double.parse(property.price);
+    });
+    return price.toString();
   }
 }

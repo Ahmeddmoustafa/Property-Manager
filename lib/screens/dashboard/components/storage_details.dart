@@ -1,5 +1,7 @@
+import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constants.dart';
 import 'chart.dart';
@@ -14,6 +16,7 @@ class StorageDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
     return Container(
       width: width,
       padding: EdgeInsets.all(defaultPadding),
@@ -32,34 +35,34 @@ class StorageDetails extends StatelessWidget {
             ),
           ),
           SizedBox(height: defaultPadding),
-          Chart(),
+          StorageChart(),
           StorageCardWidget(
             svgSrc: demoMyFiles[0].svgSrc,
             title: demoMyFiles[0].title,
             color: demoMyFiles[0].color,
-            amountOfFiles: demoMyFiles[0].totalMoney.toString() + " EGP",
-            numOfFiles: 1328,
+            amountOfFiles: cubit.calculateAllProperties() + " EGP",
+            numOfFiles: cubit.properties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[1].svgSrc,
             title: demoMyFiles[1].title,
             color: demoMyFiles[1].color,
-            amountOfFiles: demoMyFiles[1].totalMoney.toString() + " EGP",
-            numOfFiles: 1328,
+            amountOfFiles: cubit.calculatePaidProperties() + " EGP",
+            numOfFiles: cubit.paidproperties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[2].svgSrc,
             title: demoMyFiles[2].title,
             color: demoMyFiles[2].color,
-            amountOfFiles: demoMyFiles[2].totalMoney.toString() + " EGP",
-            numOfFiles: 1328,
+            amountOfFiles: cubit.calculateUpcomingProperties() + " EGP",
+            numOfFiles: cubit.upcomingproperties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[3].svgSrc,
             title: demoMyFiles[3].title,
             color: demoMyFiles[3].color,
-            amountOfFiles: demoMyFiles[3].totalMoney.toString() + " EGP",
-            numOfFiles: 140,
+            amountOfFiles: cubit.calculateNotPaidProperties() + " EGP",
+            numOfFiles: cubit.notPaidproperties.length,
           ),
         ],
       ),

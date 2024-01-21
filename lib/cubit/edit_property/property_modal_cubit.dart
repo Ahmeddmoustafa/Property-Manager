@@ -6,10 +6,16 @@ part 'property_modal_state.dart';
 
 class PropertyModalCubit extends Cubit<PropertyModalCubitState> {
   PropertyModel? property;
+  late List<Installment> paidInstallments = [];
   PropertyModalCubit() : super(PropertyModalCubitState(property: null));
 
   void openPropety(PropertyModel propertyModel) {
     property = propertyModel;
     emit(state.copyWith(prop: property!));
+  }
+
+  void payInstallment(PropertyModel property, int installmentIndex) {
+    print("user paid ${property.installments[installmentIndex].name}");
+    paidInstallments.add(property.installments[installmentIndex]);
   }
 }

@@ -23,7 +23,7 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
   void initState() {
     super.initState();
     if (context.read<PropertyCubit>().selectedCategory == -1)
-      BlocProvider.of<PropertyCubit>(context).getProperties(0);
+      BlocProvider.of<PropertyCubit>(context).getPropertiesByCategory(0);
   }
 
   @override
@@ -32,7 +32,7 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
     return Container(
       width: widget.width,
       margin: EdgeInsets.only(bottom: defaultPadding),
-      padding: EdgeInsets.all(defaultPadding),
+      // padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -40,9 +40,12 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "My Properties",
-            style: Theme.of(context).textTheme.titleMedium,
+          Padding(
+            padding: const EdgeInsets.all(defaultPadding),
+            child: Text(
+              "My Properties",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           SizedBox(
             height: defaultPadding,

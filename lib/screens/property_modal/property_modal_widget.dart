@@ -2,13 +2,13 @@ import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/screens/property_modal/components/chart_widget.dart';
+import 'package:admin/resources/Utils/functions.dart';
+import 'package:admin/screens/property_modal/components/property_chart.dart';
 import 'package:admin/screens/property_modal/components/installment_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 class PropertyModalWidget extends StatefulWidget {
   final PropertyModel propertyModel;
@@ -21,7 +21,6 @@ class PropertyModalWidget extends StatefulWidget {
 class _PropertyModalWidgetState extends State<PropertyModalWidget> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read<PropertyModalCubit>().openPropety(widget.propertyModel);
   }
@@ -101,7 +100,11 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                   thickness: 0.2,
                 ),
               ),
-              SizedBox(width: width * 0.3, child: InstallmentsStepperWidget()),
+              SizedBox(
+                  width: width * 0.3,
+                  child: InstallmentsStepperWidget(
+                    propertyModel: widget.propertyModel,
+                  )),
             ],
           ),
         ),
@@ -143,11 +146,6 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
       ),
     );
   }
-}
-
-String formatPrice(double price) {
-  NumberFormat formatter = NumberFormat("#,###");
-  return formatter.format(price);
 }
 
 List<PieChartSectionData> paiChartSelectionData = [
