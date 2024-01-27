@@ -67,6 +67,8 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
           padding: EdgeInsets.all(0),
           child: BlocBuilder<AddPropertyCubit, AddPropertyState>(
             builder: (context, state) {
+              print("installment not filled ${formCubit.installmentError}");
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -105,10 +107,12 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                   // formCubit.updateUsername(value);
                                 },
                                 decoration: InputDecoration(
-                                  hintText: "",
-                                  labelText: 'Property Description',
-                                  counterText: "",
-                                ),
+                                    hintText: "",
+                                    labelText: 'Property Description',
+                                    counterText: "",
+                                    errorText: formCubit.descriptionError
+                                        ? "Please Enter Valid Desription"
+                                        : null),
                               ),
                             ),
                             // SizedBox(height: 16),
@@ -125,9 +129,11 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                   PriceInputFormatter(), // Custom formatter
                                 ],
                                 decoration: InputDecoration(
-                                  labelText: 'Price In EGP',
-                                  counterText: "",
-                                ),
+                                    labelText: 'Price In EGP',
+                                    counterText: "",
+                                    errorText: formCubit.priceError
+                                        ? "Please Enter Valid Price"
+                                        : null),
                               ),
                             ),
                             // SizedBox(height: 16),
@@ -144,9 +150,11 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                   PriceInputFormatter(), // Custom formatter
                                 ],
                                 decoration: InputDecoration(
-                                  labelText: 'Paid Amount In EGP',
-                                  counterText: "",
-                                ),
+                                    labelText: 'Paid Amount In EGP',
+                                    counterText: "",
+                                    errorText: formCubit.paidAmountError
+                                        ? "Please Enter Valid Amount"
+                                        : null),
                               ),
                             ),
                           ],
@@ -164,9 +172,11 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                   // formCubit.updateUsername(value);
                                 },
                                 decoration: InputDecoration(
-                                  labelText: 'Buyer Name',
-                                  counterText: "",
-                                ),
+                                    labelText: 'Buyer Name',
+                                    counterText: "",
+                                    errorText: formCubit.buyerNameError
+                                        ? "Please Enter Valid Name"
+                                        : null),
                               ),
                             ),
                             // SizedBox(height: 16),
@@ -182,9 +192,11 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 decoration: InputDecoration(
-                                  labelText: 'Buyer Phone Number',
-                                  counterText: "",
-                                ),
+                                    labelText: 'Buyer Phone Number',
+                                    counterText: "",
+                                    errorText: formCubit.buyerNumberError
+                                        ? "Please Enter Valid Number"
+                                        : null),
                               ),
                             ),
                             // SizedBox(height: 16),
@@ -300,6 +312,25 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                     ),
                   ),
                   SizedBox(height: AppSize.s50),
+                  formCubit.installmentError
+                      ? Center(
+                          child: Text(
+                            "Please Fill or Remove Unneccessary Installments *",
+                            style: TextStyle(color: ColorManager.error),
+                            textAlign: TextAlign.start,
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                  formCubit.priceValidationError
+                      ? Center(
+                          child: Text(
+                            "Total Price not equal Installments + Paid amount *",
+                            style: TextStyle(color: ColorManager.error),
+                            textAlign: TextAlign.start,
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                  SizedBox(height: AppSize.s10),
                   Center(
                     child: SizedBox(
                       width: width * 0.2,
@@ -311,10 +342,11 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                           // print('Username: ${formCubit.state.username}');
                           // print('Email: ${formCubit.state.email}');
 
-                          formCubit.addProperty();
-                          if (state is PropertyAdded) {
-                            Navigator.pop(context);
-                          }
+                          await formCubit.addProperty();
+                          print(formCubit.hasError());
+                          // if (!state.error) {
+                          //   Navigator.pop(context);
+                          // }
                         },
                         child: Text('Add Property'),
                       ),
@@ -339,7 +371,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
       lastDate: DateTime(2101),
     );
 
-    if (pickedDate != null && pickedDate != contractDate) {
+    if (pickedDate != null) {
       // setState(() {
       //   contractDate = pickedDate;
       // });
@@ -377,6 +409,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
               SizedBox(
                 width: width * 0.2,
                 child: TextField(
+                  maxLength: 20,
                   controller: formCubit.installmentsConttrollers[index],
                   // textAlignVertical: TextAlignVertical.top,
                   onChanged: (value) {
@@ -384,6 +417,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                   },
 
                   decoration: InputDecoration(
+                    counterText: "",
                     hintText: "EGP",
                     // labelText: 'Price In EGP',
                     floatingLabelBehavior: FloatingLabelBehavior.auto,

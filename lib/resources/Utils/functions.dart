@@ -9,8 +9,8 @@ String formatDate(DateTime date) {
   return "${date.day}-${date.month}-${date.year}";
 }
 
-String chartFormatPrice(double price) {
-  String formattedPrice = (price / 1000000).toStringAsFixed(2);
+String chartFormatPrice(String price) {
+  String formattedPrice = (double.parse(price) / 1000000).toStringAsFixed(2);
 
   // Remove trailing zeros and decimal point if necessary
   formattedPrice = formattedPrice.replaceAll(RegExp(r'0*$'), '');

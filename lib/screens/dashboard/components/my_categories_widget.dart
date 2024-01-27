@@ -1,3 +1,4 @@
+import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
@@ -38,7 +39,7 @@ class MyCategoriesWidget extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) => BlocProvider(
-                    create: (context) => AddPropertyCubit(),
+                    create: (context) => di.sl<AddPropertyCubit>(),
                     child: Dialog(
                       backgroundColor: ColorManager.BackgroundColor,
                       clipBehavior: Clip.antiAlias,

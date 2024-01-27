@@ -1,4 +1,5 @@
 import 'package:admin/resources/Managers/strings_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
 part 'property_model.g.dart';
@@ -18,11 +19,17 @@ class PropertyModel {
   @HiveField(5)
   final List<Installment> installments;
   @HiveField(6)
-  final String id;
+  late String id;
   @HiveField(7)
   late String _type = AppStrings.UpcomingType;
+  @HiveField(8)
+  final DateTime contractDate;
+  @HiveField(9)
+  final DateTime submissionDate;
 
   PropertyModel({
+    required this.submissionDate,
+    required this.contractDate,
     required this.id,
     required this.description,
     required this.price,
@@ -31,14 +38,32 @@ class PropertyModel {
     required this.buyerNumber,
     required this.installments,
   });
+
+  factory PropertyModel.fromJson(Map<String, dynamic> json) {
+    return PropertyModel(
+      submissionDate: (json['submissiondate'] as Timestamp).toDate(),
+      contractDate: (json['contractdate'] as Timestamp).toDate(),
+      id: json['id'] as String,
+      description: json['description'] as String,
+      price: json['price'] as String,
+      paid: json['paid'] as String,
+      buyerName: json['buyername'] as String,
+      buyerNumber: json['buyernumber'] as String,
+      installments: installmentsFromJson(json['installments'] as List),
+      // installments: [],
+    );
+  }
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "description": description,
       "price": price,
       "paid": paid,
       "buyername": buyerName,
       "buyernumber": buyerNumber,
-      "installments": installmentsToJson(installments)
+      "installments": installmentsToJson(installments),
+      "contractdate": Timestamp.fromDate(contractDate),
+      "submissiondate": Timestamp.fromDate(submissionDate),
     };
   }
 
@@ -50,6 +75,21 @@ class PropertyModel {
     return total;
   }
 
+  void calculatePaidInstallments() {}
+
+  double calculateNotPaidInstallments() {
+    double total = 0.0;
+    installments.forEach((element) {
+      if (element.getType() == AppStrings.NotPaidType)
+        total += double.parse(element.amount);
+    });
+    return total;
+  }
+
+  String getType() {
+    return _type;
+  }
+
   bool isNotPaid() {
     bool notPaid = false;
     installments.forEach((inst) {
@@ -59,6 +99,10 @@ class PropertyModel {
       }
     });
     return notPaid;
+  }
+
+  void setType(String type) {
+    _type = type;
   }
 }
 
@@ -72,13 +116,34 @@ class Installment {
   final String amount;
   @HiveField(3)
   late String _type = AppStrings.UpcomingType;
+  @HiveField(4)
+  late bool reminded = false;
+  @HiveField(5)
+  final String id;
 
-  Installment({required this.name, required this.date, required this.amount});
+  Installment(
+      {required this.reminded,
+      required this.id,
+      required this.name,
+      required this.date,
+      required this.amount});
+
+  factory Installment.fromJson(Map<String, dynamic> json) {
+    return Installment(
+      reminded: json['reminded'] as bool,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      date: (json['date'] as Timestamp).toDate(),
+      amount: json['amount'] as String,
+    );
+  }
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "name": name,
-      "date": date,
-      "paid": amount,
+      "date": Timestamp.fromDate(date),
+      "amount": amount,
+      "reminded": reminded,
     };
   }
 
@@ -95,7 +160,14 @@ class Installment {
   }
 
   bool isNotPaid() {
-    return date.compareTo(DateTime.now()) > 0;
+    if (_type == AppStrings.UpcomingType) {
+      bool notPaid = date.compareTo(DateTime.now()) <= 0;
+      if (notPaid) {
+        _type = AppStrings.NotPaidType;
+        return notPaid;
+      }
+    }
+    return false;
   }
 
   void payInstallment() {
@@ -112,6 +184,33 @@ List<Map<String, dynamic>> installmentsToJson(List<Installment> installments) {
   return inst;
 }
 
+List<Installment> installmentsFromJson(List<dynamic> installmentsJson) {
+  print(installmentsJson.length);
+  List<Installment> inst = [];
+  for (var i in installmentsJson) {
+    if (i is Map<String, dynamic>) {
+      print("loop");
+      inst.add(Installment.fromJson(i as Map<String, dynamic>));
+    } else {
+      print("INVALID STATMENT");
+    }
+  }
+
+  return inst;
+}
+
+// List<Installment> installmentsFromJson(
+//     List<Map<String, dynamic>> installmentsJson) {
+//   print(installmentsJson.length);
+//   List<Installment> inst = [];
+//   for (var i in installmentsJson) {
+//     print("loop");
+//     inst.add(Installment.fromJson(i));
+//   }
+
+//   return inst;
+// }
+
 List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "1",
@@ -121,25 +220,69 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Mohamed Mostafa Hussein",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime(2025), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2024, 3, 2),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2025),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2023),
+          amount: "2000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "2",
-    description: "Villa 5 Compound Palm Hils",
+    description: "Chalet 5 Compound Palm Hils",
     price: "7000000",
     paid: "5000000",
     buyerName: "Mahmoud Waheed",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "500000"),
-      Installment(name: "1", date: DateTime.now(), amount: "500000"),
-      Installment(name: "1", date: DateTime.now(), amount: "500000"),
-      Installment(name: "1", date: DateTime.now(), amount: "250000"),
-      Installment(name: "1", date: DateTime.now(), amount: "250000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2025),
+          amount: "500000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2024, 5),
+          amount: "500000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2024, 8),
+          amount: "500000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2024, 12),
+          amount: "250000"),
+      Installment(
+          reminded: false,
+          id: "5",
+          name: "1",
+          date: DateTime(2025),
+          amount: "250000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "3",
@@ -149,12 +292,39 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Hassan Khalid",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "500000"),
-      Installment(name: "1", date: DateTime.now(), amount: "500000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2025),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2026),
+          amount: "500000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2028),
+          amount: "500000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2025),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "5",
+          name: "1",
+          date: DateTime(2023),
+          amount: "1000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "4",
@@ -164,11 +334,33 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2024, 5, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2024, 3, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2025, 5, 8),
+          amount: "1000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "5",
@@ -178,11 +370,33 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime(2025), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime(2025), amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2024, 6, 6),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2024, 4, 4),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2025),
+          amount: "1000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "6",
@@ -192,11 +406,33 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "1000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
   PropertyModel(
     id: "7",
@@ -206,10 +442,32 @@ List<PropertyModel> demoPropertyModels = [
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "2000000"),
-      Installment(name: "1", date: DateTime(2025), amount: "1000000"),
-      Installment(name: "1", date: DateTime.now(), amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "1",
+          name: "1",
+          date: DateTime(2024, 8, 8),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "2",
+          name: "1",
+          date: DateTime(2025),
+          amount: "2000000"),
+      Installment(
+          reminded: false,
+          id: "3",
+          name: "1",
+          date: DateTime(2025),
+          amount: "1000000"),
+      Installment(
+          reminded: false,
+          id: "4",
+          name: "1",
+          date: DateTime(2025),
+          amount: "1000000"),
     ],
+    submissionDate: DateTime.now(),
+    contractDate: DateTime.now(),
   ),
 ];

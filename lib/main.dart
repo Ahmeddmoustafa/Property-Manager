@@ -1,8 +1,12 @@
+import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/constants.dart';
+import 'package:admin/cubit/auth/login_cubit.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/firebase_options.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +14,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await Hive.initFlutter();
-  init();
+  hiveInit();
 
   runApp(MyApp());
 }
@@ -23,19 +32,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => PropertyCubit(),
+          create: (context) => di.sl<PropertyCubit>(),
         ),
         BlocProvider(
           create: (context) => PropertyModalCubit(),
+        ),
+        BlocProvider(
+          create: (context) => di.sl<LoginCubit>(),
         ),
       ],
       child: MaterialApp(
         scrollBehavior: MaterialScrollBehavior().copyWith(
           dragDevices: {
             PointerDeviceKind.mouse,
-            // PointerDeviceKind.touch,
-            // PointerDeviceKind.stylus,
-            // PointerDeviceKind.unknown
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.touch,
           },
         ),
         debugShowCheckedModeBanner: false,
@@ -46,22 +57,14 @@ class MyApp extends StatelessWidget {
               .apply(bodyColor: Colors.white),
           canvasColor: secondaryColor,
         ),
-        // home: MultiProvider(
-        //   providers: [
-        //     ChangeNotifierProvider(
-        //       create: (context) => MenuAppController(),
-        //     ),
-        //   ],
-        //   child: MainScreen(),
-        // ),
-        initialRoute: Routes.homeRoute,
+        initialRoute: Routes.authRoute,
         onGenerateRoute: RouteGenerator.getRoute,
       ),
     );
   }
 }
 
-void init() {
+void hiveInit() {
   Hive.registerAdapter(PropertyModelAdapter());
   Hive.registerAdapter(InstallmentAdapter());
 }

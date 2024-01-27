@@ -2,6 +2,7 @@
 
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -105,12 +106,18 @@ class _FileInfoCardState extends State<FileInfoCard> {
     switch (index) {
       case 0:
         length = cubit.properties.length.toString();
+        price = chartFormatPrice(cubit.calculateAllProperties()) + "M";
       case 1:
         length = cubit.paidproperties.length.toString();
+        price = chartFormatPrice(cubit.calculatePaidProperties()) + "M";
+
       case 2:
         length = cubit.upcomingproperties.length.toString();
+        price = chartFormatPrice(cubit.calculateUpcomingProperties()) + "M";
+
       case 3:
         length = cubit.notPaidproperties.length.toString();
+        price = chartFormatPrice(cubit.calculateNotPaidProperties()) + "M";
     }
 
     return Row(

@@ -1,5 +1,6 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,28 +41,32 @@ class StorageDetails extends StatelessWidget {
             svgSrc: demoMyFiles[0].svgSrc,
             title: demoMyFiles[0].title,
             color: demoMyFiles[0].color,
-            amountOfFiles: cubit.calculateAllProperties() + " EGP",
+            amountOfFiles:
+                chartFormatPrice(cubit.calculateAllProperties()) + "M EGP",
             numOfFiles: cubit.properties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[1].svgSrc,
             title: demoMyFiles[1].title,
             color: demoMyFiles[1].color,
-            amountOfFiles: cubit.calculatePaidProperties() + " EGP",
+            amountOfFiles:
+                chartFormatPrice(cubit.calculatePaidProperties()) + "M EGP",
             numOfFiles: cubit.paidproperties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[2].svgSrc,
             title: demoMyFiles[2].title,
             color: demoMyFiles[2].color,
-            amountOfFiles: cubit.calculateUpcomingProperties() + " EGP",
+            amountOfFiles:
+                chartFormatPrice(cubit.calculateUpcomingProperties()) + "M EGP",
             numOfFiles: cubit.upcomingproperties.length,
           ),
           StorageCardWidget(
             svgSrc: demoMyFiles[3].svgSrc,
             title: demoMyFiles[3].title,
             color: demoMyFiles[3].color,
-            amountOfFiles: cubit.calculateNotPaidProperties() + " EGP",
+            amountOfFiles:
+                chartFormatPrice(cubit.calculateNotPaidProperties()) + "M EGP",
             numOfFiles: cubit.notPaidproperties.length,
           ),
         ],

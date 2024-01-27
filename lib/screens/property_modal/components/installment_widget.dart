@@ -2,6 +2,7 @@ import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +43,9 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(formatDate(widget.propertyModel.installments[i].date)),
+        Text(
+          "${formatDate(widget.propertyModel.installments[i].date)}",
+        ),
         Column(
           children: [
             if (i != 0)
@@ -63,14 +66,29 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                    color: ColorManager.Orange, shape: BoxShape.circle),
+                  color: getInstallmentColor(i),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-            Text("1,000,000 EGP"),
+            Text(
+              "${formatPrice(
+                double.parse(widget.propertyModel.installments[i].amount),
+              )} EGP",
+            ),
           ],
         )
       ],
     );
+  }
+
+  Color getInstallmentColor(index) {
+    final Installment installment = widget.propertyModel.installments[index];
+    if (installment.getType() == AppStrings.UpcomingType)
+      return ColorManager.Orange;
+    if (installment.getType() == AppStrings.NotPaidType)
+      return ColorManager.error;
+    return ColorManager.Green;
   }
 
   void _showConfirmationDialog(

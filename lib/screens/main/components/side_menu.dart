@@ -1,5 +1,6 @@
-import 'package:admin/resources/Managers/routes_manager.dart';
+import 'package:admin/cubit/auth/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SideMenu extends StatelessWidget {
@@ -21,10 +22,10 @@ class SideMenu extends StatelessWidget {
             press: () {},
           ),
           DrawerListTile(
-            title: "Transaction",
+            title: "Logout",
             svgSrc: "assets/icons/menu_tran.svg",
-            press: () {
-              Navigator.pushNamed(context, Routes.transactionRoute);
+            press: () async {
+              await context.read<LoginCubit>().logout();
             },
           ),
           // DrawerListTile(

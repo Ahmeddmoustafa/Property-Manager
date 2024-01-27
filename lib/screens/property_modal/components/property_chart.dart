@@ -29,7 +29,7 @@ class PropertyChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  chartFormatPrice(double.parse(propertyModel.paid)) + "M",
+                  chartFormatPrice(propertyModel.paid) + "M",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -37,8 +37,7 @@ class PropertyChart extends StatelessWidget {
                       ),
                 ),
                 SizedBox(height: defaultPadding),
-                Text(
-                    "of ${chartFormatPrice(double.parse(propertyModel.price))}M EGP"),
+                Text("of ${chartFormatPrice(propertyModel.price)}M EGP"),
               ],
             ),
           ),
@@ -58,7 +57,7 @@ class PropertyChart extends StatelessWidget {
       PieChartSectionData(
         color: Color(0xFFFFA113),
         value: double.parse(propertyModel.price) -
-            propertyModel.calculateInstallments(),
+            double.parse(propertyModel.paid),
         showTitle: false,
         radius: 14,
       ),

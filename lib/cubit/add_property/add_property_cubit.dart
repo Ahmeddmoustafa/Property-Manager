@@ -1,10 +1,12 @@
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'add_property_state.dart';
 
 class AddPropertyCubit extends Cubit<AddPropertyState> {
+  final CreatePropertyUsecase createPropertyUsecase;
   // final List<PropertyModel> _models = demoPropertyModels;
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -14,12 +16,23 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   late List<TextEditingController> installmentsConttrollers =
       getInstallmentControllers(5);
   late List<DateTime?> installmentDates = getInstallmentDates(5);
+  DateTime contractDate = DateTime.now();
+  DateTime submissionDate = DateTime.now();
 
-  AddPropertyCubit() : super(AddPropertyInitial());
+  bool descriptionError = false;
+  bool priceError = false;
+  bool paidAmountError = false;
+  bool buyerNameError = false;
+  bool buyerNumberError = false;
+  bool priceValidationError = false;
+  bool installmentError = false;
+
+  AddPropertyCubit({required this.createPropertyUsecase})
+      : super(AddPropertyState(error: true));
 
   void addInstallmentDate(DateTime date, int index) {
-    installmentDates.insert(index, date);
-    emit(AddPropertyLoading());
+    installmentDates[index] = date;
+    emit(state.copyWith(err: false));
   }
 
   List<DateTime?> getInstallmentDates(int number) {
@@ -36,59 +49,119 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   void addInstallmentController() {
     installmentDates.add(null);
     installmentsConttrollers.add(TextEditingController());
-    emit(AddPropertyLoading());
+    emit(state.copyWith(err: false));
   }
 
   void removeInstallment(int index) {
     installmentDates.removeAt(index);
     installmentsConttrollers.removeAt(index);
-    emit(AddPropertyLoading());
+    emit(state.copyWith(err: false));
   }
 
-  void addProperty() {
-    // emit(AddPropertyLoading());
+  Future<void> addProperty() async {
+    // emit(state.copyWith(err: true));
     //init variables
     final String description = descriptionController.text;
     final String price = priceController.text.replaceAll(',', '');
     final String paidAmount = paidAmountController.text.replaceAll(',', '');
+
     final String buyerName = buyerNameController.text;
     final String buyerNumber = buyerNumberController.text;
     //
-    bool descriptionError = false;
-    bool priceError = false;
-    bool paidAmountError = false;
-    bool buyerNameError = false;
-    bool buyerNumberError = false;
+
     //
     description.isEmpty ? descriptionError = true : descriptionError = false;
     price.isEmpty ? priceError = true : priceError = false;
     paidAmount.isEmpty ? paidAmountError = true : paidAmountError = false;
     buyerName.isEmpty ? buyerNameError = true : buyerNameError = false;
     buyerNumber.isEmpty ? buyerNumberError = true : buyerNumberError = false;
+    validatePrice();
 
-    if (descriptionError ||
-        priceError ||
-        paidAmountError ||
-        buyerNameError ||
-        buyerNumberError) {
-      print("property error");
-      emit(AddPropertyError());
+    if (hasError()) {
+      print("errror in the modal");
+      emit(state.copyWith(err: true));
+      return;
     } else {
       final model = PropertyModel(
-        id: "5",
+        id: "",
         description: description,
         price: price,
         paid: paidAmount,
         buyerName: buyerName,
         buyerNumber: buyerNumber,
-        installments: [],
+        installments: controllerToInstallments(),
+        submissionDate: DateTime.now(),
+        contractDate: DateTime.now(),
       );
-      print(model);
+      await createPropertyUsecase(model);
+      // print(
+      //     "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
 
-      emit(PropertyAdded(propertyModel: model));
+      emit(state.copyWith(err: false));
 
       // _models.add(model);
       // add property
     }
+  }
+
+  bool hasError() {
+    return descriptionError ||
+        priceValidationError ||
+        priceError ||
+        paidAmountError ||
+        buyerNameError ||
+        installmentError ||
+        buyerNumberError;
+  }
+
+  void validatePrice() {
+    double installmentsPrice = 0.0;
+    installmentError = false;
+
+    //Check if the user selected installment date
+    // and validate all installments Prices
+    for (int i = 0; i < installmentDates.length; i++) {
+      if (installmentsConttrollers[i].text.isEmpty ||
+          installmentDates[i] == null) {
+        installmentError = true;
+        break;
+      }
+      installmentsPrice +=
+          double.parse(installmentsConttrollers[i].text.replaceAll(',', ''));
+    }
+    // installmentsConttrollers.forEach((inst) {
+    //   if (inst.text.isEmpty) {
+    //     installmentError = true;
+    //     return;
+    //   }
+    //   installmentsPrice += double.parse(inst.text);
+    // });
+
+    // check if there is no form error
+    if (priceError || paidAmountError) {
+      priceValidationError = true;
+      return;
+    }
+
+    //check that total price = instalmments + paid
+    if (installmentsPrice +
+            double.parse(paidAmountController.text.replaceAll(',', '')) !=
+        double.parse(priceController.text.replaceAll(',', ''))) {
+      priceValidationError = true;
+    } else
+      priceValidationError = false;
+  }
+
+  List<Installment> controllerToInstallments() {
+    List<Installment> installments = [];
+    for (int i = 0; i < installmentDates.length; i++) {
+      installments.add(Installment(
+          reminded: false,
+          id: i.toString(),
+          name: "Installment $i",
+          date: installmentDates[i]!,
+          amount: installmentsConttrollers[i].text));
+    }
+    return installments;
   }
 }

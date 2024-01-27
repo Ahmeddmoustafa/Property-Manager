@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "160775260213",
+    "project_id": "property-manager-bbb5e",
+    "storage_bucket": "property-manager-bbb5e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160775260213:android:0cd163e325bd009480097c",
+        "android_client_info": {
+          "package_name": "com.example.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK0hQvEzuqp2TRjL0GeJUwdAXlfQ2dLHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

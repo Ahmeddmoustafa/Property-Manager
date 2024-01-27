@@ -109,8 +109,12 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                             ),
                             tableText(
                               flex: 1,
-                              text: formatDate(widget
-                                  .properties[index].installments[0].date),
+                              text:
+                                  widget.properties[index].installments.length >
+                                          0
+                                      ? formatDate(widget.properties[index]
+                                          .installments[0].date)
+                                      : "NA",
                               padding: 8.0,
                             ),
                             tableText(

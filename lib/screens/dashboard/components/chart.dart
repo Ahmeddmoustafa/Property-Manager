@@ -1,5 +1,6 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class StorageChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  paid,
+                  chartFormatPrice(paid) + "M",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -45,7 +46,7 @@ class StorageChart extends StatelessWidget {
                       ),
                 ),
                 SizedBox(height: defaultPadding),
-                Text("of $all EGP")
+                Text("of ${chartFormatPrice(all)}M EGP")
               ],
             ),
           ),
