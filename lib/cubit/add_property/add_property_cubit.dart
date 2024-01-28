@@ -160,7 +160,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
           id: i.toString(),
           name: "Installment $i",
           date: installmentDates[i]!,
-          amount: installmentsConttrollers[i].text));
+          amount: installmentsConttrollers[i].text.replaceAll(',', '')));
     }
     return installments;
   }

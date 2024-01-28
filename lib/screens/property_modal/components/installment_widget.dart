@@ -39,6 +39,9 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
   }
 
   Widget getInstallments(int i) {
+    final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
+    final bool isPaid = cubit.isPaid(i);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -60,13 +63,14 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
               ),
             InkWell(
               onTap: () {
-                _showConfirmationDialog(context, widget.propertyModel, i);
+                if (!isPaid)
+                  _showConfirmationDialog(context, widget.propertyModel, i);
               },
               child: Container(
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: getInstallmentColor(i),
+                  color: getInstallmentColor(i, isPaid),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -82,12 +86,16 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
     );
   }
 
-  Color getInstallmentColor(index) {
+  Color getInstallmentColor(index, bool ispaid) {
     final Installment installment = widget.propertyModel.installments[index];
-    if (installment.getType() == AppStrings.UpcomingType)
+    if (installment.getType() == AppStrings.UpcomingType) {
+      if (ispaid) return ColorManager.Green;
       return ColorManager.Orange;
-    if (installment.getType() == AppStrings.NotPaidType)
+    }
+    if (installment.getType() == AppStrings.NotPaidType) {
+      if (ispaid) return ColorManager.Green;
       return ColorManager.error;
+    }
     return ColorManager.Green;
   }
 
@@ -99,7 +107,7 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
         return AlertDialog(
           backgroundColor: ColorManager.BackgroundColor,
           title: Text('Please Confirm'),
-          content: Text('Client Paid 1,000,000 EGP ?'),
+          content: Text('Client Paid ${model.installments[inst].amount} EGP ?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -125,8 +133,7 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
       if (result != null && result) {
         // User pressed "Yes"
         print('User pressed Yes');
-        BlocProvider.of<PropertyModalCubit>(context)
-            .payInstallment(model, inst);
+        BlocProvider.of<PropertyModalCubit>(context).payInstallment(inst);
       } else {
         // User pressed "No" or closed the dialog
         print('User pressed No or closed the dialog');

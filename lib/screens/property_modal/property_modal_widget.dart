@@ -27,8 +27,9 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height * 0.7;
+    final double height = MediaQuery.of(context).size.height * 0.8;
     final double width = MediaQuery.of(context).size.width * 0.6;
+    final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
     return SelectionArea(
       selectionControls: CupertinoTextSelectionControls(),
       child: Container(
@@ -36,76 +37,138 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
         width: width,
         padding: EdgeInsets.all(defaultPadding),
         child: SingleChildScrollView(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: width * 0.6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+          child: BlocBuilder<PropertyModalCubit, PropertyModalState>(
+            builder: (context, state) {
+              final bool active = cubit.paidInstallmentsIndex.length > 0;
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: width * 0.6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.villa),
-                        Text("Property Type"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            ElevatedButton(
+                              onPressed: active
+                                  ? () {
+                                      cubit.saveProperty();
+                                    }
+                                  : null,
+                              child: Text(
+                                "SAVE",
+                                style: TextStyle(
+                                    color: active
+                                        ? ColorManager.White
+                                        : ColorManager.LightGrey),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(
+                                  active
+                                      ? ColorManager.Green
+                                      : ColorManager.DarkGrey,
+                                ),
+                              ),
+                              // color: ColorManager.Green,
+                              // highlightColor: ColorManager.Green,
+                              // focusColor: ColorManager.Green,
+                            ),
+                            TextButton(
+                                onPressed: active
+                                    ? () {
+                                        cubit.reset();
+                                      }
+                                    : null,
+                                child: Text("UNDO")),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(Icons.villa),
+                            Text("Property"),
+                          ],
+                        ),
+                        PropertyChart(
+                          propertyModel: widget.propertyModel,
+                        ),
+                        getText(
+                            width,
+                            "Description",
+                            widget.propertyModel.description,
+                            ColorManager.LightGrey),
+                        getText(
+                            width,
+                            "Total Price",
+                            formatPrice(
+                                double.parse(widget.propertyModel.price)),
+                            ColorManager.LightGrey),
+                        getText(
+                            width,
+                            "Paid ",
+                            formatPrice(
+                                double.parse(widget.propertyModel.paid) +
+                                    cubit.upcomingToPaid +
+                                    cubit.notpaidToPaid),
+                            ColorManager.Green),
+                        getText(
+                          width,
+                          "Upcoming ",
+                          formatPrice(
+                              widget.propertyModel.calculateInstallments() -
+                                  cubit.upcomingToPaid),
+                          ColorManager.Orange,
+                        ),
+                        getText(
+                          width,
+                          "NotPaid ",
+                          formatPrice(widget.propertyModel
+                                  .calculateNotPaidInstallments() -
+                              cubit.notpaidToPaid),
+                          ColorManager.error,
+                        ),
+                        getText(
+                            width,
+                            "Buyer Name",
+                            widget.propertyModel.buyerName,
+                            ColorManager.LightGrey),
+                        getText(
+                            width,
+                            "Buyer Number",
+                            widget.propertyModel.buyerNumber,
+                            ColorManager.LightGrey),
+                        getText(
+                            width,
+                            "Contract",
+                            formatDate(widget.propertyModel.contractDate),
+                            ColorManager.LightGrey),
+                        getText(
+                            width,
+                            "Submission",
+                            formatDate(widget.propertyModel.submissionDate),
+                            ColorManager.LightGrey),
                       ],
                     ),
-                    PropertyChart(
-                      propertyModel: widget.propertyModel,
+                  ),
+                  SizedBox(
+                    height: height * 0.9,
+                    child: VerticalDivider(
+                      color: ColorManager.LightSilver,
+                      thickness: 0.2,
                     ),
-                    getText(
-                        width,
-                        "Description",
-                        widget.propertyModel.description,
-                        ColorManager.LightGrey),
-                    getText(
-                        width,
-                        "Total Price",
-                        formatPrice(double.parse(widget.propertyModel.price)),
-                        ColorManager.LightGrey),
-                    getText(
-                        width,
-                        "Paid ",
-                        formatPrice(double.parse(widget.propertyModel.paid)),
-                        ColorManager.Green),
-                    getText(
-                      width,
-                      "Upcoming ",
-                      formatPrice(widget.propertyModel.calculateInstallments()),
-                      ColorManager.Orange,
-                    ),
-                    getText(
-                      width,
-                      "NotPaid ",
-                      formatPrice(0),
-                      ColorManager.error,
-                    ),
-                    getText(width, "Buyer Name", widget.propertyModel.buyerName,
-                        ColorManager.LightGrey),
-                    getText(
-                        width,
-                        "Buyer Number",
-                        widget.propertyModel.buyerNumber,
-                        ColorManager.LightGrey),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: height * 0.9,
-                child: VerticalDivider(
-                  color: ColorManager.LightSilver,
-                  thickness: 0.2,
-                ),
-              ),
-              SizedBox(
-                  width: width * 0.3,
-                  child: InstallmentsStepperWidget(
-                    propertyModel: widget.propertyModel,
-                  )),
-            ],
+                  ),
+                  SizedBox(
+                      width: width * 0.3,
+                      child: InstallmentsStepperWidget(
+                        propertyModel: widget.propertyModel,
+                      )),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -136,7 +199,7 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                 width: width * 0.3,
                 child: Text(
                   data,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.fade,
                   style: TextStyle(color: ColorManager.LightSilver),
                 ),
               ),

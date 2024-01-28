@@ -38,7 +38,7 @@ class StorageChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  chartFormatPrice(paid) + "M",
+                  chartFormatPrice(paid) + "",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -46,7 +46,7 @@ class StorageChart extends StatelessWidget {
                       ),
                 ),
                 SizedBox(height: defaultPadding),
-                Text("of ${chartFormatPrice(all)}M EGP")
+                Text("of ${chartFormatPrice(all)} EGP")
               ],
             ),
           ),

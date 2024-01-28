@@ -25,6 +25,16 @@ class PropertyRemoteSource {
         .set(property.toJson());
   }
 
+  //Overwrites the property data in the Firebase
+  Future<void> updateProperty(PropertyModel property) async {
+    await _firestore
+        .collection("allproperties")
+        .doc(_firebaseAuth.currentUser!.uid)
+        .collection("properties")
+        .doc(property.id)
+        .set(property.toJson());
+  }
+
 // get all properties in the remote DB
   Future<List<PropertyModel>> getProperties() async {
     print("GETTING DATA FROM REMOTE DB....");

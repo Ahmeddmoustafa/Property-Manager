@@ -34,9 +34,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => di.sl<PropertyCubit>(),
         ),
-        BlocProvider(
-          create: (context) => PropertyModalCubit(),
-        ),
+        // BlocProvider(
+        //   create: (context) => PropertyModalCubit(),
+        // ),
         BlocProvider(
           create: (context) => di.sl<LoginCubit>(),
         ),

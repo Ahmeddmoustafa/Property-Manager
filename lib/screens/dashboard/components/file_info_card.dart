@@ -31,7 +31,7 @@ class _FileInfoCardState extends State<FileInfoCard> {
     return GestureDetector(
       onTap: () {
         BlocProvider.of<PropertyCubit>(context)
-            .getPropertiesByCategory(widget.index);
+            .getPropertiesByCategory(index: widget.index);
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -106,18 +106,18 @@ class _FileInfoCardState extends State<FileInfoCard> {
     switch (index) {
       case 0:
         length = cubit.properties.length.toString();
-        price = chartFormatPrice(cubit.calculateAllProperties()) + "M";
+        price = chartFormatPrice(cubit.calculateAllProperties());
       case 1:
         length = cubit.paidproperties.length.toString();
-        price = chartFormatPrice(cubit.calculatePaidProperties()) + "M";
+        price = chartFormatPrice(cubit.calculatePaidProperties());
 
       case 2:
         length = cubit.upcomingproperties.length.toString();
-        price = chartFormatPrice(cubit.calculateUpcomingProperties()) + "M";
+        price = chartFormatPrice(cubit.calculateUpcomingProperties());
 
       case 3:
         length = cubit.notPaidproperties.length.toString();
-        price = chartFormatPrice(cubit.calculateNotPaidProperties()) + "M";
+        price = chartFormatPrice(cubit.calculateNotPaidProperties());
     }
 
     return Row(

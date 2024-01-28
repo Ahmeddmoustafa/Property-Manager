@@ -1,5 +1,5 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
-import 'package:admin/responsive.dart';
+import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/dashboard/components/my_categories_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +18,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      // padding: EdgeInsets.all(defaultPadding),
       width: width,
       child: SafeArea(
         child: SingleChildScrollView(
@@ -31,12 +31,13 @@ class DashboardScreen extends StatelessWidget {
                 Header(),
                 SizedBox(height: defaultPadding),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: Responsive.isMobile(context) ? width : width * 0.7,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           MyCategoriesWidget(),
                           SizedBox(height: defaultPadding),
@@ -58,10 +59,9 @@ class DashboardScreen extends StatelessWidget {
                     if (!Responsive.isMobile(context))
                       // SizedBox(width: defaultPadding),
                       // On Mobile means if the screen is less than 850 we don't want to show it
-                      if (!Responsive.isMobile(context))
-                        StorageDetails(
-                          width: width * 0.27,
-                        ),
+                      StorageDetails(
+                        width: width * 0.26,
+                      ),
                   ],
                 )
               ],

@@ -34,13 +34,13 @@ class PropertyLocalSource {
     // first clear all of the local data
     await box.clear();
     // insert all entries
-    await box.addAll(list);
+    // await box.addAll(list);
 
-    // list.forEach((property) async {
-    //   if (!box.containsKey(property.id)) {
-    //     await box.put(property.id, property);
-    //   }
-    // });
+    list.forEach((property) async {
+      if (!box.containsKey(property.id)) {
+        await box.put(property.id, property);
+      }
+    });
 
     await box.close();
   }

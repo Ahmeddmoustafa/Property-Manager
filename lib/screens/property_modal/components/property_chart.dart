@@ -1,9 +1,11 @@
 import 'package:admin/constants.dart';
+import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PropertyChart extends StatelessWidget {
   const PropertyChart({super.key, required this.propertyModel});
@@ -11,6 +13,12 @@ class PropertyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
+    final double paid = double.parse(propertyModel.paid) +
+        cubit.upcomingToPaid +
+        cubit.notpaidToPaid +
+        propertyModel.calculatePaidInstallments();
+
     return SizedBox(
       height: 200,
       child: Stack(
@@ -20,7 +28,7 @@ class PropertyChart extends StatelessWidget {
               sectionsSpace: 0,
               centerSpaceRadius: 70,
               startDegreeOffset: -90,
-              sections: getChartData(),
+              sections: getChartData(paid),
             ),
           ),
           Positioned.fill(
@@ -29,7 +37,7 @@ class PropertyChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  chartFormatPrice(propertyModel.paid) + "M",
+                  chartFormatPrice(paid.toString()) + "",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -37,7 +45,7 @@ class PropertyChart extends StatelessWidget {
                       ),
                 ),
                 SizedBox(height: defaultPadding),
-                Text("of ${chartFormatPrice(propertyModel.price)}M EGP"),
+                Text("of ${chartFormatPrice(propertyModel.price)} EGP"),
               ],
             ),
           ),
@@ -46,18 +54,17 @@ class PropertyChart extends StatelessWidget {
     );
   }
 
-  List<PieChartSectionData> getChartData() {
+  List<PieChartSectionData> getChartData(double paid) {
     return [
       PieChartSectionData(
         color: ColorManager.Green,
-        value: double.parse(propertyModel.paid),
+        value: paid,
         showTitle: false,
         radius: 14,
       ),
       PieChartSectionData(
         color: Color(0xFFFFA113),
-        value: double.parse(propertyModel.price) -
-            double.parse(propertyModel.paid),
+        value: double.parse(propertyModel.price) - paid,
         showTitle: false,
         radius: 14,
       ),

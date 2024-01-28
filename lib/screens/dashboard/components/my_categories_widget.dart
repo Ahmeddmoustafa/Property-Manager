@@ -2,7 +2,7 @@ import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/responsive.dart';
+import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/add_property/add_property_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +30,7 @@ class MyCategoriesWidget extends StatelessWidget {
             ElevatedButton.icon(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.symmetric(
-                  horizontal: defaultPadding * 1.5,
+                  // horizontal: defaultPadding * 1.5,
                   vertical:
                       defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
                 ),
@@ -64,7 +64,7 @@ class MyCategoriesWidget extends StatelessWidget {
         Responsive(
           mobile: FileInfoCardGridView(
             crossAxisCount: _size.width < 650 ? 2 : 4,
-            childAspectRatio: _size.width < 650 && _size.width > 350 ? 1.3 : 1,
+            childAspectRatio: _size.width < 650 && _size.width > 350 ? 1.5 : 1,
           ),
           tablet: FileInfoCardGridView(),
           desktop: FileInfoCardGridView(

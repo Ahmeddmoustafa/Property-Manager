@@ -48,9 +48,14 @@ class PropertyRepositoryImpl implements PropertyRepository {
   }
 
   @override
-  Future<Either<Failure, void>> setPaid(PropertyModel property) {
-    // TODO: implement setPaid
-    throw UnimplementedError();
+  Future<Either<Failure, void>> updateProperty(PropertyModel property) async {
+    try {
+      await propertyRemoteSource.updateProperty(property);
+      AppPreferencess.updateAppStatus(true, DateTime.now());
+      return Right("");
+    } on FirebaseException catch (err) {
+      return Left(ServerFailure(msg: err.message.toString()));
+    }
   }
 
   @override

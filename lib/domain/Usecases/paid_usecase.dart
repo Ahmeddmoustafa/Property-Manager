@@ -4,12 +4,12 @@ import 'package:admin/domain/Repositories/property_repository.dart';
 import 'package:admin/domain/Usecases/usecase.dart';
 import 'package:dartz/dartz.dart';
 
-class SetPaidUsecase implements UseCase<void, PropertyModel> {
+class UpdatePropertyUsecase implements UseCase<void, PropertyModel> {
   final PropertyRepository propertyRepository;
 
-  SetPaidUsecase({required this.propertyRepository});
+  UpdatePropertyUsecase({required this.propertyRepository});
 
   @override
   Future<Either<Failure, void>> call(PropertyModel property) =>
-      propertyRepository.setPaid(property);
+      propertyRepository.updateProperty(property);
 }

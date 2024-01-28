@@ -3,7 +3,7 @@ import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/fonts_manager.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:admin/resources/Managers/values_manager.dart';
-import 'package:admin/responsive.dart';
+import 'package:admin/resources/Utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

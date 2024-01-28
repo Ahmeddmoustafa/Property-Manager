@@ -3,15 +3,15 @@
 part of 'property_modal_cubit.dart';
 
 @immutable
-class PropertyModalCubitState {
+class PropertyModalState {
   PropertyModel? property;
 
-  PropertyModalCubitState({required this.property});
+  PropertyModalState({required this.property});
 
-  PropertyModalCubitState copyWith({
+  PropertyModalState copyWith({
     required PropertyModel prop,
   }) {
-    return PropertyModalCubitState(
+    return PropertyModalState(
       property: prop,
     );
   }

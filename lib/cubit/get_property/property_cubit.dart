@@ -15,6 +15,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   final GetProperties getProperties;
   final TextEditingController searchController = TextEditingController();
   late int filterOption = 1;
+  String filterQuery = "";
 
   final PropertyLocalSource localSource = PropertyLocalSource();
   int selectedCategory = -1;
@@ -31,7 +32,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   PropertyCubit({required this.getProperties})
       : super(PropertyState(properties: []));
 
-  Future<void> getPropertiesByCategory(int index) async {
+  Future<void> getPropertiesByCategory({int index = 0}) async {
     loading = true;
     error = "";
     try {
@@ -48,7 +49,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           categoryColor = ColorManager.PrimaryColor;
           loading = false;
           hasError = false;
-          emit(state.copyWith(list: properties));
+          emit(state.copyWith(list: applyFilter(properties)));
           return;
         case 1:
           // paidproperties = await localSource.getProperties(1);
@@ -60,7 +61,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
 
-          emit(state.copyWith(list: paidproperties));
+          emit(state.copyWith(list: applyFilter(paidproperties)));
           return;
         case 2:
           // upcomingproperties = await localSource.getProperties(2);
@@ -72,7 +73,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
 
-          emit(state.copyWith(list: upcomingproperties));
+          emit(state.copyWith(list: applyFilter(upcomingproperties)));
           return;
         case 3:
           // notPaidproperties = await localSource.getProperties(3);
@@ -84,7 +85,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
 
-          emit(state.copyWith(list: notPaidproperties));
+          emit(state.copyWith(list: applyFilter(notPaidproperties)));
           return;
       }
     } catch (err) {
@@ -102,33 +103,35 @@ class PropertyCubit extends Cubit<PropertyState> {
     // emit(state.copyWith(list: properties));
   }
 
-  void applyFilter(String filterText) {
+  void setFilterQuery(String text) {
+    filterQuery = text;
+    getPropertiesByCategory(
+      index: selectedCategory,
+    );
+  }
+
+  List<PropertyModel> applyFilter(List<PropertyModel> list) {
     switch (filterOption) {
       case 1:
-        emit(state.copyWith(
-            list: properties.where((property) {
+        return list.where((property) {
           return property.description
               .toUpperCase()
-              .contains(filterText.toUpperCase());
-        }).toList()));
-        return;
+              .contains(filterQuery.toUpperCase());
+        }).toList();
       case 2:
-        emit(state.copyWith(
-            list: properties.where((property) {
+        return list.where((property) {
           return property.buyerName
               .toUpperCase()
-              .contains(filterText.toUpperCase());
-        }).toList()));
-        return;
+              .contains(filterQuery.toUpperCase());
+        }).toList();
       case 3:
-        emit(state.copyWith(
-            list: properties.where((property) {
+        return list.where((property) {
           return property.buyerNumber
               .toUpperCase()
-              .contains(filterText.toUpperCase());
-        }).toList()));
-        return;
+              .contains(filterQuery.toUpperCase());
+        }).toList();
     }
+    return list;
   }
 
   Future<void> fetchData() async {

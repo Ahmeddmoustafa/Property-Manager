@@ -75,7 +75,14 @@ class PropertyModel {
     return total;
   }
 
-  void calculatePaidInstallments() {}
+  double calculatePaidInstallments() {
+    double total = 0.0;
+    installments.forEach((element) {
+      if (element.getType() == AppStrings.PaidType)
+        total += double.parse(element.amount);
+    });
+    return total;
+  }
 
   double calculateNotPaidInstallments() {
     double total = 0.0;
@@ -99,6 +106,29 @@ class PropertyModel {
       }
     });
     return notPaid;
+  }
+
+  void updateType() {
+    bool paid = false;
+    bool upcoming = false;
+    bool notpaid = false;
+    installments.forEach((installment) {
+      if (installment.getType() == AppStrings.NotPaidType) {
+        _type = AppStrings.NotPaidType;
+        notpaid = true;
+        return;
+      }
+      if (installment.getType() == AppStrings.UpcomingType) {
+        upcoming = true;
+      }
+    });
+    if (notpaid) return;
+    if (upcoming) {
+      _type = AppStrings.UpcomingType;
+      return;
+    } else {
+      _type = AppStrings.PaidType;
+    }
   }
 
   void setType(String type) {

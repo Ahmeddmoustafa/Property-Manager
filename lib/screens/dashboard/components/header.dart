@@ -1,7 +1,8 @@
 import 'package:admin/controllers/MenuAppController.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/responsive.dart';
+import 'package:admin/resources/Managers/routes_manager.dart';
+import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/dashboard/components/filter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,9 +86,9 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
     return TextField(
-      onChanged: (value) =>
-          BlocProvider.of<PropertyCubit>(context).applyFilter(value),
+      onChanged: (value) => cubit.setFilterQuery(value),
       decoration: InputDecoration(
         prefixIcon: InkWell(
           onTap: () {
@@ -125,7 +126,9 @@ class SearchField extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         suffixIcon: InkWell(
-          onTap: () {},
+          onTap: () {
+            // Navigator.pushReplacementNamed(context, Routes.homeRoute);
+          },
           child: Container(
             padding: EdgeInsets.all(defaultPadding * 0.75),
             margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),

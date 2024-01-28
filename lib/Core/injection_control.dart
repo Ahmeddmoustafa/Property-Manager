@@ -1,5 +1,6 @@
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/auth/login_cubit.dart';
+import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/local/property_local_source.dart';
 import 'package:admin/data/remote/auth_remote_source.dart';
@@ -11,6 +12,7 @@ import 'package:admin/domain/Repositories/property_repository.dart';
 import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
+import 'package:admin/domain/Usecases/paid_usecase.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
 import 'package:get_it/get_it.dart';
 
@@ -85,6 +87,11 @@ Future<void> init() async {
       propertyRepository: sl(),
     ),
   );
+  sl.registerLazySingleton<UpdatePropertyUsecase>(
+    () => UpdatePropertyUsecase(
+      propertyRepository: sl(),
+    ),
+  );
 
   sl.registerFactory(
     () => PropertyCubit(
@@ -102,6 +109,9 @@ Future<void> init() async {
       createPropertyUsecase: sl(),
     ),
   );
+  sl.registerFactory(() => PropertyModalCubit(
+        updatePropertyUsecase: sl(),
+      ));
 
 //   //final sharedprefs = await SharedPreferences.getInstance();
 //   // final bookRepo = BookRepositoryImpl(

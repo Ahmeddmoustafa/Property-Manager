@@ -1,8 +1,9 @@
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
-import 'package:admin/responsive.dart';
+import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/add_property/components/input_price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -344,9 +345,10 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
 
                           await formCubit.addProperty();
                           print(formCubit.hasError());
-                          // if (!state.error) {
-                          //   Navigator.pop(context);
-                          // }
+                          if (!formCubit.hasError()) {
+                            Navigator.pushReplacementNamed(
+                                context, Routes.homeRoute);
+                          }
                         },
                         child: Text('Add Property'),
                       ),

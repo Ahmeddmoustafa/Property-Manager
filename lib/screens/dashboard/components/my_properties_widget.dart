@@ -30,7 +30,7 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
   Widget build(BuildContext context) {
     final PropertyCubit propertyCubit = context.read<PropertyCubit>();
     return FutureBuilder(
-      future: propertyCubit.getPropertiesByCategory(0),
+      future: propertyCubit.getPropertiesByCategory(index: 0),
       builder: (context, snapshot) => Container(
         width: widget.width,
         margin: EdgeInsets.only(bottom: defaultPadding),

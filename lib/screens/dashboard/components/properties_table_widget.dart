@@ -1,4 +1,6 @@
+import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/constants.dart';
+import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
@@ -63,13 +65,17 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                 child: GestureDetector(
                   onTap: () => showDialog(
                     context: context,
-                    builder: (context) => Dialog(
-                      backgroundColor: ColorManager.BackgroundColor,
-                      clipBehavior: Clip.antiAlias,
-                      insetAnimationDuration: const Duration(milliseconds: 500),
-                      insetAnimationCurve: Curves.easeIn,
-                      child: PropertyModalWidget(
-                        propertyModel: widget.properties[index],
+                    builder: (context) => BlocProvider(
+                      create: (context) => di.sl<PropertyModalCubit>(),
+                      child: Dialog(
+                        backgroundColor: ColorManager.BackgroundColor,
+                        clipBehavior: Clip.antiAlias,
+                        insetAnimationDuration:
+                            const Duration(milliseconds: 500),
+                        insetAnimationCurve: Curves.easeIn,
+                        child: PropertyModalWidget(
+                          propertyModel: widget.properties[index],
+                        ),
                       ),
                     ),
                   ),
@@ -125,7 +131,7 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                             tableText(
                               flex: 2,
                               text: widget.properties[index].buyerNumber,
-                              padding: 8.0,
+                              padding: 0,
                             ),
                           ],
                         ),
