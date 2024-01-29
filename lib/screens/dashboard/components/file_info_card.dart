@@ -106,18 +106,19 @@ class _FileInfoCardState extends State<FileInfoCard> {
     switch (index) {
       case 0:
         length = cubit.properties.length.toString();
-        price = chartFormatPrice(cubit.calculateAllProperties());
+        price = chartFormatPrice(cubit.totalAmount);
       case 1:
         length = cubit.paidproperties.length.toString();
-        price = chartFormatPrice(cubit.calculatePaidProperties());
+        price = chartFormatPrice(cubit.paidAmount);
 
       case 2:
         length = cubit.upcomingproperties.length.toString();
-        price = chartFormatPrice(cubit.calculateUpcomingProperties());
+        price = chartFormatPrice(
+            cubit.totalAmount - cubit.paidAmount - cubit.notPaidAmount);
 
       case 3:
         length = cubit.notPaidproperties.length.toString();
-        price = chartFormatPrice(cubit.calculateNotPaidProperties());
+        price = chartFormatPrice(cubit.notPaidAmount);
     }
 
     return Row(

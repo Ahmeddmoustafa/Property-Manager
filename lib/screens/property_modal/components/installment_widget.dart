@@ -77,7 +77,7 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
             ),
             Text(
               "${formatPrice(
-                double.parse(widget.propertyModel.installments[i].amount),
+                widget.propertyModel.installments[i].amount,
               )} EGP",
             ),
           ],
@@ -101,43 +101,45 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
 
   void _showConfirmationDialog(
       BuildContext context, PropertyModel model, int inst) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ColorManager.BackgroundColor,
-          title: Text('Please Confirm'),
-          content: Text('Client Paid ${model.installments[inst].amount} EGP ?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                // Perform action when "Yes" is pressed
-                Navigator.of(context)
-                    .pop(true); // Close the dialog and return true
-              },
-              child: Text('Yes'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Perform action when "No" is pressed
-                Navigator.of(context)
-                    .pop(false); // Close the dialog and return false
-              },
-              child: Text('No'),
-            ),
-          ],
-        );
-      },
-    ).then((result) {
-      // The "result" variable contains the value returned by the dialog
-      if (result != null && result) {
-        // User pressed "Yes"
-        print('User pressed Yes');
-        BlocProvider.of<PropertyModalCubit>(context).payInstallment(inst);
-      } else {
-        // User pressed "No" or closed the dialog
-        print('User pressed No or closed the dialog');
-      }
-    });
+    if (model.installments[inst].getType() != AppStrings.PaidType)
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: ColorManager.BackgroundColor,
+            title: Text('Please Confirm'),
+            content:
+                Text('Client Paid ${model.installments[inst].amount} EGP ?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  // Perform action when "Yes" is pressed
+                  Navigator.of(context)
+                      .pop(true); // Close the dialog and return true
+                },
+                child: Text('Yes'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Perform action when "No" is pressed
+                  Navigator.of(context)
+                      .pop(false); // Close the dialog and return false
+                },
+                child: Text('No'),
+              ),
+            ],
+          );
+        },
+      ).then((result) {
+        // The "result" variable contains the value returned by the dialog
+        if (result != null && result) {
+          // User pressed "Yes"
+          print('User pressed Yes');
+          BlocProvider.of<PropertyModalCubit>(context).payInstallment(inst);
+        } else {
+          // User pressed "No" or closed the dialog
+          print('User pressed No or closed the dialog');
+        }
+      });
   }
 }

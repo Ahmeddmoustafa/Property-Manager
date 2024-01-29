@@ -15,10 +15,10 @@ class StorageChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
-    final String paid = cubit.calculatePaidProperties();
-    final String all = cubit.calculateAllProperties();
-    final String upcoming = cubit.calculateUpcomingProperties();
-    final String notpaid = cubit.calculateNotPaidProperties();
+    final double paid = cubit.paidAmount;
+    final double all = cubit.totalAmount;
+    final double notpaid = cubit.notPaidAmount;
+    final double upcoming = all - paid - notpaid;
 
     return SizedBox(
       height: 200,
@@ -56,10 +56,8 @@ class StorageChart extends StatelessWidget {
   }
 
   List<PieChartSectionData> getChartData(
-      String paid, String upcoming, String notpaid) {
-    if (double.parse(paid) == 0 &&
-        double.parse(upcoming) == 0 &&
-        double.parse(notpaid) == 0) {
+      double paid, double upcoming, double notpaid) {
+    if (paid == 0 && upcoming == 0 && notpaid == 0) {
       return [
         PieChartSectionData(
           color: ColorManager.DarkGrey,
@@ -72,13 +70,13 @@ class StorageChart extends StatelessWidget {
     return [
       PieChartSectionData(
         color: ColorManager.Green,
-        value: double.parse(paid),
+        value: paid,
         showTitle: false,
         radius: 14,
       ),
       PieChartSectionData(
         color: Color(0xFFFFA113),
-        value: double.parse(upcoming),
+        value: upcoming,
         showTitle: false,
         radius: 14,
       ),
@@ -90,7 +88,7 @@ class StorageChart extends StatelessWidget {
       // ),
       PieChartSectionData(
         color: Color(0xFFEE2727),
-        value: double.parse(notpaid),
+        value: notpaid,
         showTitle: false,
         radius: 14,
       ),

@@ -29,6 +29,28 @@ class PropertyLocalSource {
     return list;
   }
 
+  Future<void> updateProperty(PropertyModel model) async {
+    final Box box = await Hive.openBox<PropertyModel>("properties");
+    // first clear all of the local data
+    // insert all entries
+
+    await box.put(model.id, model);
+
+    await box.close();
+  }
+
+  Future<void> addProperty(PropertyModel model) async {
+    final Box box = await Hive.openBox<PropertyModel>("properties");
+    // first clear all of the local data
+    // insert all entries
+
+    if (!box.containsKey(model.id)) {
+      await box.put(model.id, model);
+    }
+
+    await box.close();
+  }
+
   Future<void> addProperties(List<PropertyModel> list) async {
     final Box box = await Hive.openBox<PropertyModel>("properties");
     // first clear all of the local data

@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constants.dart';
 import 'components/header.dart';
 
-import 'components/my_properties_widget.dart';
+import '../my_properties/my_properties_widget.dart';
 import 'components/storage_details.dart';
 
 class DashboardScreen extends StatelessWidget {

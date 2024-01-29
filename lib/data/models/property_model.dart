@@ -9,9 +9,9 @@ class PropertyModel {
   @HiveField(0)
   final String description;
   @HiveField(1)
-  final String price;
+  final double price;
   @HiveField(2)
-  final String paid;
+  double paid;
   @HiveField(3)
   final String buyerName;
   @HiveField(4)
@@ -26,8 +26,11 @@ class PropertyModel {
   final DateTime contractDate;
   @HiveField(9)
   final DateTime submissionDate;
+  @HiveField(10)
+  double notPaid;
 
   PropertyModel({
+    required this.notPaid,
     required this.submissionDate,
     required this.contractDate,
     required this.id,
@@ -45,11 +48,14 @@ class PropertyModel {
       contractDate: (json['contractdate'] as Timestamp).toDate(),
       id: json['id'] as String,
       description: json['description'] as String,
-      price: json['price'] as String,
-      paid: json['paid'] as String,
+      price: json['price'] as double,
+      paid: json['paid'] as double,
       buyerName: json['buyername'] as String,
       buyerNumber: json['buyernumber'] as String,
-      installments: installmentsFromJson(json['installments'] as List),
+      installments: installmentsFromJson(
+        json['installments'] as List,
+      ),
+      notPaid: json['notpaid'] as double,
       // installments: [],
     );
   }
@@ -67,10 +73,18 @@ class PropertyModel {
     };
   }
 
-  double calculateInstallments() {
+  // double calculateInstallments() {
+  //   double total = 0.0;
+  //   installments.forEach((element) {
+  //     total += double.parse(element.amount);
+  //   });
+  //   return total;
+  // }
+
+  double calculateUpcomingInstallments() {
     double total = 0.0;
     installments.forEach((element) {
-      total += double.parse(element.amount);
+      if (element.getType() == AppStrings.UpcomingType) total += element.amount;
     });
     return total;
   }
@@ -78,8 +92,7 @@ class PropertyModel {
   double calculatePaidInstallments() {
     double total = 0.0;
     installments.forEach((element) {
-      if (element.getType() == AppStrings.PaidType)
-        total += double.parse(element.amount);
+      if (element.getType() == AppStrings.PaidType) total += element.amount;
     });
     return total;
   }
@@ -87,8 +100,7 @@ class PropertyModel {
   double calculateNotPaidInstallments() {
     double total = 0.0;
     installments.forEach((element) {
-      if (element.getType() == AppStrings.NotPaidType)
-        total += double.parse(element.amount);
+      if (element.getType() == AppStrings.NotPaidType) total += element.amount;
     });
     return total;
   }
@@ -98,14 +110,19 @@ class PropertyModel {
   }
 
   bool isNotPaid() {
-    bool notPaid = false;
+    bool isnotPaid = false;
     installments.forEach((inst) {
-      if (inst.isNotPaid()) {
-        notPaid = true;
+      if (inst.date.compareTo(DateTime.now()) <= 0) {
+        if (inst.isNotPaid()) {
+          _type = AppStrings.NotPaidType;
+          notPaid += inst.amount;
+          isnotPaid = true;
+          // return;
+        }
+      } else
         return;
-      }
     });
-    return notPaid;
+    return isnotPaid;
   }
 
   void updateType() {
@@ -143,7 +160,7 @@ class Installment {
   @HiveField(1)
   final DateTime date;
   @HiveField(2)
-  final String amount;
+  final double amount;
   @HiveField(3)
   late String _type = AppStrings.UpcomingType;
   @HiveField(4)
@@ -164,7 +181,7 @@ class Installment {
       id: json['id'] as String,
       name: json['name'] as String,
       date: (json['date'] as Timestamp).toDate(),
-      amount: json['amount'] as String,
+      amount: json['amount'] as double,
     );
   }
   Map<String, dynamic> toJson() {
@@ -200,6 +217,10 @@ class Installment {
     return false;
   }
 
+  void setType(String string) {
+    _type = string;
+  }
+
   void payInstallment() {
     _type = AppStrings.PaidType;
   }
@@ -220,7 +241,7 @@ List<Installment> installmentsFromJson(List<dynamic> installmentsJson) {
   for (var i in installmentsJson) {
     if (i is Map<String, dynamic>) {
       print("loop");
-      inst.add(Installment.fromJson(i as Map<String, dynamic>));
+      inst.add(Installment.fromJson(i));
     } else {
       print("INVALID STATMENT");
     }
@@ -245,8 +266,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "1",
     description: "Villa 37 Compound Princess",
-    price: "10000000",
-    paid: "5000000",
+    price: 10000000,
+    paid: 5000000,
+    notPaid: 0,
     buyerName: "Mohamed Mostafa Hussein",
     buyerNumber: "01100888552",
     installments: [
@@ -255,19 +277,19 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2024, 3, 2),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2025),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2023),
-          amount: "2000000"),
+          amount: 2000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -275,8 +297,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "2",
     description: "Chalet 5 Compound Palm Hils",
-    price: "7000000",
-    paid: "5000000",
+    price: 7000000,
+    paid: 5000000,
+    notPaid: 0,
     buyerName: "Mahmoud Waheed",
     buyerNumber: "01100888552",
     installments: [
@@ -285,31 +308,31 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2025),
-          amount: "500000"),
+          amount: 500000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2024, 5),
-          amount: "500000"),
+          amount: 500000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2024, 8),
-          amount: "500000"),
+          amount: 500000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2024, 12),
-          amount: "250000"),
+          amount: 250000),
       Installment(
           reminded: false,
           id: "5",
           name: "1",
           date: DateTime(2025),
-          amount: "250000"),
+          amount: 250000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -317,8 +340,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "3",
     description: "Villa 37 Compound Amwaj",
-    price: "10000000",
-    paid: "5000000",
+    price: 10000000,
+    paid: 5000000,
+    notPaid: 0,
     buyerName: "Hassan Khalid",
     buyerNumber: "01100888552",
     installments: [
@@ -327,31 +351,31 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2025),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2026),
-          amount: "500000"),
+          amount: 500000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2028),
-          amount: "500000"),
+          amount: 500000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2025),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "5",
           name: "1",
           date: DateTime(2023),
-          amount: "1000000"),
+          amount: 1000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -359,8 +383,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "4",
     description: "Villa 37 Compound Princess",
-    price: "5000000",
-    paid: "1000000",
+    price: 5000000,
+    paid: 1000000,
+    notPaid: 0,
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
@@ -369,25 +394,25 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2024, 5, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2024, 3, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2025, 5, 8),
-          amount: "1000000"),
+          amount: 1000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -395,8 +420,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "5",
     description: "Challet 45 compound Nivada",
-    price: "5000000",
-    paid: "1000000",
+    price: 5000000,
+    paid: 1000000,
+    notPaid: 0,
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
@@ -405,25 +431,25 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2024, 6, 6),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2024, 4, 4),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2025),
-          amount: "1000000"),
+          amount: 1000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -431,8 +457,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "6",
     description: "Villa 37 Compound Princess",
-    price: "5000000",
-    paid: "1000000",
+    price: 5000000,
+    paid: 1000000,
+    notPaid: 0,
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
@@ -441,25 +468,25 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "1000000"),
+          amount: 1000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),
@@ -467,8 +494,9 @@ List<PropertyModel> demoPropertyModels = [
   PropertyModel(
     id: "7",
     description: "Villa 37 Compound Princess",
-    price: "5000000",
-    paid: "1000000",
+    price: 5000000,
+    paid: 1000000,
+    notPaid: 0,
     buyerName: "Youssef Ammar",
     buyerNumber: "01100888552",
     installments: [
@@ -477,25 +505,25 @@ List<PropertyModel> demoPropertyModels = [
           id: "1",
           name: "1",
           date: DateTime(2024, 8, 8),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "2",
           name: "1",
           date: DateTime(2025),
-          amount: "2000000"),
+          amount: 2000000),
       Installment(
           reminded: false,
           id: "3",
           name: "1",
           date: DateTime(2025),
-          amount: "1000000"),
+          amount: 1000000),
       Installment(
           reminded: false,
           id: "4",
           name: "1",
           date: DateTime(2025),
-          amount: "1000000"),
+          amount: 1000000),
     ],
     submissionDate: DateTime.now(),
     contractDate: DateTime.now(),

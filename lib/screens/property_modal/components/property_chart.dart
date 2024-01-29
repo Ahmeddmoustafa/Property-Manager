@@ -1,3 +1,5 @@
+import 'dart:js_util';
+
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
@@ -14,10 +16,10 @@ class PropertyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
-    final double paid = double.parse(propertyModel.paid) +
-        cubit.upcomingToPaid +
-        cubit.notpaidToPaid +
-        propertyModel.calculatePaidInstallments();
+    final double paid =
+        propertyModel.paid + cubit.upcomingToPaid + cubit.notpaidToPaid;
+    final double notpaid = propertyModel.notPaid - cubit.notpaidToPaid;
+    // propertyModel.calculatePaidInstallments();
 
     return SizedBox(
       height: 200,
@@ -28,7 +30,7 @@ class PropertyChart extends StatelessWidget {
               sectionsSpace: 0,
               centerSpaceRadius: 70,
               startDegreeOffset: -90,
-              sections: getChartData(paid),
+              sections: getChartData(context, paid, notpaid),
             ),
           ),
           Positioned.fill(
@@ -37,7 +39,7 @@ class PropertyChart extends StatelessWidget {
               children: [
                 SizedBox(height: defaultPadding),
                 Text(
-                  chartFormatPrice(paid.toString()) + "",
+                  chartFormatPrice(paid) + "",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -54,7 +56,9 @@ class PropertyChart extends StatelessWidget {
     );
   }
 
-  List<PieChartSectionData> getChartData(double paid) {
+  List<PieChartSectionData> getChartData(
+      BuildContext context, double paid, double notpaid) {
+    final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
     return [
       PieChartSectionData(
         color: ColorManager.Green,
@@ -64,7 +68,10 @@ class PropertyChart extends StatelessWidget {
       ),
       PieChartSectionData(
         color: Color(0xFFFFA113),
-        value: double.parse(propertyModel.price) - paid,
+        value: propertyModel.price -
+            propertyModel.paid -
+            propertyModel.notPaid -
+            cubit.upcomingToPaid,
         showTitle: false,
         radius: 14,
       ),
@@ -76,7 +83,7 @@ class PropertyChart extends StatelessWidget {
       // ),
       PieChartSectionData(
         color: Color(0xFFEE2727),
-        value: 0,
+        value: notpaid,
         showTitle: false,
         radius: 14,
       ),

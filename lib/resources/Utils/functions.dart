@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String formatPrice(double price) {
   NumberFormat formatter = NumberFormat("#,###");
@@ -9,8 +10,20 @@ String formatDate(DateTime date) {
   return "${date.day}-${date.month}-${date.year}";
 }
 
-String chartFormatPrice(String price) {
-  double numericPrice = double.parse(price);
+Future<bool> openUrl(String url) async {
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
+    return true;
+  }
+  return false;
+}
+
+Future<bool> openWhatsApp(String number) async {
+  return await openUrl("https://wa.me/201100888552");
+}
+
+String chartFormatPrice(double price) {
+  double numericPrice = price;
 
   if (numericPrice >= 1000000) {
     // Convert to millions and format as specified

@@ -20,22 +20,26 @@ class PropertyRepositoryImpl implements PropertyRepository {
   Future<Either<Failure, List<PropertyModel>>> getProperties() async {
     // throw UnimplementedError();
     try {
-      bool updated = await AppPreferencess.isUpdated();
+      // if 30 mins passed then we will fetch from the remote DB
+      bool updated = await AppPreferences.isLocalUpdated();
       // the app is up to date with the remote DB, so no need to fetch again
-      if (!updated) {
+      if (true) {
+        print("Still less than 30 mins");
         final List<PropertyModel> list =
             await propertyLocalSource.getProperties();
         return right(list);
 
-        // remote DB has changed then fetch data again
+        // 30 MINUTES passed, then fetch data again
       } else {
         final List<PropertyModel> models =
             await propertyRemoteSource.getProperties();
         await propertyLocalSource.addProperties(models);
         print("GOT THE DATA");
-        await AppPreferencess.updateAppStatus(false, DateTime.now());
+        await AppPreferences.updateAppStatus();
         return right(models);
       }
+    } on FirebaseException catch (err) {
+      return left(ServerFailure(msg: err.message!));
     } catch (err) {
       return left(ServerFailure(msg: err.toString()));
     }
@@ -50,8 +54,10 @@ class PropertyRepositoryImpl implements PropertyRepository {
   @override
   Future<Either<Failure, void>> updateProperty(PropertyModel property) async {
     try {
+      //Update local and remote DB for consistency
       await propertyRemoteSource.updateProperty(property);
-      AppPreferencess.updateAppStatus(true, DateTime.now());
+      await propertyLocalSource.updateProperty(property);
+      // AppPreferences.updateAppStatus();
       return Right("");
     } on FirebaseException catch (err) {
       return Left(ServerFailure(msg: err.message.toString()));
@@ -61,8 +67,11 @@ class PropertyRepositoryImpl implements PropertyRepository {
   @override
   Future<Either<Failure, void>> createProperty(PropertyModel property) async {
     try {
-      await propertyRemoteSource.createProperty(property);
-      AppPreferencess.updateAppStatus(true, DateTime.now());
+      final PropertyModel model =
+          await propertyRemoteSource.createProperty(property);
+      print(" the new assigned id is ${model.id}");
+      await propertyLocalSource.addProperty(model);
+      // AppPreferences.updateAppStatus(true, DateTime.now());
       return Right("");
     } on FirebaseException catch (err) {
       return Left(ServerFailure(msg: err.message.toString()));

@@ -1,11 +1,13 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/screens/dashboard/components/no_data.dart';
-import 'package:admin/screens/dashboard/components/properties_table_widget.dart';
+import 'package:admin/screens/my_properties/components/properties_table_widget.dart';
+import 'package:admin/screens/my_properties/components/reminder_widget.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../constants.dart';
+import '../../constants.dart';
 
 class MyPropertiesWidget extends StatefulWidget {
   final double width;
@@ -42,12 +44,52 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(defaultPadding),
-              child: Text(
-                "My Properties",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(defaultPadding),
+                  child: Text(
+                    "My Properties",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                BlocBuilder<PropertyCubit, PropertyState>(
+                  builder: (context, state) {
+                    final bool active =
+                        propertyCubit.notPaidproperties.length == 0;
+                    if (propertyCubit.selectedCategory == 3)
+                      return Padding(
+                        padding: const EdgeInsets.all(defaultPadding),
+                        child: InkWell(
+                          onTap: active ? () => showReminderDialog() : null,
+                          child: Row(
+                            children: [
+                              Text(
+                                "Send Reminder",
+                                style: TextStyle(
+                                    color: active
+                                        ? ColorManager.White
+                                        : ColorManager.LightGrey),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.all(defaultPadding * 0.5),
+                                child: Icon(
+                                  Icons.message,
+                                  color: active
+                                      ? ColorManager.White
+                                      : ColorManager.LightGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    return SizedBox.shrink();
+                  },
+                )
+              ],
             ),
             SizedBox(
               height: defaultPadding,
@@ -102,6 +144,19 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> showReminderDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: ColorManager.BackgroundColor,
+        clipBehavior: Clip.antiAlias,
+        insetAnimationDuration: const Duration(milliseconds: 500),
+        insetAnimationCurve: Curves.easeIn,
+        child: ReminderScreen(),
       ),
     );
   }

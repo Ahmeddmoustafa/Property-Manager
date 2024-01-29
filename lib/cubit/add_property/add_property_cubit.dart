@@ -85,8 +85,9 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
       final model = PropertyModel(
         id: "",
         description: description,
-        price: price,
-        paid: paidAmount,
+        price: double.parse(price),
+        paid: double.parse(paidAmount),
+        notPaid: 0,
         buyerName: buyerName,
         buyerNumber: buyerNumber,
         installments: controllerToInstallments(),
@@ -160,7 +161,8 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
           id: i.toString(),
           name: "Installment $i",
           date: installmentDates[i]!,
-          amount: installmentsConttrollers[i].text.replaceAll(',', '')));
+          amount: double.parse(
+              installmentsConttrollers[i].text.replaceAll(',', ''))));
     }
     return installments;
   }

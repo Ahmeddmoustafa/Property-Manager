@@ -1,7 +1,9 @@
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
+import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:admin/screens/property_modal/components/property_chart.dart';
 import 'package:admin/screens/property_modal/components/installment_widget.dart';
@@ -29,7 +31,9 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height * 0.8;
     final double width = MediaQuery.of(context).size.width * 0.6;
-    final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
+    final PropertyModalCubit modalcubit = context.read<PropertyModalCubit>();
+    final PropertyCubit propertycubit = context.read<PropertyCubit>();
+
     return SelectionArea(
       selectionControls: CupertinoTextSelectionControls(),
       child: Container(
@@ -39,7 +43,7 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
         child: SingleChildScrollView(
           child: BlocBuilder<PropertyModalCubit, PropertyModalState>(
             builder: (context, state) {
-              final bool active = cubit.paidInstallmentsIndex.length > 0;
+              final bool active = modalcubit.paidInstallmentsIndex.length > 0;
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -55,8 +59,15 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                           children: [
                             ElevatedButton(
                               onPressed: active
-                                  ? () {
-                                      cubit.saveProperty();
+                                  ? () async {
+                                      bool success =
+                                          await modalcubit.saveProperty();
+                                      if (success) {
+                                        await propertycubit.categorize();
+                                        // Navigator.pushReplacementNamed(context,Routes.homeRoute);
+                                      }
+
+                                      // if (context.mounted) Navigator.pop(true);
                                     }
                                   : null,
                               child: Text(
@@ -80,7 +91,7 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                             TextButton(
                                 onPressed: active
                                     ? () {
-                                        cubit.reset();
+                                        modalcubit.reset();
                                       }
                                     : null,
                                 child: Text("UNDO")),
@@ -104,31 +115,29 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                         getText(
                             width,
                             "Total Price",
-                            formatPrice(
-                                double.parse(widget.propertyModel.price)),
+                            formatPrice(widget.propertyModel.price),
                             ColorManager.LightGrey),
                         getText(
                             width,
                             "Paid ",
-                            formatPrice(
-                                double.parse(widget.propertyModel.paid) +
-                                    cubit.upcomingToPaid +
-                                    cubit.notpaidToPaid),
+                            formatPrice(widget.propertyModel.paid +
+                                modalcubit.upcomingToPaid +
+                                modalcubit.notpaidToPaid),
                             ColorManager.Green),
                         getText(
                           width,
                           "Upcoming ",
-                          formatPrice(
-                              widget.propertyModel.calculateInstallments() -
-                                  cubit.upcomingToPaid),
+                          formatPrice(widget.propertyModel.price -
+                              widget.propertyModel.paid -
+                              widget.propertyModel.notPaid -
+                              modalcubit.upcomingToPaid),
                           ColorManager.Orange,
                         ),
                         getText(
                           width,
                           "NotPaid ",
-                          formatPrice(widget.propertyModel
-                                  .calculateNotPaidInstallments() -
-                              cubit.notpaidToPaid),
+                          formatPrice(widget.propertyModel.notPaid -
+                              modalcubit.notpaidToPaid),
                           ColorManager.error,
                         ),
                         getText(

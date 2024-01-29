@@ -7,7 +7,7 @@ class PropertyRemoteSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 // Create new property
-  Future<void> createProperty(PropertyModel property) async {
+  Future<PropertyModel> createProperty(PropertyModel property) async {
     final String id = _firestore
         .collection("allproperties")
         .doc(_firebaseAuth.currentUser!.uid)
@@ -23,6 +23,7 @@ class PropertyRemoteSource {
         .collection("properties")
         .doc(id)
         .set(property.toJson());
+    return property;
   }
 
   //Overwrites the property data in the Firebase

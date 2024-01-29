@@ -1,4 +1,5 @@
 import 'package:admin/data/local/property_local_source.dart';
+import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
 import 'package:admin/domain/Usecases/usecase.dart';
@@ -25,6 +26,9 @@ class PropertyCubit extends Cubit<PropertyState> {
   List<PropertyModel> notPaidproperties = [];
   List<PropertyModel> upcomingproperties = [];
   List<PropertyModel> paidproperties = [];
+  double totalAmount = 0;
+  double paidAmount = 0;
+  double notPaidAmount = 0;
 
   bool loading = false;
   bool hasError = false;
@@ -141,24 +145,28 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
-    // await localSource.addProperties(demoPropertyModels);
+    // await localSource.addProperties(getRandomData());
     try {
-      late List<PropertyModel> list = [];
-      final result = await getProperties(NoParams());
-      list = result.fold((failure) => properties, (data) => data);
+      List<PropertyModel> list = await localSource.getProperties();
+
+      // late List<PropertyModel> list = [];
+      // final result = await getProperties(NoParams());
+      // list = result.fold((failure) => properties, (data) => data);
       properties = list;
       upcomingproperties = [];
       notPaidproperties = [];
       paidproperties = [];
 
-      properties.forEach((property) {
-        if (property.getType() == AppStrings.PaidType)
-          paidproperties.add(property);
-        else if (property.getType() == AppStrings.UpcomingType)
-          upcomingproperties.add(property);
-        else if (property.getType() == AppStrings.NotPaidType)
-          notPaidproperties.add(property);
-      });
+      await categorize();
+
+      // properties.forEach((property) {
+      //   if (property.getType() == AppStrings.PaidType)
+      //     paidproperties.add(property);
+      //   else if (property.getType() == AppStrings.UpcomingType)
+      //     upcomingproperties.add(property);
+      //   else if (property.getType() == AppStrings.NotPaidType)
+      //     notPaidproperties.add(property);
+      // });
       // properties = list;
       // list = await localSource.getProperties(1);
       // paidproperties = list;
@@ -178,10 +186,33 @@ class PropertyCubit extends Cubit<PropertyState> {
     }
   }
 
+  Future<void> categorize() async {
+    upcomingproperties = [];
+    notPaidproperties = [];
+    paidproperties = [];
+    paidAmount = 0;
+    notPaidAmount = 0;
+    totalAmount = 0;
+
+    properties.forEach((property) {
+      totalAmount += property.price;
+      paidAmount += property.paid;
+      if (property.getType() == AppStrings.PaidType) {
+        paidproperties.add(property);
+      } else if (property.getType() == AppStrings.UpcomingType)
+        upcomingproperties.add(property);
+      else if (property.getType() == AppStrings.NotPaidType) {
+        notPaidproperties.add(property);
+        notPaidAmount += property.notPaid;
+      }
+    });
+    getPropertiesByCategory(index: selectedCategory);
+  }
+
   Future<bool> checkNotPaid() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // await prefs.setString('storedDate', "");
+    await prefs.setString('storedDate', "");
 
     // Get the stored date (if available)
     String storedDate = prefs.getString('storedDate') ?? '';
@@ -192,10 +223,28 @@ class PropertyCubit extends Cubit<PropertyState> {
     // Check if it's a new day
     if (currentDate != storedDate) {
       // List<PropertyModel> notPaid = [];
+      print("must find not paid");
+      bool found = false;
+      notPaidproperties.forEach((property) {
+        property.installments.forEach((installment) {
+          if (installment.date.compareTo(DateTime.now()) <= 0) {
+            if (installment.getType() == AppStrings.UpcomingType) {
+              installment.setType(AppStrings.NotPaidType);
+              property.notPaid += installment.amount;
+              notPaidAmount += installment.amount;
+              found = true;
+            }
+          } else {
+            return;
+          }
+        });
+        // found? then we must update the not paid array
+      });
       upcomingproperties.removeWhere((property) {
         if (property.isNotPaid()) {
           print("Found Not paid property");
-          property.setType(AppStrings.NotPaidType);
+          // property.setType(AppStrings.NotPaidType);
+          notPaidAmount += property.notPaid;
           notPaidproperties.add(property);
 
           // notPaid.add(property);
@@ -214,37 +263,37 @@ class PropertyCubit extends Cubit<PropertyState> {
     return false;
   }
 
-  String calculateAllProperties() {
-    double price = 0;
-    properties.forEach((property) {
-      price += double.parse(property.price);
-    });
-    return price.toString();
-  }
+  // double calculateAllProperties() {
+  //   double price = 0;
+  //   properties.forEach((property) {
+  //     price += property.price;
+  //   });
+  //   return price;
+  // }
 
-  String calculatePaidProperties() {
-    double price = 0;
-    properties.forEach((property) {
-      price += double.parse(property.paid);
-    });
-    return price.toString();
-  }
+  // double calculatePaidProperties() {
+  //   double price = 0;
+  //   properties.forEach((property) {
+  //     price += property.paid;
+  //   });
+  //   return price;
+  // }
 
-  String calculateNotPaidProperties() {
-    double price = 0;
-    notPaidproperties.forEach((property) {
-      price += property.calculateNotPaidInstallments();
-    });
-    return price.toString();
-  }
+  // double calculateNotPaidProperties() {
+  //   double price = 0;
+  //   notPaidproperties.forEach((property) {
+  //     price += property.calculateNotPaidInstallments();
+  //   });
+  //   return price;
+  // }
 
-  String calculateUpcomingProperties() {
-    double price = 0;
-    properties.forEach((property) {
-      price += double.parse(property.price) -
-          double.parse(property.paid) -
-          property.calculateNotPaidInstallments();
-    });
-    return price.toString();
-  }
+  // double calculateUpcomingProperties() {
+  //   double price = 0;
+  //   properties.forEach((property) {
+  //     price += property.price -
+  //         property.paid -
+  //         property.calculateNotPaidInstallments();
+  //   });
+  //   return price;
+  // }
 }

@@ -103,14 +103,13 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                             ),
                             tableText(
                               flex: 1,
-                              text: formatPrice(
-                                  double.parse(widget.properties[index].paid)),
+                              text:
+                                  formatPrice((widget.properties[index].paid)),
                               padding: 8.0,
                             ),
                             tableText(
                               flex: 1,
-                              text: formatPrice(
-                                  double.parse(widget.properties[index].price)),
+                              text: formatPrice(widget.properties[index].price),
                               padding: 8.0,
                             ),
                             tableText(

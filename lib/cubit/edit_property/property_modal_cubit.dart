@@ -28,9 +28,9 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
       paidInstallments.add(installment);
       paidInstallmentsIndex.add(installmentIndex);
       if (installment.getType() == AppStrings.UpcomingType)
-        upcomingToPaid += double.parse(installment.amount);
+        upcomingToPaid += installment.amount;
       else if (installment.getType() == AppStrings.NotPaidType)
-        notpaidToPaid += double.parse(installment.amount);
+        notpaidToPaid += installment.amount;
       // property!.installments[installmentIndex].payInstallment();
       emit(state.copyWith(prop: property!));
     }
@@ -40,15 +40,30 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
     return paidInstallmentsIndex.contains(index);
   }
 
-  Future<void> saveProperty() async {
+  Future<bool> saveProperty() async {
+    bool success = true;
     if (property != null) {
       paidInstallmentsIndex.forEach((index) {
-        property!.installments[index].payInstallment();
+        Installment installment = property!.installments[index];
+        property!.paid += installment.amount;
+
+        installment.getType() == AppStrings.NotPaidType
+            ? property!.notPaid = property!.notPaid - installment.amount
+            : null;
+        installment.payInstallment();
       });
       property!.updateType();
 
       print(property!.getType());
+      reset();
+      // final result = await updatePropertyUsecase(property!);
+      // result.fold((f) {
+      //   success = false;
+      // }, (r) {
+      //   success = true;
+      // });
     }
+    return success;
   }
 
   void reset() {

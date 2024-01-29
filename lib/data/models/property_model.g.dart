@@ -17,12 +17,13 @@ class PropertyModelAdapter extends TypeAdapter<PropertyModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return PropertyModel(
+      notPaid: fields[10] as double,
       submissionDate: fields[9] as DateTime,
       contractDate: fields[8] as DateTime,
       id: fields[6] as String,
       description: fields[0] as String,
-      price: fields[1] as String,
-      paid: fields[2] as String,
+      price: fields[1] as double,
+      paid: fields[2] as double,
       buyerName: fields[3] as String,
       buyerNumber: fields[4] as String,
       installments: (fields[5] as List).cast<Installment>(),
@@ -32,7 +33,7 @@ class PropertyModelAdapter extends TypeAdapter<PropertyModel> {
   @override
   void write(BinaryWriter writer, PropertyModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.description)
       ..writeByte(1)
@@ -52,7 +53,9 @@ class PropertyModelAdapter extends TypeAdapter<PropertyModel> {
       ..writeByte(8)
       ..write(obj.contractDate)
       ..writeByte(9)
-      ..write(obj.submissionDate);
+      ..write(obj.submissionDate)
+      ..writeByte(10)
+      ..write(obj.notPaid);
   }
 
   @override
@@ -81,7 +84,7 @@ class InstallmentAdapter extends TypeAdapter<Installment> {
       id: fields[5] as String,
       name: fields[0] as String,
       date: fields[1] as DateTime,
-      amount: fields[2] as String,
+      amount: fields[2] as double,
     ).._type = fields[3] as String;
   }
 
