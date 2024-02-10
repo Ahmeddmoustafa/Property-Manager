@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/data/models/property_model.dart';

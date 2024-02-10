@@ -4,6 +4,7 @@ import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:admin/screens/property_modal/property_modal_widget.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,8 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final PropertyCubit propertyCubit = context.read<PropertyCubit>();
+
     return Column(
       children: [
         SizedBox(
@@ -33,12 +36,33 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            tableText(flex: 3, text: "Property Description", padding: 0),
-            tableText(flex: 1, text: "PAID", padding: 0),
-            tableText(flex: 1, text: "Total Price", padding: 0),
-            tableText(flex: 1, text: "Next Date", padding: 0),
-            tableText(flex: 2, text: "Buyer Name", padding: 0),
-            tableText(flex: 2, text: "Buyer Number", padding: 0),
+            tableText(
+                flex: 3,
+                color: ColorManager.White,
+                text: "Property Description",
+                padding: 0),
+            tableText(
+                flex: 1, color: ColorManager.White, text: "PAID", padding: 0),
+            tableText(
+                flex: 1,
+                color: ColorManager.White,
+                text: "Total Price",
+                padding: 0),
+            tableText(
+                flex: 1,
+                color: ColorManager.White,
+                text: "Next Date",
+                padding: 0),
+            tableText(
+                flex: 2,
+                color: ColorManager.White,
+                text: "Buyer Name",
+                padding: 0),
+            tableText(
+                flex: 2,
+                color: ColorManager.White,
+                text: "Buyer Number",
+                padding: 0),
           ],
         ),
         Container(
@@ -51,6 +75,7 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
         ),
         ListView.builder(
             shrinkWrap: true,
+            controller: ScrollController(),
             physics: NeverScrollableScrollPhysics(),
             itemCount: widget.properties.length,
             itemBuilder: (context, index) {
@@ -103,17 +128,28 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                             ),
                             tableText(
                               flex: 1,
-                              text:
-                                  formatPrice((widget.properties[index].paid)),
+                              color: propertyCubit.sortBy ==
+                                      AppStrings.SortByPaidAmount
+                                  ? propertyCubit.categoryColor
+                                  : ColorManager.White,
+                              text: formatPrice(widget.properties[index].paid),
                               padding: 8.0,
                             ),
                             tableText(
                               flex: 1,
+                              color:
+                                  propertyCubit.sortBy == AppStrings.SortByPrice
+                                      ? propertyCubit.categoryColor
+                                      : ColorManager.White,
                               text: formatPrice(widget.properties[index].price),
                               padding: 8.0,
                             ),
                             tableText(
                               flex: 1,
+                              color:
+                                  propertyCubit.sortBy == AppStrings.SortByDate
+                                      ? propertyCubit.categoryColor
+                                      : ColorManager.White,
                               text:
                                   widget.properties[index].installments.length >
                                           0
@@ -124,11 +160,13 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                             ),
                             tableText(
                               flex: 2,
+                              color: ColorManager.White,
                               text: widget.properties[index].buyerName,
                               padding: 8.0,
                             ),
                             tableText(
                               flex: 2,
+                              color: ColorManager.White,
                               text: widget.properties[index].buyerNumber,
                               padding: 0,
                             ),
@@ -147,12 +185,58 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                 ),
               );
             }),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_left),
+              onPressed: () => null,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                (widget.properties.length / 50).ceil(),
+                (index) {
+                  if (index > 3 &&
+                      (widget.properties.length / 50).ceil() > 7 &&
+                      index != (widget.properties.length / 50).ceil() - 1)
+                    return Text(
+                      ".",
+                      textAlign: TextAlign.center,
+                    );
+                  return Container(
+                    margin:
+                        EdgeInsets.symmetric(horizontal: defaultPadding * 0.25),
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStatePropertyAll(ColorManager.DarkGrey),
+                      ),
+                      onPressed: () => null,
+                      child: Text(
+                        index.toString(),
+                        style: TextStyle(color: ColorManager.White),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_right),
+              onPressed: () => null,
+            ),
+          ],
+        )
       ],
     );
   }
 
   Widget tableText(
-      {required int flex, required String text, required double padding}) {
+      {required int flex,
+      required String text,
+      required double padding,
+      required Color color}) {
     return SizedBox(
       width: flex / 10 * widget.width,
       child: Padding(
@@ -161,6 +245,7 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
           text,
           textAlign: TextAlign.center,
           overflow: TextOverflow.fade,
+          style: TextStyle(color: color),
         ),
       ),
     );

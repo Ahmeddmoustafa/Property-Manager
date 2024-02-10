@@ -1,13 +1,13 @@
 // import 'package:background_sms/background_sms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sms_advanced/sms_advanced.dart';
-import 'package:flutter_sms/flutter_sms.dart';
+// import 'package:sms_advanced/sms_advanced.dart';
+// import 'package:flutter_sms/flutter_sms.dart';
 
 part "reminder_state.dart";
 
 class ReminderCubit extends Cubit<ReminderState> {
-  SmsSender sender = new SmsSender();
+  // SmsSender sender = new SmsSender();
 
   ReminderCubit() : super(ReminderState());
 
@@ -33,11 +33,12 @@ class ReminderCubit extends Cubit<ReminderState> {
     //   print("Failed");
     // }
 
-    String _result =
-        await sendSMS(message: "message", recipients: ["201100888552"])
-            .catchError((onError) {
-      print(onError);
-    });
-    print(_result);
+    // String _result =
+    //     await sendSMS(message: "message", recipients: ["201100888552"])
+    //         .catchError((onError) {
+    //   print(onError);
+    //   return "";
+    // });
+    // print(_result);
   }
 }

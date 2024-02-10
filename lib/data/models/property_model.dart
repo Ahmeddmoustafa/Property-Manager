@@ -126,7 +126,7 @@ class PropertyModel {
   }
 
   void updateType() {
-    bool paid = false;
+    // bool paid = false;
     bool upcoming = false;
     bool notpaid = false;
     installments.forEach((installment) {
@@ -236,14 +236,14 @@ List<Map<String, dynamic>> installmentsToJson(List<Installment> installments) {
 }
 
 List<Installment> installmentsFromJson(List<dynamic> installmentsJson) {
-  print(installmentsJson.length);
+  // print(installmentsJson.length);
   List<Installment> inst = [];
   for (var i in installmentsJson) {
     if (i is Map<String, dynamic>) {
-      print("loop");
+      // print("loop");
       inst.add(Installment.fromJson(i));
     } else {
-      print("INVALID STATMENT");
+      // print("INVALID STATMENT");
     }
   }
 

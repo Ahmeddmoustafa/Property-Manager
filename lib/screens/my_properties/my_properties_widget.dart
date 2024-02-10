@@ -1,5 +1,6 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/screens/dashboard/components/no_data.dart';
 import 'package:admin/screens/my_properties/components/properties_table_widget.dart';
 import 'package:admin/screens/my_properties/components/reminder_widget.dart';
@@ -54,40 +55,70 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                BlocBuilder<PropertyCubit, PropertyState>(
-                  builder: (context, state) {
-                    final bool active =
-                        propertyCubit.notPaidproperties.length == 0;
-                    if (propertyCubit.selectedCategory == 3)
-                      return Padding(
-                        padding: const EdgeInsets.all(defaultPadding),
-                        child: InkWell(
-                          onTap: active ? () => showReminderDialog() : null,
-                          child: Row(
-                            children: [
-                              Text(
-                                "Send Reminder",
-                                style: TextStyle(
-                                    color: active
-                                        ? ColorManager.White
-                                        : ColorManager.LightGrey),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.all(defaultPadding * 0.5),
-                                child: Icon(
-                                  Icons.message,
-                                  color: active
-                                      ? ColorManager.White
-                                      : ColorManager.LightGrey,
+                Padding(
+                  padding: const EdgeInsets.all(defaultPadding),
+                  child: BlocBuilder<PropertyCubit, PropertyState>(
+                    builder: (context, state) {
+                      return Row(
+                        children: [
+                          DropdownButton<String>(
+                            value: propertyCubit.sortBy,
+                            onChanged: (String? newValue) {
+                              propertyCubit.selectSortCriteria(newValue!);
+                              // Implement your sorting logic based on selectedSortOption
+                            },
+                            icon: SizedBox.shrink(),
+                            alignment: Alignment.center,
+                            items: <String>[
+                              AppStrings.SortByPrice,
+                              AppStrings.SortByPaidAmount,
+                              AppStrings.SortByDate,
+                              "Default"
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: TextStyle(
+                                      color: ColorManager.White, fontSize: 12),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(defaultPadding * 0.5),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border:
+                                      Border.all(color: ColorManager.White)),
+                              child: InkWell(
+                                onTap: () => propertyCubit.toggleSort(),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.arrow_downward,
+                                      color: propertyCubit.ascending
+                                          ? ColorManager.White
+                                          : ColorManager.LightGrey,
+                                      size: 15,
+                                    ),
+                                    Icon(
+                                      Icons.arrow_upward,
+                                      color: propertyCubit.ascending
+                                          ? ColorManager.LightGrey
+                                          : ColorManager.White,
+                                      size: 15,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       );
-                    return SizedBox.shrink();
-                  },
+                    },
+                  ),
                 )
               ],
             ),

@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:admin/data/models/property_model.dart';
 import 'dart:math';
 
@@ -7,7 +5,7 @@ List<PropertyModel> getRandomData() {
   List<PropertyModel> models = [];
   Random random = Random();
 
-  for (int i = 1; i <= 20; i++) {
+  for (int i = 1; i <= 30; i++) {
     String id = i.toString();
     String description = "Villa $i in Compound $i beside city $i";
     double price = (random.nextInt(5000000) + 1000000).toDouble();

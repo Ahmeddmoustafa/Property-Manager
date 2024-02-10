@@ -45,10 +45,7 @@ dependencies:
   cloud_firestore:
   get_it:
   url_launcher: 
-  sms_advanced:
-  background_sms:
-  flutter_sms:
-
+  
 
 
 

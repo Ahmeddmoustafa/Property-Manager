@@ -5,12 +5,20 @@ class PriceInputFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     // Custom formatting logic
-    String formattedText = newValue.text;
+    String formattedText =
+        newValue.text.replaceAll(',', ''); // Remove existing commas
 
-    if (formattedText.length > 3) {
-      formattedText = formattedText.replaceAllMapped(
-          RegExp(r'(\d{3})(?=\d)'), (Match match) => '${match.group(1)},');
+    int number = int.tryParse(formattedText) ?? 0;
+    List<String> parts = [];
+
+    while (number >= 1000) {
+      parts.insert(0, (number % 1000).toString().padLeft(3, '0'));
+      number ~/= 1000;
     }
+
+    parts.insert(0, number.toString());
+
+    formattedText = parts.join(',');
 
     return TextEditingValue(
       text: formattedText,

@@ -1,8 +1,9 @@
 import 'package:admin/data/local/property_local_source.dart';
 import 'package:admin/data/models/dummy.dart';
+// import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
-import 'package:admin/domain/Usecases/usecase.dart';
+// import 'package:admin/domain/Usecases/usecase.dart';
 import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
@@ -26,6 +27,8 @@ class PropertyCubit extends Cubit<PropertyState> {
   List<PropertyModel> notPaidproperties = [];
   List<PropertyModel> upcomingproperties = [];
   List<PropertyModel> paidproperties = [];
+  List<PropertyModel> unsoldproperties = [];
+
   double totalAmount = 0;
   double paidAmount = 0;
   double notPaidAmount = 0;
@@ -33,12 +36,47 @@ class PropertyCubit extends Cubit<PropertyState> {
   bool loading = false;
   bool hasError = false;
   String error = '';
+
+  bool ascending = true;
+  String sortBy = "Default";
   PropertyCubit({required this.getProperties})
       : super(PropertyState(properties: []));
 
-  Future<void> getPropertiesByCategory({int index = 0}) async {
+  void toggleSort() {
+    ascending = !ascending;
+    getPropertiesByCategory(index: selectedCategory);
+  }
+
+  void selectSortCriteria(String critertia) {
+    sortBy = critertia;
+    getPropertiesByCategory(index: selectedCategory);
+  }
+
+  List<PropertyModel> sortProperties(List<PropertyModel> list) {
+    int order = ascending ? 1 : -1; // 1 for ascending, -1 for descending
+
+    list.sort(
+      (a, b) {
+        switch (sortBy) {
+          case AppStrings.SortByPrice:
+            return order * a.price.compareTo(b.price);
+          case AppStrings.SortByPaidAmount:
+            return order * a.paid.compareTo(b.paid);
+          case AppStrings.SortByDate:
+            return order * a.price.compareTo(b.price);
+          default:
+            return 1;
+        }
+      },
+    );
+    return list;
+  }
+
+  Future<void> getPropertiesByCategory(
+      {int index = 0, int pagination = 0}) async {
     loading = true;
     error = "";
+    int step = 50;
     try {
       // await localSource.clearProperties();
       // await localSource.addProperties(demoPropertyModels);
@@ -53,7 +91,15 @@ class PropertyCubit extends Cubit<PropertyState> {
           categoryColor = ColorManager.PrimaryColor;
           loading = false;
           hasError = false;
-          emit(state.copyWith(list: applyFilter(properties)));
+
+          List<PropertyModel> list = applyFilter(properties);
+          list = sortProperties(list);
+          // int start = step * pagination;
+          // int end = start + step;
+          // if (end > list.length) end = list.length;
+          // print(end);
+
+          emit(state.copyWith(list: list));
           return;
         case 1:
           // paidproperties = await localSource.getProperties(1);
@@ -64,8 +110,9 @@ class PropertyCubit extends Cubit<PropertyState> {
           loading = false;
           hasError = false;
           // properties = list;
+          List<PropertyModel> list = applyFilter(paidproperties);
 
-          emit(state.copyWith(list: applyFilter(paidproperties)));
+          emit(state.copyWith(list: sortProperties(list)));
           return;
         case 2:
           // upcomingproperties = await localSource.getProperties(2);
@@ -76,8 +123,9 @@ class PropertyCubit extends Cubit<PropertyState> {
           loading = false;
           hasError = false;
           // properties = list;
+          List<PropertyModel> list = applyFilter(upcomingproperties);
 
-          emit(state.copyWith(list: applyFilter(upcomingproperties)));
+          emit(state.copyWith(list: sortProperties(list)));
           return;
         case 3:
           // notPaidproperties = await localSource.getProperties(3);
@@ -88,8 +136,23 @@ class PropertyCubit extends Cubit<PropertyState> {
           loading = false;
           hasError = false;
           // properties = list;
+          List<PropertyModel> list = applyFilter(notPaidproperties);
 
-          emit(state.copyWith(list: applyFilter(notPaidproperties)));
+          emit(state.copyWith(list: sortProperties(list)));
+          return;
+        case 4:
+          //  REMOVED IN PRODUCTION
+          // notPaidproperties = await localSource.getProperties(3);
+
+          selectedCategory = 4;
+          categoryColor = ColorManager.DarkGrey;
+          icon = AssetsManager.AllPropertiesIcon;
+          loading = false;
+          hasError = false;
+          // properties = list;
+          List<PropertyModel> list = applyFilter(unsoldproperties);
+
+          emit(state.copyWith(list: sortProperties(list)));
           return;
       }
     } catch (err) {
@@ -115,18 +178,16 @@ class PropertyCubit extends Cubit<PropertyState> {
   }
 
   List<PropertyModel> applyFilter(List<PropertyModel> list) {
+    RegExp regExp = RegExp(filterQuery.toLowerCase().split('').join('.*'));
+
     switch (filterOption) {
       case 1:
         return list.where((property) {
-          return property.description
-              .toUpperCase()
-              .contains(filterQuery.toUpperCase());
+          return regExp.hasMatch(property.description.toLowerCase());
         }).toList();
       case 2:
         return list.where((property) {
-          return property.buyerName
-              .toUpperCase()
-              .contains(filterQuery.toUpperCase());
+          return regExp.hasMatch(property.buyerName.toLowerCase());
         }).toList();
       case 3:
         return list.where((property) {
@@ -145,7 +206,7 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
-    // await localSource.addProperties(getRandomData());
+    await localSource.addProperties(getRandomData());
     try {
       List<PropertyModel> list = await localSource.getProperties();
 

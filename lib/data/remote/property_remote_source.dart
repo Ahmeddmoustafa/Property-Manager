@@ -46,13 +46,13 @@ class PropertyRemoteSource {
         .get();
 
     final List<PropertyModel> properties = [];
-    print(" no of properties ${snapshot.docs.length}");
+    // print(" no of properties ${snapshot.docs.length}");
     // print(" no of properties ${snapshot.docs.last.data()}");
 
     print("Initializing the Property Models....");
 
     snapshot.docs.forEach((propertyJson) {
-      print("${propertyJson.data()}");
+      // print("${propertyJson.data()}");
       return properties.add(
         PropertyModel.fromJson(
           propertyJson.data() as Map<String, dynamic>,

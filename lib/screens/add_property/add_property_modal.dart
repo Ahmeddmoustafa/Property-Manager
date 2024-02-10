@@ -277,41 +277,106 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                         DataTable(
                           columnSpacing: Responsive.isMobile(context)
                               ? AppSize.s25
-                              : AppSize.s100,
+                              : AppSize.s50,
                           columns: [
                             DataColumn(
-                              label: Text("Installments"),
+                              label: Flexible(
+                                  child: Text(
+                                "First Installment Date",
+                                overflow: TextOverflow.fade,
+                              )),
                             ),
                             DataColumn(
-                              label: Text("Date"),
+                              label: Flexible(
+                                  child: Text(
+                                "Last Installment Date",
+                                overflow: TextOverflow.visible,
+                              )),
                             ),
                             DataColumn(
-                              label: Text("Payment Amount"),
+                              label: Flexible(
+                                  child: Text(
+                                "Installment Amount",
+                                overflow: TextOverflow.visible,
+                              )),
+                            ),
+                            DataColumn(
+                              label: Flexible(
+                                child: Text(
+                                  "Number Of Installments",
+                                  overflow: TextOverflow.visible,
+                                ),
+                              ),
                             ),
                           ],
                           rows: List.generate(
-                            formCubit.installmentsConttrollers.length,
-                            (index) => installmentDataRow(width, index),
+                            1,
+                            (index) => getRegularInstallmentRow(width),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                formCubit.addInstallmentController();
-                              },
-                              icon: Container(
-                                  margin: EdgeInsets.symmetric(
-                                    vertical: AppSize.s20,
-                                  ),
-                                  child: Icon(Icons.add_circle)),
-                            )
-                          ],
-                        )
                       ],
                     ),
                   ),
+                  SizedBox(height: AppSize.s25),
+                  Center(
+                    child: SizedBox(
+                      width: width * 0.25,
+                      height: height * 0.07,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          // Perform form submission logic here
+                          // You can access the form data using formCubit.state
+                          // print('Username: ${formCubit.state.username}');
+                          // print('Email: ${formCubit.state.email}');
+                        },
+                        child: Text(
+                          'Generate Installments',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Center(
+                  //   child: Column(
+                  //     children: [
+                  //       DataTable(
+                  //         columnSpacing: Responsive.isMobile(context)
+                  //             ? AppSize.s25
+                  //             : AppSize.s100,
+                  //         columns: [
+                  //           DataColumn(
+                  //             label: Text("Installments"),
+                  //           ),
+                  //           DataColumn(
+                  //             label: Text("Date"),
+                  //           ),
+                  //           DataColumn(
+                  //             label: Text("Payment Amount"),
+                  //           ),
+                  //         ],
+                  //         rows: List.generate(
+                  //           formCubit.installmentsConttrollers.length,
+                  //           (index) => installmentDataRow(width, index),
+                  //         ),
+                  //       ),
+                  //       Row(
+                  //         mainAxisAlignment: MainAxisAlignment.center,
+                  //         children: [
+                  //           IconButton(
+                  //             onPressed: () {
+                  //               formCubit.addInstallmentController();
+                  //             },
+                  //             icon: Container(
+                  //                 margin: EdgeInsets.symmetric(
+                  //                   vertical: AppSize.s20,
+                  //                 ),
+                  //                 child: Icon(Icons.add_circle)),
+                  //           )
+                  //         ],
+                  //       )
+                  //     ],
+                  //   ),
+                  // ),
                   SizedBox(height: AppSize.s50),
                   formCubit.installmentError
                       ? Center(
@@ -365,12 +430,18 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
 
   Future<void> _selectInstallmentDate(BuildContext context, int index) async {
     final AddPropertyCubit formCubit = context.read<AddPropertyCubit>();
+    DateTime startDate = formCubit.getStartDate(index);
+    DateTime initialDate;
+    if (startDate.isBefore(DateTime.now()))
+      initialDate = DateTime.now();
+    else
+      initialDate = startDate;
 
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      initialDate: initialDate,
+      firstDate: startDate,
+      lastDate: formCubit.getEndDate(index),
     );
 
     if (pickedDate != null) {
@@ -379,6 +450,96 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
       // });
       formCubit.addInstallmentDate(pickedDate, index);
     }
+  }
+
+  DataRow getRegularInstallmentRow(double width) {
+    final AddPropertyCubit formCubit = context.read<AddPropertyCubit>();
+    return DataRow(
+      cells: [
+        DataCell(
+          Row(
+            children: [
+              InkWell(
+                  // onTap: () async => await _selectInstallmentDate(context, index),
+                  child: Icon(Icons.date_range_rounded)),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Date",
+                  )),
+            ],
+          ),
+        ),
+        DataCell(
+          Row(
+            children: [
+              InkWell(
+                  // onTap: () async => await _selectInstallmentDate(context, index),
+                  child: Icon(Icons.date_range_rounded)),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Date",
+                  )),
+            ],
+          ),
+        ),
+        DataCell(
+          Center(
+            child: SizedBox(
+              width: width * 0.1,
+              child: TextField(
+                maxLength: 20,
+                // controller: formCubit.installmentsConttrollers[index],
+                // textAlignVertical: TextAlignVertical.top,
+                onChanged: (value) {
+                  // formCubit.updateEmail(value);
+                },
+
+                decoration: InputDecoration(
+                  counterText: "",
+                  hintText: "EGP",
+                  // labelText: 'Price In EGP',
+                  floatingLabelBehavior: FloatingLabelBehavior.auto,
+                  border: InputBorder.none,
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                  PriceInputFormatter(), // Custom formatter
+                ],
+              ),
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: SizedBox(
+              width: width * 0.1,
+              child: TextField(
+                maxLength: 20,
+                // controller: formCubit.installmentsConttrollers[index],
+                // textAlignVertical: TextAlignVertical.top,
+                onChanged: (value) {
+                  // formCubit.updateEmail(value);
+                },
+
+                decoration: InputDecoration(
+                  counterText: "",
+                  hintText: "Numbers",
+                  // labelText: 'Price In EGP',
+                  floatingLabelBehavior: FloatingLabelBehavior.auto,
+                  border: InputBorder.none,
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                  // PriceInputFormatter(), // Custom formatter
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   DataRow installmentDataRow(double width, int index) {

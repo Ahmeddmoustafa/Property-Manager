@@ -1,5 +1,6 @@
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
+import 'package:admin/cubit/stepper/stepper_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
@@ -8,8 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class InstallmentsStepperWidget extends StatefulWidget {
-  const InstallmentsStepperWidget({super.key, required this.propertyModel});
+  const InstallmentsStepperWidget(
+      {super.key,
+      required this.propertyModel,
+      required this.start,
+      required this.end,
+      this.stepperIndex});
   final PropertyModel propertyModel;
+  final stepperIndex;
+  final int start;
+  final int end;
 
   @override
   State<InstallmentsStepperWidget> createState() =>
@@ -19,22 +28,67 @@ class InstallmentsStepperWidget extends StatefulWidget {
 class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Property Installments:",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        SizedBox(
-          height: defaultPadding * 2,
-        ),
-        ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: widget.propertyModel.installments.length,
-            itemBuilder: (context, index) => getInstallments(index)),
-      ],
+    final StepperCubit steppercubit = BlocProvider.of<StepperCubit>(context);
+
+    return BlocBuilder<StepperCubit, StepperState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: defaultPadding * 2),
+                child: SizedBox(
+                  // width should be changed
+                  width: 400,
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        width: 0.5,
+                        color: steppercubit.getStepperColor(widget
+                            .propertyModel.installments
+                            .sublist(widget.start, widget.end)),
+                      ),
+                    ),
+                    child: InkWell(
+                      onTap: () => steppercubit.openStepper(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(formatDate(widget
+                              .propertyModel.installments[widget.start].date)),
+                          Text("To"),
+                          Text(formatDate(widget.propertyModel
+                              .installments[widget.end - 1].date)),
+                          Icon(steppercubit.opened
+                              ? Icons.arrow_drop_down
+                              : Icons.arrow_left)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // SizedBox(
+            //   height: defaultPadding * 2,
+            // ),
+            steppercubit.opened
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: widget.propertyModel.installments
+                        .sublist(widget.start, widget.end)
+                        .length,
+                    itemBuilder: (context, index) =>
+                        getInstallments(index + widget.start))
+                : SizedBox.shrink()
+          ],
+        );
+      },
     );
   }
 
@@ -51,7 +105,7 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
         ),
         Column(
           children: [
-            if (i != 0)
+            if (i != widget.start)
               Container(
                 margin: EdgeInsets.symmetric(vertical: defaultPadding),
                 child: SizedBox(

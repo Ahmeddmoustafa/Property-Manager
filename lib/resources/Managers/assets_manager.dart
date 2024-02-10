@@ -10,6 +10,7 @@ class AssetsManager {
   static const PaidPropertiesIcon = "$Icons_Path/paid.svg";
   static const UpcomingPropertiesIcon = "$Icons_Path/upcoming.svg";
   static const NotPaidPropertiesIcon = "$Icons_Path/not_paid.svg";
+  static const WhatsAppIcon = "$Icons_Path/whatsapp.svg";
 
   static const SadImage = "$Image_Path/sad.png";
 }

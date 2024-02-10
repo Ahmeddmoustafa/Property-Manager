@@ -100,8 +100,8 @@ class _FileInfoCardState extends State<FileInfoCard> {
 
   Widget categoryInfo(int index) {
     final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
-    String length = "50";
-    String price = "1M";
+    String length = "0";
+    String price = "0";
 
     switch (index) {
       case 0:

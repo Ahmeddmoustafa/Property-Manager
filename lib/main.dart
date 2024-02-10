@@ -1,7 +1,7 @@
 import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/auth/login_cubit.dart';
-import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
+// import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/reminder/reminder_cubit.dart';
 import 'package:admin/data/models/property_model.dart';

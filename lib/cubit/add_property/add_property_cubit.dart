@@ -13,9 +13,15 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   final TextEditingController paidAmountController = TextEditingController();
   final TextEditingController buyerNameController = TextEditingController();
   final TextEditingController buyerNumberController = TextEditingController();
-  late List<TextEditingController> installmentsConttrollers =
-      getInstallmentControllers(5);
-  late List<DateTime?> installmentDates = getInstallmentDates(5);
+  late List<TextEditingController> installmentsConttrollers = [];
+  late List<DateTime?> installmentDates = [];
+  DateTime firstInstallment = DateTime.now();
+  DateTime lastInstallment = DateTime.now();
+  final TextEditingController installmentsAmountController =
+      TextEditingController();
+  final TextEditingController numberOfInstallmentsController =
+      TextEditingController();
+
   DateTime contractDate = DateTime.now();
   DateTime submissionDate = DateTime.now();
 
@@ -29,6 +35,32 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
 
   AddPropertyCubit({required this.createPropertyUsecase})
       : super(AddPropertyState(error: true));
+
+  void generateInstallments() {
+    if (lastInstallment.isAfter(firstInstallment)) {
+      installmentsConttrollers = [];
+      installmentDates = [];
+      double installmentAmount =
+          double.parse(installmentsAmountController.text);
+      int numberOfInstallments = int.parse(numberOfInstallmentsController.text);
+
+      Duration installmentPeriod = Duration(
+          days: (lastInstallment.difference(firstInstallment).inDays ~/
+              numberOfInstallments));
+
+      for (int i = 0; i < numberOfInstallments; i++) {
+        DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+        installmentsConttrollers.add(
+          TextEditingController(
+            text: installmentAmount.toString(),
+          ),
+        );
+        installmentDates.add(dueDate);
+        // installments
+        //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+      }
+    }
+  }
 
   void addInstallmentDate(DateTime date, int index) {
     installmentDates[index] = date;
@@ -94,9 +126,9 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         submissionDate: DateTime.now(),
         contractDate: DateTime.now(),
       );
-      await createPropertyUsecase(model);
-      // print(
-      //     "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
+      // await createPropertyUsecase(model);
+      print(
+          "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
 
       emit(state.copyWith(err: false));
 
@@ -165,5 +197,26 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
               installmentsConttrollers[i].text.replaceAll(',', ''))));
     }
     return installments;
+  }
+
+  DateTime getStartDate(index) {
+    for (int i = index - 1; i >= 0; i--) {
+      if (installmentDates[i] != null) {
+        print("start date is ${installmentDates[i]}");
+        return installmentDates[i]!;
+      }
+    }
+    return DateTime(2000);
+  }
+
+  DateTime getEndDate(index) {
+    for (int i = index + 1; i < installmentDates.length; i++) {
+      if (installmentDates[i] != null) {
+        print("start date is ${installmentDates[i]}");
+
+        return installmentDates[i]!;
+      }
+    }
+    return DateTime(2070);
   }
 }

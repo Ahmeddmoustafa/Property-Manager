@@ -52,6 +52,7 @@ List<CloudStorageInfo> demoMyFiles = [
     color: Color.fromARGB(255, 199, 54, 90),
     percentage: 10,
   ),
+  // REMOVED IN PRODUCTION
   // CloudStorageInfo(
   //   title: "UnSold",
   //   numOfProperties: 1328,

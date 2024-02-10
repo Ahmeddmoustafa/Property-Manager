@@ -1,9 +1,12 @@
+import 'dart:ui_web';
+
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/cubit/stepper/stepper_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
-import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:admin/screens/property_modal/components/property_chart.dart';
 import 'package:admin/screens/property_modal/components/installment_widget.dart';
@@ -11,6 +14,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 
 class PropertyModalWidget extends StatefulWidget {
   final PropertyModel propertyModel;
@@ -98,10 +102,25 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.villa),
-                            Text("Property"),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(Icons.villa),
+                                Text("Property"),
+                              ],
+                            ),
+                            InkWell(
+                              onTap: () => openWhatsApp("number"),
+                              child: SvgPicture.asset(
+                                AssetsManager.WhatsAppIcon,
+                                colorFilter: ColorFilter.mode(
+                                    ColorManager.Green, BlendMode.srcIn),
+                                height: 20,
+                                width: 20,
+                              ),
+                            ),
                           ],
                         ),
                         PropertyChart(
@@ -170,11 +189,55 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                       thickness: 0.2,
                     ),
                   ),
-                  SizedBox(
-                      width: width * 0.3,
-                      child: InstallmentsStepperWidget(
-                        propertyModel: widget.propertyModel,
-                      )),
+                  Column(
+                    children: [
+                      Text(
+                        "Property Installments:",
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.left,
+                      ),
+
+                      SizedBox(
+                          width: width * 0.3,
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount:
+                                  (widget.propertyModel.installments.length /
+                                          10)
+                                      .ceil(),
+                              itemBuilder: (context, index) {
+                                int start = index * 10;
+                                int end = start + 10;
+                                if (end >
+                                    widget.propertyModel.installments.length) {
+                                  end =
+                                      widget.propertyModel.installments.length;
+                                }
+                                // List<Installment> installments = widget
+                                //     .propertyModel.installments
+                                //     .sublist(start, end);
+
+                                return BlocProvider(
+                                  create: (context) => StepperCubit(),
+                                  child: SizedBox(
+                                    width: width * 0.3,
+                                    child: InstallmentsStepperWidget(
+                                      propertyModel: widget.propertyModel,
+                                      start: start,
+                                      end: end,
+                                    ),
+                                  ),
+                                );
+                              })),
+                      // SizedBox(
+                      //   width: width * 0.3,
+                      //   child: InstallmentsStepperWidget(
+                      //     propertyModel: widget.propertyModel,
+                      //   ),
+                      // ),
+                    ],
+                  ),
                 ],
               );
             },

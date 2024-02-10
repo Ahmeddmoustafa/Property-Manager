@@ -6,4 +6,8 @@ class AppStrings {
   static const NotPaidType = "NOT_PAID";
   static const UpcomingType = "UPCOMING";
   static const AvailableType = "AVAILABLE";
+
+  static const SortByPrice = "Sort By Total Price";
+  static const SortByPaidAmount = "Sort By Paid Amount";
+  static const SortByDate = "Sort By Next Date";
 }

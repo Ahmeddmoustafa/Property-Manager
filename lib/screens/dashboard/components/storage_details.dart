@@ -25,50 +25,54 @@ class StorageDetails extends StatelessWidget {
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Storage Details",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: defaultPadding),
-          StorageChart(),
-          StorageCardWidget(
-            svgSrc: demoMyFiles[0].svgSrc,
-            title: demoMyFiles[0].title,
-            color: demoMyFiles[0].color,
-            amountOfFiles: chartFormatPrice(cubit.totalAmount) + " EGP",
-            numOfFiles: cubit.properties.length,
-          ),
-          StorageCardWidget(
-            svgSrc: demoMyFiles[1].svgSrc,
-            title: demoMyFiles[1].title,
-            color: demoMyFiles[1].color,
-            amountOfFiles: chartFormatPrice(cubit.paidAmount) + " EGP",
-            numOfFiles: cubit.paidproperties.length,
-          ),
-          StorageCardWidget(
-            svgSrc: demoMyFiles[2].svgSrc,
-            title: demoMyFiles[2].title,
-            color: demoMyFiles[2].color,
-            amountOfFiles: chartFormatPrice(cubit.totalAmount -
-                    cubit.paidAmount -
-                    cubit.notPaidAmount) +
-                " EGP",
-            numOfFiles: cubit.upcomingproperties.length,
-          ),
-          StorageCardWidget(
-            svgSrc: demoMyFiles[3].svgSrc,
-            title: demoMyFiles[3].title,
-            color: demoMyFiles[3].color,
-            amountOfFiles: chartFormatPrice(cubit.notPaidAmount) + " EGP",
-            numOfFiles: cubit.notPaidproperties.length,
-          ),
-        ],
+      child: BlocBuilder<PropertyCubit, PropertyState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Storage Details",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: defaultPadding),
+              StorageChart(),
+              StorageCardWidget(
+                svgSrc: demoMyFiles[0].svgSrc,
+                title: demoMyFiles[0].title,
+                color: demoMyFiles[0].color,
+                amountOfFiles: chartFormatPrice(cubit.totalAmount) + " EGP",
+                numOfFiles: cubit.properties.length,
+              ),
+              StorageCardWidget(
+                svgSrc: demoMyFiles[1].svgSrc,
+                title: demoMyFiles[1].title,
+                color: demoMyFiles[1].color,
+                amountOfFiles: chartFormatPrice(cubit.paidAmount) + " EGP",
+                numOfFiles: cubit.paidproperties.length,
+              ),
+              StorageCardWidget(
+                svgSrc: demoMyFiles[2].svgSrc,
+                title: demoMyFiles[2].title,
+                color: demoMyFiles[2].color,
+                amountOfFiles: chartFormatPrice(cubit.totalAmount -
+                        cubit.paidAmount -
+                        cubit.notPaidAmount) +
+                    " EGP",
+                numOfFiles: cubit.upcomingproperties.length,
+              ),
+              StorageCardWidget(
+                svgSrc: demoMyFiles[3].svgSrc,
+                title: demoMyFiles[3].title,
+                color: demoMyFiles[3].color,
+                amountOfFiles: chartFormatPrice(cubit.notPaidAmount) + " EGP",
+                numOfFiles: cubit.notPaidproperties.length,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
