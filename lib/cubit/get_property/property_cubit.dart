@@ -141,7 +141,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           emit(state.copyWith(list: sortProperties(list)));
           return;
         case 4:
-          //  REMOVED IN PRODUCTION
+          //  TO BE REMOVED IN PRODUCTION
           // notPaidproperties = await localSource.getProperties(3);
 
           selectedCategory = 4;
@@ -206,7 +206,7 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
-    await localSource.addProperties(getRandomData());
+    // await localSource.addProperties(getRandomData());
     try {
       List<PropertyModel> list = await localSource.getProperties();
 

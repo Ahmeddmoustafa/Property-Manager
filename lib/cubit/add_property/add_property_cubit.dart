@@ -19,11 +19,13 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   DateTime lastInstallment = DateTime.now();
   final TextEditingController installmentsAmountController =
       TextEditingController();
-  final TextEditingController numberOfInstallmentsController =
+  final TextEditingController installmentsDurationController =
       TextEditingController();
 
   DateTime contractDate = DateTime.now();
   DateTime submissionDate = DateTime.now();
+
+  bool regularInstallmentsGenerated = false;
 
   bool descriptionError = false;
   bool priceError = false;
@@ -36,20 +38,25 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   AddPropertyCubit({required this.createPropertyUsecase})
       : super(AddPropertyState(error: true));
 
-  void generateInstallments() {
+  void generateRegularInstallments() {
     if (lastInstallment.isAfter(firstInstallment)) {
       installmentsConttrollers = [];
       installmentDates = [];
       double installmentAmount =
-          double.parse(installmentsAmountController.text);
-      int numberOfInstallments = int.parse(numberOfInstallmentsController.text);
+          double.parse(installmentsAmountController.text.replaceAll(',', ''));
+      print(lastInstallment.difference(firstInstallment).inDays);
+      int numberOfInstallments =
+          (lastInstallment.difference(firstInstallment).inDays /
+                      int.parse(installmentsDurationController.text))
+                  .ceil() +
+              1;
 
-      Duration installmentPeriod = Duration(
-          days: (lastInstallment.difference(firstInstallment).inDays ~/
-              numberOfInstallments));
+      Duration installmentPeriod =
+          Duration(days: int.parse(installmentsDurationController.text));
 
       for (int i = 0; i < numberOfInstallments; i++) {
         DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+        if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
         installmentsConttrollers.add(
           TextEditingController(
             text: installmentAmount.toString(),
@@ -59,7 +66,19 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         // installments
         //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
       }
+      regularInstallmentsGenerated = true;
+      emit(state.copyWith(err: false));
     }
+  }
+
+  void selectFirstInstallment(DateTime date) {
+    firstInstallment = date;
+    emit(state.copyWith(err: false));
+  }
+
+  void selectLastInstallment(DateTime date) {
+    lastInstallment = date;
+    emit(state.copyWith(err: false));
   }
 
   void addInstallmentDate(DateTime date, int index) {
@@ -123,8 +142,8 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         buyerName: buyerName,
         buyerNumber: buyerNumber,
         installments: controllerToInstallments(),
-        submissionDate: DateTime.now(),
-        contractDate: DateTime.now(),
+        submissionDate: submissionDate,
+        contractDate: contractDate,
       );
       // await createPropertyUsecase(model);
       print(
