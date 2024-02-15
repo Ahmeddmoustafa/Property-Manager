@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +30,12 @@ class _FileInfoCardState extends State<FileInfoCard> {
   Widget build(BuildContext context) {
     // final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
     return GestureDetector(
-      onTap: () {
-        BlocProvider.of<PropertyCubit>(context)
-            .getPropertiesByCategory(index: widget.index);
+      onTap: () async {
+        BlocProvider.of<ScrollCubit>(context).page = 1;
+        if (mounted) {
+          await BlocProvider.of<PropertyCubit>(context)
+              .getPropertiesByCategory(index: widget.index);
+        }
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,

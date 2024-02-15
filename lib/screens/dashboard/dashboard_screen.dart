@@ -1,4 +1,5 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/dashboard/components/my_categories_widget.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +18,13 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollCubit scrollCubit = context.read<ScrollCubit>();
     return Container(
       // padding: EdgeInsets.all(defaultPadding),
       width: width,
       child: SafeArea(
         child: SingleChildScrollView(
+          controller: scrollCubit.propertiesScrollController,
           primary: false,
           // padding: EdgeInsets.all(defaultPadding),
           child: FutureBuilder(

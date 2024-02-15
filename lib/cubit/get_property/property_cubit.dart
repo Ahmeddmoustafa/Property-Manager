@@ -47,9 +47,9 @@ class PropertyCubit extends Cubit<PropertyState> {
     getPropertiesByCategory(index: selectedCategory);
   }
 
-  void selectSortCriteria(String critertia) {
+  void selectSortCriteria(String critertia) async {
     sortBy = critertia;
-    getPropertiesByCategory(index: selectedCategory);
+    await getPropertiesByCategory(index: selectedCategory);
   }
 
   List<PropertyModel> sortProperties(List<PropertyModel> list) {
@@ -72,11 +72,19 @@ class PropertyCubit extends Cubit<PropertyState> {
     return list;
   }
 
+  List<PropertyModel> paginate(List<PropertyModel> list, int pagination) {
+    int step = 50;
+    int start = 0;
+    int end = step * pagination;
+    if (end > list.length) end = list.length;
+    return list.sublist(start, end);
+  }
+
   Future<void> getPropertiesByCategory(
-      {int index = 0, int pagination = 0}) async {
+      {int index = 0, int pagination = 1}) async {
     loading = true;
     error = "";
-    int step = 50;
+    // int step = 50;
     try {
       // await localSource.clearProperties();
       // await localSource.addProperties(demoPropertyModels);
@@ -91,14 +99,10 @@ class PropertyCubit extends Cubit<PropertyState> {
           categoryColor = ColorManager.PrimaryColor;
           loading = false;
           hasError = false;
-
           List<PropertyModel> list = applyFilter(properties);
           list = sortProperties(list);
-          // int start = step * pagination;
-          // int end = start + step;
-          // if (end > list.length) end = list.length;
+          list = paginate(list, pagination);
           // print(end);
-
           emit(state.copyWith(list: list));
           return;
         case 1:
@@ -111,8 +115,10 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
           List<PropertyModel> list = applyFilter(paidproperties);
+          list = sortProperties(list);
+          list = paginate(list, pagination);
 
-          emit(state.copyWith(list: sortProperties(list)));
+          emit(state.copyWith(list: list));
           return;
         case 2:
           // upcomingproperties = await localSource.getProperties(2);
@@ -124,8 +130,10 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
           List<PropertyModel> list = applyFilter(upcomingproperties);
+          list = sortProperties(list);
+          list = paginate(list, pagination);
 
-          emit(state.copyWith(list: sortProperties(list)));
+          emit(state.copyWith(list: list));
           return;
         case 3:
           // notPaidproperties = await localSource.getProperties(3);
@@ -137,8 +145,10 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
           List<PropertyModel> list = applyFilter(notPaidproperties);
+          list = sortProperties(list);
+          list = paginate(list, pagination);
 
-          emit(state.copyWith(list: sortProperties(list)));
+          emit(state.copyWith(list: list));
           return;
         case 4:
           //  TO BE REMOVED IN PRODUCTION
@@ -151,8 +161,10 @@ class PropertyCubit extends Cubit<PropertyState> {
           hasError = false;
           // properties = list;
           List<PropertyModel> list = applyFilter(unsoldproperties);
+          list = sortProperties(list);
+          list = paginate(list, pagination);
 
-          emit(state.copyWith(list: sortProperties(list)));
+          emit(state.copyWith(list: list));
           return;
       }
     } catch (err) {
@@ -170,9 +182,9 @@ class PropertyCubit extends Cubit<PropertyState> {
     // emit(state.copyWith(list: properties));
   }
 
-  void setFilterQuery(String text) {
+  Future<void> setFilterQuery(String text) async {
     filterQuery = text;
-    getPropertiesByCategory(
+    await getPropertiesByCategory(
       index: selectedCategory,
     );
   }
@@ -206,7 +218,7 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
-    // await localSource.addProperties(getRandomData());
+    await localSource.addProperties(getRandomData());
     try {
       List<PropertyModel> list = await localSource.getProperties();
 

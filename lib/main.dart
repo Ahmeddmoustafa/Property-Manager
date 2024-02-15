@@ -4,6 +4,7 @@ import 'package:admin/cubit/auth/login_cubit.dart';
 // import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/reminder/reminder_cubit.dart';
+import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/firebase_options.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
@@ -44,11 +45,14 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => ReminderCubit(),
         ),
+        BlocProvider(
+          create: (context) => ScrollCubit(),
+        ),
       ],
       child: MaterialApp(
         scrollBehavior: MaterialScrollBehavior().copyWith(
           dragDevices: {
-            PointerDeviceKind.mouse,
+            // PointerDeviceKind.mouse,
             // PointerDeviceKind.trackpad,
             // PointerDeviceKind.touch,
           },

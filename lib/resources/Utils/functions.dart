@@ -25,7 +25,12 @@ Future<bool> openWhatsApp(String number) async {
 String chartFormatPrice(double price) {
   double numericPrice = price;
 
-  if (numericPrice >= 1000000) {
+  if (numericPrice >= 1000000000) {
+    // Convert to billions and format as specified
+    String formattedValue = (numericPrice / 1000000000)
+        .toStringAsFixed(numericPrice % 1000000000 == 0 ? 0 : 2);
+    return removeTrailingZeros(formattedValue) + 'B';
+  } else if (numericPrice >= 1000000) {
     // Convert to millions and format as specified
     String formattedValue = (numericPrice / 1000000)
         .toStringAsFixed(numericPrice % 1000000 == 0 ? 0 : 2);

@@ -1,4 +1,5 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/screens/dashboard/components/no_data.dart';
@@ -64,7 +65,9 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
                           DropdownButton<String>(
                             value: propertyCubit.sortBy,
                             onChanged: (String? newValue) {
+                              context.read<ScrollCubit>().page = 1;
                               propertyCubit.selectSortCriteria(newValue!);
+
                               // Implement your sorting logic based on selectedSortOption
                             },
                             icon: SizedBox.shrink(),

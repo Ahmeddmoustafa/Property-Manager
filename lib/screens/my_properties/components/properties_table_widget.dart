@@ -2,6 +2,7 @@ import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
@@ -25,7 +26,38 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
   int _hoveredIndex = -1;
 
   @override
+  void initState() {
+    super.initState();
+    context
+        .read<ScrollCubit>()
+        .propertiesScrollController
+        .addListener(scrollListener);
+  }
+
+  Future<void> scrollListener() async {
+    if (!context.mounted && !mounted) return;
+    final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+    final PropertyCubit propertyCubit = context.read<PropertyCubit>();
+    if (scrollCubit.loading) return;
+
+    if (scrollCubit.propertiesScrollController.position.pixels ==
+        scrollCubit.propertiesScrollController.position.maxScrollExtent) {
+      print("scrolled");
+      scrollCubit.loading = true;
+      scrollCubit.page += 1;
+      if (mounted) {
+        await propertyCubit.getPropertiesByCategory(
+          index: propertyCubit.selectedCategory,
+          pagination: scrollCubit.page,
+        );
+      }
+      scrollCubit.loading = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ScrollCubit scrollCubit = context.read<ScrollCubit>();
     final PropertyCubit propertyCubit = context.read<PropertyCubit>();
 
     return Column(
@@ -75,159 +107,132 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
         ),
         ListView.builder(
             shrinkWrap: true,
-            controller: ScrollController(),
             physics: NeverScrollableScrollPhysics(),
-            itemCount: widget.properties.length,
+            itemCount: scrollCubit.loading
+                ? widget.properties.length + 1
+                : widget.properties.length,
             itemBuilder: (context, index) {
-              return MouseRegion(
-                cursor: MaterialStateMouseCursor.clickable,
-                onEnter: (event) => setState(() {
-                  _hoveredIndex = index;
-                }),
-                onExit: (event) => setState(() {
-                  _hoveredIndex = -1;
-                }),
-                child: GestureDetector(
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => BlocProvider(
-                      create: (context) => di.sl<PropertyModalCubit>(),
-                      child: Dialog(
-                        backgroundColor: ColorManager.BackgroundColor,
-                        clipBehavior: Clip.antiAlias,
-                        insetAnimationDuration:
-                            const Duration(milliseconds: 500),
-                        insetAnimationCurve: Curves.easeIn,
-                        child: PropertyModalWidget(
-                          propertyModel: widget.properties[index],
+              if (index <= widget.properties.length)
+                return StatefulBuilder(builder: (context, stateSetter) {
+                  return MouseRegion(
+                    cursor: MaterialStateMouseCursor.clickable,
+                    onEnter: (event) {
+                      // scrollCubit.updateHover(index);
+                      stateSetter(() {
+                        _hoveredIndex = index;
+                      });
+                    },
+                    onExit: (event) {
+                      // scrollCubit.updateHover(index);
+                      stateSetter(() {
+                        _hoveredIndex = -1;
+                      });
+                    },
+                    child: GestureDetector(
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (context) => BlocProvider(
+                          create: (context) => di.sl<PropertyModalCubit>(),
+                          child: Dialog(
+                            backgroundColor: ColorManager.BackgroundColor,
+                            clipBehavior: Clip.antiAlias,
+                            insetAnimationDuration:
+                                const Duration(milliseconds: 500),
+                            insetAnimationCurve: Curves.easeIn,
+                            child: PropertyModalWidget(
+                              propertyModel: widget.properties[index],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        // margin: EdgeInsets.symmetric(vertical: AppSize.s20),
-                        decoration: BoxDecoration(
-                          color: _hoveredIndex == index
-                              ? ColorManager.BackgroundColor
-                              : null,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        height: 100,
-                        width: double.maxFinite,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            iconText(
-                              context: context,
-                              flex: 3,
-                              text: widget.properties[index].description,
-                              padding: 10.0,
+                      child: Column(
+                        children: [
+                          Container(
+                            // margin: EdgeInsets.symmetric(vertical: AppSize.s20),
+                            decoration: BoxDecoration(
+                              color: _hoveredIndex == index
+                                  ? ColorManager.BackgroundColor
+                                  : null,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            tableText(
-                              flex: 1,
-                              color: propertyCubit.sortBy ==
-                                      AppStrings.SortByPaidAmount
-                                  ? propertyCubit.categoryColor
-                                  : ColorManager.White,
-                              text: formatPrice(widget.properties[index].paid),
-                              padding: 8.0,
-                            ),
-                            tableText(
-                              flex: 1,
-                              color:
-                                  propertyCubit.sortBy == AppStrings.SortByPrice
+                            height: 100,
+                            width: double.maxFinite,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                iconText(
+                                  context: context,
+                                  flex: 3,
+                                  text: widget.properties[index].description,
+                                  padding: 10.0,
+                                ),
+                                tableText(
+                                  flex: 1,
+                                  color: propertyCubit.sortBy ==
+                                          AppStrings.SortByPaidAmount
                                       ? propertyCubit.categoryColor
                                       : ColorManager.White,
-                              text: formatPrice(widget.properties[index].price),
-                              padding: 8.0,
-                            ),
-                            tableText(
-                              flex: 1,
-                              color:
-                                  propertyCubit.sortBy == AppStrings.SortByDate
+                                  text: formatPrice(
+                                      widget.properties[index].paid),
+                                  padding: 8.0,
+                                ),
+                                tableText(
+                                  flex: 1,
+                                  color: propertyCubit.sortBy ==
+                                          AppStrings.SortByPrice
                                       ? propertyCubit.categoryColor
                                       : ColorManager.White,
-                              text:
-                                  widget.properties[index].installments.length >
+                                  text: formatPrice(
+                                      widget.properties[index].price),
+                                  padding: 8.0,
+                                ),
+                                tableText(
+                                  flex: 1,
+                                  color: propertyCubit.sortBy ==
+                                          AppStrings.SortByDate
+                                      ? propertyCubit.categoryColor
+                                      : ColorManager.White,
+                                  text: widget.properties[index].installments
+                                              .length >
                                           0
                                       ? formatDate(widget.properties[index]
                                           .installments[0].date)
                                       : "NA",
-                              padding: 8.0,
+                                  padding: 8.0,
+                                ),
+                                tableText(
+                                  flex: 2,
+                                  color: ColorManager.White,
+                                  text: widget.properties[index].buyerName,
+                                  padding: 8.0,
+                                ),
+                                tableText(
+                                  flex: 2,
+                                  color: ColorManager.White,
+                                  text: widget.properties[index].buyerNumber,
+                                  padding: 0,
+                                ),
+                              ],
                             ),
-                            tableText(
-                              flex: 2,
-                              color: ColorManager.White,
-                              text: widget.properties[index].buyerName,
-                              padding: 8.0,
+                          ),
+                          if (!(index == widget.properties.length - 1))
+                            Divider(
+                              // height: 25,
+                              height: 0,
+                              color: ColorManager.LightSilver,
+                              thickness: 0.2,
                             ),
-                            tableText(
-                              flex: 2,
-                              color: ColorManager.White,
-                              text: widget.properties[index].buyerNumber,
-                              padding: 0,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (!(index == widget.properties.length - 1))
-                        Divider(
-                          // height: 25,
-                          height: 0,
-                          color: ColorManager.LightSilver,
-                          thickness: 0.2,
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_left),
-              onPressed: () => null,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                (widget.properties.length / 50).ceil(),
-                (index) {
-                  if (index > 3 &&
-                      (widget.properties.length / 50).ceil() > 7 &&
-                      index != (widget.properties.length / 50).ceil() - 1)
-                    return Text(
-                      ".",
-                      textAlign: TextAlign.center,
-                    );
-                  return Container(
-                    margin:
-                        EdgeInsets.symmetric(horizontal: defaultPadding * 0.25),
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll(ColorManager.DarkGrey),
-                      ),
-                      onPressed: () => null,
-                      child: Text(
-                        index.toString(),
-                        style: TextStyle(color: ColorManager.White),
+                        ],
                       ),
                     ),
                   );
-                },
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_right),
-              onPressed: () => null,
-            ),
-          ],
-        )
+                });
+              else
+                return Center(
+                  child: const CircularProgressIndicator(),
+                );
+            }),
       ],
     );
   }

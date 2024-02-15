@@ -87,7 +87,11 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final PropertyCubit cubit = BlocProvider.of<PropertyCubit>(context);
     return TextField(
-      onChanged: (value) => cubit.setFilterQuery(value),
+      onChanged: (value) async {
+        if (context.mounted) {
+          await cubit.setFilterQuery(value);
+        }
+      },
       decoration: InputDecoration(
         prefixIcon: InkWell(
           onTap: () {
