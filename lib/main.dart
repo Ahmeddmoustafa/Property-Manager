@@ -1,6 +1,7 @@
 import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/auth/login_cubit.dart';
+import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 // import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/reminder/reminder_cubit.dart';
@@ -39,6 +40,9 @@ class MyApp extends StatelessWidget {
         // BlocProvider(
         //   create: (context) => PropertyModalCubit(),
         // ),
+        BlocProvider(
+          create: (context) => di.sl<PropertyModalCubit>(),
+        ),
         BlocProvider(
           create: (context) => di.sl<LoginCubit>(),
         ),

@@ -1,5 +1,7 @@
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
+import 'package:admin/cubit/get_property/property_cubit.dart';
+import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:admin/resources/Managers/values_manager.dart';
@@ -30,6 +32,8 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
   @override
   Widget build(BuildContext context) {
     final AddPropertyCubit formCubit = context.read<AddPropertyCubit>();
+    final PropertyCubit propertyCubit = context.read<PropertyCubit>();
+
     final double height = widget.height;
     final double width = widget.width;
 
@@ -221,11 +225,14 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                           // print('Username: ${formCubit.state.username}');
                           // print('Email: ${formCubit.state.email}');
 
-                          await formCubit.addProperty();
+                          PropertyModel? model = await formCubit.addProperty();
                           print(formCubit.hasError());
-                          if (!formCubit.hasError()) {
-                            Navigator.pushReplacementNamed(
-                                context, Routes.homeRoute);
+                          if (!formCubit.hasError() && model != null) {
+                            propertyCubit.addProperty(model);
+                            await propertyCubit.categorize();
+                            Navigator.pop(context);
+                            // Navigator.pushReplacementNamed(
+                            //     context, Routes.homeRoute);
                           }
                         },
                         child: Text('Add Property'),

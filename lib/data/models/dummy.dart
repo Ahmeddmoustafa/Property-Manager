@@ -1,6 +1,8 @@
 import 'package:admin/data/models/property_model.dart';
 import 'dart:math';
 
+import 'package:admin/resources/Managers/strings_manager.dart';
+
 List<PropertyModel> getRandomData() {
   List<PropertyModel> models = [];
   Random random = Random();
@@ -36,6 +38,8 @@ List<PropertyModel> getRandomData() {
       notPaid -= installmentAmount.toInt();
 
       installments.add(Installment(
+        type: AppStrings.UpcomingType,
+        remindedOn: DateTime.now(),
         reminded: false,
         id: installmentId,
         name: installmentName,
@@ -49,6 +53,7 @@ List<PropertyModel> getRandomData() {
 
     models.add(PropertyModel(
       id: id,
+      type: AppStrings.UpcomingType,
       description: description,
       price: price,
       paid: paid,

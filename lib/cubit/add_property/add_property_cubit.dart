@@ -1,5 +1,6 @@
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/create_property_usecase.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,6 +8,8 @@ part 'add_property_state.dart';
 
 class AddPropertyCubit extends Cubit<AddPropertyState> {
   final CreatePropertyUsecase createPropertyUsecase;
+  String type = AppStrings.UpcomingType;
+  double notpaid = 0;
   // final List<PropertyModel> _models = demoPropertyModels;
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -109,7 +112,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     emit(state.copyWith(err: false));
   }
 
-  Future<void> addProperty() async {
+  Future<PropertyModel?> addProperty() async {
     // emit(state.copyWith(err: true));
     //init variables
     final String description = descriptionController.text;
@@ -131,25 +134,28 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     if (hasError()) {
       print("errror in the modal");
       emit(state.copyWith(err: true));
-      return;
+      return null;
     } else {
+      List<Installment> installments = controllerToInstallments();
       final model = PropertyModel(
         id: "",
+        installments: installments,
+        type: type,
         description: description,
         price: double.parse(price),
         paid: double.parse(paidAmount),
-        notPaid: 0,
+        notPaid: notpaid,
         buyerName: buyerName,
         buyerNumber: buyerNumber,
-        installments: controllerToInstallments(),
         submissionDate: submissionDate,
         contractDate: contractDate,
       );
-      // await createPropertyUsecase(model);
-      print(
-          "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
+      await createPropertyUsecase(model);
+      // print(
+      //     "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
 
       emit(state.copyWith(err: false));
+      return model;
 
       // _models.add(model);
       // add property
@@ -206,9 +212,19 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
 
   List<Installment> controllerToInstallments() {
     List<Installment> installments = [];
+
     for (int i = 0; i < installmentDates.length; i++) {
+      if (installmentDates[i]!.isBefore(DateTime.now())) {
+        type = AppStrings.NotPaidType;
+        notpaid +=
+            double.parse(installmentsConttrollers[i].text.replaceAll(',', ''));
+      }
       installments.add(Installment(
+          remindedOn: DateTime.now(),
           reminded: false,
+          type: installmentDates[i]!.isBefore(DateTime.now())
+              ? AppStrings.NotPaidType
+              : AppStrings.UpcomingType,
           id: i.toString(),
           name: "Installment $i",
           date: installmentDates[i]!,

@@ -8,6 +8,7 @@ import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
+import 'package:admin/screens/main/components/loading_widget.dart';
 import 'package:admin/screens/property_modal/components/property_chart.dart';
 import 'package:admin/screens/property_modal/components/installment_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -45,9 +46,22 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
         width: width,
         padding: EdgeInsets.all(defaultPadding),
         child: SingleChildScrollView(
-          child: BlocBuilder<PropertyModalCubit, PropertyModalState>(
+          child: BlocConsumer<PropertyModalCubit, PropertyModalState>(
+            listener: (context, state) {
+              if (modalcubit.loading == true) {
+                showDialog(
+                  context: context,
+                  barrierDismissible:
+                      false, // Prevent users from dismissing the dialog by tapping outside
+                  builder: (BuildContext context) {
+                    return FullScreenLoadingDialog();
+                  },
+                );
+              }
+            },
             builder: (context, state) {
               final bool active = modalcubit.paidInstallmentsIndex.length > 0;
+
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -66,7 +80,10 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                                   ? () async {
                                       bool success =
                                           await modalcubit.saveProperty();
-                                      if (success) {
+                                      if (success &&
+                                          modalcubit.property != null) {
+                                        // propertycubit.updateProperty(
+                                        //     modalcubit.property!);
                                         await propertycubit.categorize();
                                         // Navigator.pushReplacementNamed(context,Routes.homeRoute);
                                       }

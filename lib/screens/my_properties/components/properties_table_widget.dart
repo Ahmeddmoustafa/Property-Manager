@@ -28,32 +28,38 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<ScrollCubit>()
-        .propertiesScrollController
-        .addListener(scrollListener);
+    // context.read<ScrollCubit>().propertiesScrollController.dispose();
+    // context.read<ScrollCubit>().propertiesScrollController = ScrollController();
+    // context
+    //     .read<ScrollCubit>()
+    //     .propertiesScrollController
+    //     .removeListener(scrollListener);
+    // context
+    //     .read<ScrollCubit>()
+    //     .propertiesScrollController
+    //     .addListener(scrollListener);
   }
 
-  Future<void> scrollListener() async {
-    if (!context.mounted && !mounted) return;
-    final ScrollCubit scrollCubit = context.read<ScrollCubit>();
-    final PropertyCubit propertyCubit = context.read<PropertyCubit>();
-    if (scrollCubit.loading) return;
+  // Future<void> scrollListener() async {
+  //   if (!context.mounted && !mounted) return;
+  //   final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+  //   final PropertyCubit propertyCubit = context.read<PropertyCubit>();
+  //   if (scrollCubit.loading) return;
 
-    if (scrollCubit.propertiesScrollController.position.pixels ==
-        scrollCubit.propertiesScrollController.position.maxScrollExtent) {
-      print("scrolled");
-      scrollCubit.loading = true;
-      scrollCubit.page += 1;
-      if (mounted) {
-        await propertyCubit.getPropertiesByCategory(
-          index: propertyCubit.selectedCategory,
-          pagination: scrollCubit.page,
-        );
-      }
-      scrollCubit.loading = false;
-    }
-  }
+  //   if (scrollCubit.propertiesScrollController.position.pixels ==
+  //       scrollCubit.propertiesScrollController.position.maxScrollExtent) {
+  //     print("scrolled");
+  //     scrollCubit.loading = true;
+  //     scrollCubit.page += 1;
+  //     if (mounted) {
+  //       await propertyCubit.getPropertiesByCategory(
+  //         index: propertyCubit.selectedCategory,
+  //         pagination: scrollCubit.page,
+  //       );
+  //     }
+  //     scrollCubit.loading = false;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +114,7 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
         ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
+            // controller: scrollCubit.propertiesScrollController,
             itemCount: scrollCubit.loading
                 ? widget.properties.length + 1
                 : widget.properties.length,
@@ -131,17 +138,14 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                     child: GestureDetector(
                       onTap: () => showDialog(
                         context: context,
-                        builder: (context) => BlocProvider(
-                          create: (context) => di.sl<PropertyModalCubit>(),
-                          child: Dialog(
-                            backgroundColor: ColorManager.BackgroundColor,
-                            clipBehavior: Clip.antiAlias,
-                            insetAnimationDuration:
-                                const Duration(milliseconds: 500),
-                            insetAnimationCurve: Curves.easeIn,
-                            child: PropertyModalWidget(
-                              propertyModel: widget.properties[index],
-                            ),
+                        builder: (context) => Dialog(
+                          backgroundColor: ColorManager.BackgroundColor,
+                          clipBehavior: Clip.antiAlias,
+                          insetAnimationDuration:
+                              const Duration(milliseconds: 500),
+                          insetAnimationCurve: Curves.easeIn,
+                          child: PropertyModalWidget(
+                            propertyModel: widget.properties[index],
                           ),
                         ),
                       ),

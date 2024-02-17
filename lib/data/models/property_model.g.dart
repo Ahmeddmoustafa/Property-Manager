@@ -27,7 +27,8 @@ class PropertyModelAdapter extends TypeAdapter<PropertyModel> {
       buyerName: fields[3] as String,
       buyerNumber: fields[4] as String,
       installments: (fields[5] as List).cast<Installment>(),
-    ).._type = fields[7] as String;
+      type: fields[7] as String,
+    );
   }
 
   @override
@@ -49,7 +50,7 @@ class PropertyModelAdapter extends TypeAdapter<PropertyModel> {
       ..writeByte(6)
       ..write(obj.id)
       ..writeByte(7)
-      ..write(obj._type)
+      ..write(obj.type)
       ..writeByte(8)
       ..write(obj.contractDate)
       ..writeByte(9)
@@ -85,13 +86,15 @@ class InstallmentAdapter extends TypeAdapter<Installment> {
       name: fields[0] as String,
       date: fields[1] as DateTime,
       amount: fields[2] as double,
-    ).._type = fields[3] as String;
+      remindedOn: fields[6] as DateTime,
+      type: fields[3] as String,
+    );
   }
 
   @override
   void write(BinaryWriter writer, Installment obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -99,11 +102,13 @@ class InstallmentAdapter extends TypeAdapter<Installment> {
       ..writeByte(2)
       ..write(obj.amount)
       ..writeByte(3)
-      ..write(obj._type)
+      ..write(obj.type)
       ..writeByte(4)
       ..write(obj.reminded)
       ..writeByte(5)
-      ..write(obj.id);
+      ..write(obj.id)
+      ..writeByte(6)
+      ..write(obj.remindedOn);
   }
 
   @override

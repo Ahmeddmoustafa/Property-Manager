@@ -3,6 +3,7 @@ import 'package:admin/data/models/dummy.dart';
 // import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
+import 'package:admin/domain/Usecases/usecase.dart';
 // import 'package:admin/domain/Usecases/usecase.dart';
 import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
@@ -218,17 +219,17 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
-    await localSource.addProperties(getRandomData());
+    // await localSource.addProperties(getRandomData());
     try {
       List<PropertyModel> list = await localSource.getProperties();
 
       // late List<PropertyModel> list = [];
-      // final result = await getProperties(NoParams());
-      // list = result.fold((failure) => properties, (data) => data);
+      final result = await getProperties(NoParams());
+      list = result.fold((failure) => properties, (data) => data);
       properties = list;
-      upcomingproperties = [];
-      notPaidproperties = [];
-      paidproperties = [];
+      // upcomingproperties = [];
+      // notPaidproperties = [];
+      // paidproperties = [];
 
       await categorize();
 
@@ -257,6 +258,11 @@ class PropertyCubit extends Cubit<PropertyState> {
       error = err.toString();
       emit(state.copyWith(list: []));
     }
+  }
+
+  void updateProperty(PropertyModel model) {
+    properties.removeWhere((property) => property.id == model.id);
+    properties.add(model);
   }
 
   Future<void> categorize() async {
@@ -334,6 +340,10 @@ class PropertyCubit extends Cubit<PropertyState> {
     }
 
     return false;
+  }
+
+  void addProperty(PropertyModel model) {
+    properties.add(model);
   }
 
   // double calculateAllProperties() {

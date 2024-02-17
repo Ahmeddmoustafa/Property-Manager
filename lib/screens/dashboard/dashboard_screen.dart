@@ -19,12 +19,15 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+    scrollCubit.propertiesScrollController
+        .addListener(() => scrollListener(context));
     return Container(
       // padding: EdgeInsets.all(defaultPadding),
       width: width,
       child: SafeArea(
         child: SingleChildScrollView(
           controller: scrollCubit.propertiesScrollController,
+          // physics: NeverScrollableScrollPhysics(),
           primary: false,
           // padding: EdgeInsets.all(defaultPadding),
           child: FutureBuilder(
@@ -73,5 +76,23 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+void scrollListener(BuildContext context) async {
+  final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+  final PropertyCubit propertyCubit = context.read<PropertyCubit>();
+  if (scrollCubit.loading) return;
+
+  if (scrollCubit.propertiesScrollController.position.pixels ==
+      scrollCubit.propertiesScrollController.position.maxScrollExtent) {
+    print("scrolled");
+    scrollCubit.loading = true;
+    scrollCubit.page += 1;
+    await propertyCubit.getPropertiesByCategory(
+      index: propertyCubit.selectedCategory,
+      pagination: scrollCubit.page,
+    );
+    scrollCubit.loading = false;
   }
 }

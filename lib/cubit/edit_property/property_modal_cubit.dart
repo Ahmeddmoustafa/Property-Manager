@@ -13,6 +13,7 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
   late List<int> paidInstallmentsIndex = [];
   late double upcomingToPaid = 0.0;
   late double notpaidToPaid = 0.0;
+  bool loading = false;
   PropertyModalCubit({required this.updatePropertyUsecase})
       : super(PropertyModalState(property: null));
 
@@ -42,6 +43,11 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
 
   Future<bool> saveProperty() async {
     bool success = true;
+    loading = true;
+    emit(state.copyWith(prop: property!));
+
+    await Future.delayed(Duration(seconds: 3), () {});
+
     if (property != null) {
       paidInstallmentsIndex.forEach((index) {
         Installment installment = property!.installments[index];
@@ -53,6 +59,8 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
         installment.payInstallment();
       });
       property!.updateType();
+
+      loading = false;
 
       print(property!.getType());
       reset();

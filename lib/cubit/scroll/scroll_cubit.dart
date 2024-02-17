@@ -5,7 +5,7 @@ part 'scroll_state.dart';
 
 class ScrollCubit extends Cubit<ScrollState> {
   ScrollCubit() : super(ScrollState());
-  final ScrollController propertiesScrollController = ScrollController();
+  ScrollController propertiesScrollController = ScrollController();
   bool loading = false;
   int page = 1;
 
