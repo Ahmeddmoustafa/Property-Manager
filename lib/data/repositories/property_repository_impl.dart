@@ -4,6 +4,8 @@ import 'package:admin/data/local/property_local_source.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/data/remote/property_remote_source.dart';
 import 'package:admin/domain/Repositories/property_repository.dart';
+import 'package:admin/domain/Usecases/notpaid_usecase.dart';
+import 'package:admin/domain/Usecases/update_property_usecase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 
@@ -39,28 +41,46 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return right(models);
       }
     } on FirebaseException catch (err) {
+      print(err.message!);
       return left(ServerFailure(msg: err.message!));
     } catch (err) {
+      print(err.toString());
       return left(ServerFailure(msg: err.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> setNotPaid(PropertyModel property) {
-    // TODO: implement setNotPaid
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<Failure, void>> updateProperty(PropertyModel property) async {
+  Future<Either<Failure, void>> setNotPaid(
+      List<SetNotPaidParams> params) async {
     try {
       //Update local and remote DB for consistency
-      await propertyRemoteSource.updateProperty(property);
-      await propertyLocalSource.updateProperty(property);
+      params.forEach((param) async {
+        await propertyRemoteSource.setPropertyNotPaid(param);
+        await propertyLocalSource.updateProperty(param.model);
+      });
+
       // AppPreferences.updateAppStatus();
       return Right("");
     } on FirebaseException catch (err) {
       return Left(ServerFailure(msg: err.message.toString()));
+    } catch (err) {
+      return Left(ServerFailure(msg: err.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateProperty(
+      UpdatePropertyParams params) async {
+    try {
+      //Update local and remote DB for consistency
+      await propertyRemoteSource.updateProperty(params);
+      await propertyLocalSource.updateProperty(params.model);
+      // AppPreferences.updateAppStatus();
+      return Right("");
+    } on FirebaseException catch (err) {
+      return Left(ServerFailure(msg: err.message.toString()));
+    } catch (err) {
+      return Left(ServerFailure(msg: err.toString()));
     }
   }
 

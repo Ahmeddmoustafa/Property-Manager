@@ -1,3 +1,4 @@
+import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,41 @@ class LoadingOverlay extends StatelessWidget {
   }
 }
 
-class FullScreenLoadingDialog extends StatelessWidget {
+class AddPropertyLoadingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<AddPropertyCubit, AddPropertyState>(
+      listener: (context, state) {
+        if (context.read<AddPropertyCubit>().loading == false) {
+          Navigator.pop(context);
+        }
+      },
+      builder: (context, state) {
+        return Dialog(
+          backgroundColor: ColorManager.Transparent,
+          // Set the inset padding to zero to make the loading indicator take up the full screen
+          insetPadding: EdgeInsets.zero,
+          child: Container(
+            color: ColorManager.Transparent,
+            // Use MediaQuery to get the screen size
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                // SizedBox(height: 16),
+                // Text('Loading...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class PropertyLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PropertyModalCubit, PropertyModalState>(

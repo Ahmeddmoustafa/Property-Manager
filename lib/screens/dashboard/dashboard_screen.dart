@@ -87,12 +87,19 @@ void scrollListener(BuildContext context) async {
   if (scrollCubit.propertiesScrollController.position.pixels ==
       scrollCubit.propertiesScrollController.position.maxScrollExtent) {
     print("scrolled");
-    scrollCubit.loading = true;
-    scrollCubit.page += 1;
-    await propertyCubit.getPropertiesByCategory(
-      index: propertyCubit.selectedCategory,
-      pagination: scrollCubit.page,
-    );
-    scrollCubit.loading = false;
+    // scrollCubit.loading = true;
+
+    scrollCubit.toogleLoading();
+    if (scrollCubit.incrementPagination()) {
+      await Future.delayed(Duration(seconds: 1));
+      await propertyCubit.getPropertiesByCategory(
+        index: propertyCubit.selectedCategory,
+        pagination: scrollCubit.page,
+      );
+    }
+
+    scrollCubit.toogleLoading();
+
+    // scrollCubit.loading = false;
   }
 }

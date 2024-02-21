@@ -95,13 +95,28 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
   Widget getInstallments(int i) {
     final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
     final bool isPaid = cubit.isPaid(i);
+    final Installment installment = widget.propertyModel.installments[i];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          "${formatDate(widget.propertyModel.installments[i].date)}",
+        Column(
+          children: [
+            if (installment.reminded &&
+                (installment.type == AppStrings.UpcomingType ||
+                    installment.type == AppStrings.NotPaidType))
+              Text(
+                "Reminded",
+                style: TextStyle(
+                  color: ColorManager.LightGrey,
+                  fontSize: 12,
+                ),
+              ),
+            Text(
+              "${formatDate(installment.date)}",
+            ),
+          ],
         ),
         Column(
           children: [
@@ -131,7 +146,7 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
             ),
             Text(
               "${formatPrice(
-                widget.propertyModel.installments[i].amount,
+                installment.amount,
               )} EGP",
             ),
           ],

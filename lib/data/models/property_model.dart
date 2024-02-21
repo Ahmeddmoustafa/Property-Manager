@@ -69,6 +69,7 @@ class PropertyModel {
       "type": type,
       "price": price,
       "paid": paid,
+      "notpaid": notPaid,
       "buyername": buyerName,
       "buyernumber": buyerNumber,
       "installments": installmentsToJson(installments),
@@ -113,36 +114,40 @@ class PropertyModel {
     return type;
   }
 
-  bool isNotPaid() {
+  List<int> isNotPaid() {
     bool isnotPaid = false;
-    installments.forEach((inst) {
+    List<int> notpaidIndices = [];
+    int index = 0;
+    for (Installment inst in installments) {
       if (inst.date.compareTo(DateTime.now()) <= 0) {
         if (inst.isNotPaid()) {
           type = AppStrings.NotPaidType;
           notPaid += inst.amount;
           isnotPaid = true;
+          notpaidIndices.add(index);
           // return;
         }
+        index++;
       } else
-        return;
-    });
-    return isnotPaid;
+        break;
+    }
+    return notpaidIndices;
   }
 
   void updateType() {
     // bool paid = false;
     bool upcoming = false;
     bool notpaid = false;
-    installments.forEach((installment) {
+    for (Installment installment in installments) {
       if (installment.getType() == AppStrings.NotPaidType) {
         type = AppStrings.NotPaidType;
         notpaid = true;
-        return;
+        break;
       }
       if (installment.getType() == AppStrings.UpcomingType) {
         upcoming = true;
       }
-    });
+    }
     if (notpaid) return;
     if (upcoming) {
       type = AppStrings.UpcomingType;

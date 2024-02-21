@@ -54,7 +54,7 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                   barrierDismissible:
                       false, // Prevent users from dismissing the dialog by tapping outside
                   builder: (BuildContext context) {
-                    return FullScreenLoadingDialog();
+                    return PropertyLoadingScreen();
                   },
                 );
               }

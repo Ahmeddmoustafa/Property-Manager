@@ -71,7 +71,7 @@ DataRow getRegularInstallmentRow(BuildContext context, double width) {
           child: SizedBox(
             width: width * 0.1,
             child: TextField(
-              maxLength: 3,
+              maxLength: 2,
               controller: formCubit.installmentsDurationController,
               // textAlignVertical: TextAlignVertical.top,
               onChanged: (value) {
@@ -80,7 +80,7 @@ DataRow getRegularInstallmentRow(BuildContext context, double width) {
 
               decoration: InputDecoration(
                 counterText: "",
-                hintText: "Days",
+                hintText: "Months",
                 // labelText: 'Price In EGP',
                 floatingLabelBehavior: FloatingLabelBehavior.auto,
                 border: InputBorder.none,

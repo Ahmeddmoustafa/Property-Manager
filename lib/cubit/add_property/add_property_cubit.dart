@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
@@ -10,6 +13,8 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   final CreatePropertyUsecase createPropertyUsecase;
   String type = AppStrings.UpcomingType;
   double notpaid = 0;
+
+  bool loading = false;
   // final List<PropertyModel> _models = demoPropertyModels;
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -40,6 +45,100 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
 
   AddPropertyCubit({required this.createPropertyUsecase})
       : super(AddPropertyState(error: true));
+  Future<void> reset(List<PropertyModel> list) async {
+    // getRandomData().forEach((element) async {
+    //   await createPropertyUsecase(element);
+    // });
+    descriptionError = false;
+    priceError = false;
+    paidAmountError = false;
+    buyerNameError = false;
+    buyerNumberError = false;
+    priceValidationError = false;
+    installmentError = false;
+    contractDate = DateTime.now();
+    submissionDate = DateTime.now();
+
+    regularInstallmentsGenerated = false;
+    type = AppStrings.UpcomingType;
+    notpaid = 0;
+
+    loading = false;
+    descriptionController.text = "";
+    priceController.text = "";
+    paidAmountController.text = "";
+    buyerNameController.text = "";
+    buyerNumberController.text = "";
+    installmentsConttrollers = [];
+    installmentDates = [];
+    firstInstallment = DateTime.now();
+    lastInstallment = DateTime.now();
+    installmentsAmountController.text = "";
+    installmentsDurationController.text = "";
+  }
+
+  int differenceInMonths(DateTime start, DateTime end) {
+    return (end.year - start.year) * 12 + end.month - start.month;
+  }
+
+  // void generateRegularInstallments() {
+  //   if (lastInstallment.isAfter(firstInstallment)) {
+  //     installmentsConttrollers = [];
+  //     installmentDates = [];
+  //     double installmentAmount =
+  //         double.parse(installmentsAmountController.text.replaceAll(',', ''));
+  //     int numberOfInstallments =
+  //         (differenceInMonths(firstInstallment, lastInstallment) /
+  //                     int.parse(installmentsDurationController.text))
+  //                 .ceil() +
+  //             2;
+
+  //     Duration installmentPeriod =
+  //         Duration(days: int.parse(installmentsDurationController.text) * 30);
+
+  //     for (int i = 0; i < numberOfInstallments; i++) {
+  //       // DateTime dueDate = DateTime(year);
+  //       DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+  //       dueDate = dueDate.copyWith(day: firstInstallment.day);
+  //       if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
+  //       installmentsConttrollers.add(
+  //         TextEditingController(
+  //           text: installmentAmount.toString(),
+  //         ),
+  //       );
+  //       installmentDates.add(dueDate);
+  //       // installments
+  //       //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+  //     }
+  //     regularInstallmentsGenerated = true;
+  //     emit(state.copyWith(err: false));
+  //   }
+  // }
+
+  void addTestData() {
+    Random random = Random();
+
+    descriptionController.text =
+        "Chalett ${random.nextInt(99) + 1} in Compound ${compoundNames[random.nextInt(compoundNames.length)]} in ${cityNames[random.nextInt(cityNames.length)]}";
+    priceController.text = "${(random.nextInt(20) + 1) * 250000}";
+    paidAmountController.text =
+        "${(random.nextInt((int.parse(priceController.text) ~/ 500).toInt())) * 500}";
+    buyerNameController.text =
+        "${firstName[random.nextInt(firstName.length)]} ${middleName[random.nextInt(middleName.length)]} ${lastName[random.nextInt(lastName.length)]}";
+    buyerNumberController.text = "01100${random.nextInt(999999)}";
+    installmentsConttrollers = [];
+    installmentDates = [];
+    int firstdate = random.nextInt(4) + 3;
+    firstInstallment = DateTime.now().add(Duration(days: firstdate));
+    lastInstallment =
+        firstInstallment.add(Duration(days: 10 + random.nextInt(25)));
+    int duration = lastInstallment.difference(firstInstallment).inDays;
+    double installment = (int.parse(priceController.text) -
+            int.parse(paidAmountController.text)) /
+        duration;
+    installmentsAmountController.text = "$installment";
+    installmentsDurationController.text = "1";
+  }
 
   void generateRegularInstallments() {
     if (lastInstallment.isAfter(firstInstallment)) {
@@ -47,7 +146,6 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
       installmentDates = [];
       double installmentAmount =
           double.parse(installmentsAmountController.text.replaceAll(',', ''));
-      print(lastInstallment.difference(firstInstallment).inDays);
       int numberOfInstallments =
           (lastInstallment.difference(firstInstallment).inDays /
                       int.parse(installmentsDurationController.text))
@@ -58,7 +156,9 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
           Duration(days: int.parse(installmentsDurationController.text));
 
       for (int i = 0; i < numberOfInstallments; i++) {
-        DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+        DateTime dueDate = DateTime(firstInstallment.year);
+        dueDate = firstInstallment.add(installmentPeriod * i);
+        // dueDate = dueDate.copyWith(day: firstInstallment.day);
         if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
         installmentsConttrollers.add(
           TextEditingController(
@@ -113,7 +213,8 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   }
 
   Future<PropertyModel?> addProperty() async {
-    // emit(state.copyWith(err: true));
+    loading = true;
+    emit(state.copyWith(err: false));
     //init variables
     final String description = descriptionController.text;
     final String price = priceController.text.replaceAll(',', '');
@@ -134,6 +235,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     if (hasError()) {
       print("errror in the modal");
       emit(state.copyWith(err: true));
+      loading = false;
       return null;
     } else {
       List<Installment> installments = controllerToInstallments();
@@ -153,7 +255,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
       await createPropertyUsecase(model);
       // print(
       //     "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
-
+      loading = false;
       emit(state.copyWith(err: false));
       return model;
 
@@ -253,5 +355,15 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
       }
     }
     return DateTime(2070);
+  }
+
+  void selectContractDate(DateTime date) {
+    contractDate = date;
+    emit(state.copyWith(err: false));
+  }
+
+  void selectSubmissionDate(DateTime date) {
+    submissionDate = date;
+    emit(state.copyWith(err: false));
   }
 }

@@ -2,6 +2,8 @@ import 'package:admin/data/local/property_local_source.dart';
 import 'package:admin/data/models/dummy.dart';
 // import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/domain/Usecases/create_property_usecase.dart';
+import 'package:admin/domain/Usecases/notpaid_usecase.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
 import 'package:admin/domain/Usecases/usecase.dart';
 // import 'package:admin/domain/Usecases/usecase.dart';
@@ -16,6 +18,7 @@ part 'property_state.dart';
 
 class PropertyCubit extends Cubit<PropertyState> {
   final GetProperties getProperties;
+  final SetNotPaidUsecase setNotPaidUsecase;
   final TextEditingController searchController = TextEditingController();
   late int filterOption = 1;
   String filterQuery = "";
@@ -40,7 +43,7 @@ class PropertyCubit extends Cubit<PropertyState> {
 
   bool ascending = true;
   String sortBy = "Default";
-  PropertyCubit({required this.getProperties})
+  PropertyCubit({required this.getProperties, required this.setNotPaidUsecase})
       : super(PropertyState(properties: []));
 
   void toggleSort() {
@@ -63,6 +66,8 @@ class PropertyCubit extends Cubit<PropertyState> {
             return order * a.price.compareTo(b.price);
           case AppStrings.SortByPaidAmount:
             return order * a.paid.compareTo(b.paid);
+          case AppStrings.SortByPaidPercentage:
+            return order * (a.price - a.paid).compareTo(b.price - b.paid);
           case AppStrings.SortByDate:
             return order * a.price.compareTo(b.price);
           default:
@@ -221,11 +226,11 @@ class PropertyCubit extends Cubit<PropertyState> {
     // await localSource.clearProperties();
     // await localSource.addProperties(getRandomData());
     try {
-      List<PropertyModel> list = await localSource.getProperties();
+      // List<PropertyModel> list = await localSource.getProperties();
 
-      // late List<PropertyModel> list = [];
       final result = await getProperties(NoParams());
-      list = result.fold((failure) => properties, (data) => data);
+      List<PropertyModel> list =
+          result.fold((failure) => properties, (data) => data);
       properties = list;
       // upcomingproperties = [];
       // notPaidproperties = [];
@@ -246,6 +251,7 @@ class PropertyCubit extends Cubit<PropertyState> {
       // paidproperties = list;
       // list = await localSource.getProperties(2);
       // upcomingproperties = list;
+
       await checkNotPaid();
 
       // upcomingproperties = list;
@@ -301,38 +307,54 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // Check if it's a new day
     if (currentDate != storedDate) {
-      // List<PropertyModel> notPaid = [];
+      List<int> notPaidIndices = [];
+      List<SetNotPaidParams> notpaidList = [];
       print("must find not paid");
       bool found = false;
-      notPaidproperties.forEach((property) {
-        property.installments.forEach((installment) {
+      for (PropertyModel property in notPaidproperties) {
+        int index = 0;
+        for (Installment installment in property.installments) {
           if (installment.date.compareTo(DateTime.now()) <= 0) {
             if (installment.getType() == AppStrings.UpcomingType) {
+              notPaidIndices.add(index);
               installment.setType(AppStrings.NotPaidType);
               property.notPaid += installment.amount;
               notPaidAmount += installment.amount;
               found = true;
             }
           } else {
-            return;
+            break;
           }
-        });
+          index++;
+        }
+        if (found) {
+          notpaidList.add(SetNotPaidParams(
+            notPaidIndices: notPaidIndices,
+            model: property,
+          ));
+        }
+
         // found? then we must update the not paid array
-      });
+      }
       upcomingproperties.removeWhere((property) {
-        if (property.isNotPaid()) {
+        List<int> indices = property.isNotPaid();
+        if (indices.isNotEmpty) {
           print("Found Not paid property");
           // property.setType(AppStrings.NotPaidType);
           notPaidAmount += property.notPaid;
           notPaidproperties.add(property);
 
-          // notPaid.add(property);
+          notpaidList.add(SetNotPaidParams(
+            notPaidIndices: notPaidIndices,
+            model: property,
+          ));
           return true;
         }
         return false;
       });
 
-      // if (notPaid.isNotEmpty) await localSource.updateNotPaid(notPaid);
+      if (notpaidList.isNotEmpty) await setNotPaidUsecase(notpaidList);
+
       // Execute your function here
 
       // Update the stored date

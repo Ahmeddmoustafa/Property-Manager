@@ -115,11 +115,9 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             // controller: scrollCubit.propertiesScrollController,
-            itemCount: scrollCubit.loading
-                ? widget.properties.length + 1
-                : widget.properties.length,
+            itemCount: widget.properties.length + 1,
             itemBuilder: (context, index) {
-              if (index <= widget.properties.length)
+              if (index <= widget.properties.length - 1)
                 return StatefulBuilder(builder: (context, stateSetter) {
                   return MouseRegion(
                     cursor: MaterialStateMouseCursor.clickable,
@@ -174,7 +172,9 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                                 tableText(
                                   flex: 1,
                                   color: propertyCubit.sortBy ==
-                                          AppStrings.SortByPaidAmount
+                                              AppStrings.SortByPaidAmount ||
+                                          propertyCubit.sortBy ==
+                                              AppStrings.SortByPaidPercentage
                                       ? propertyCubit.categoryColor
                                       : ColorManager.White,
                                   text: formatPrice(
@@ -184,7 +184,9 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                                 tableText(
                                   flex: 1,
                                   color: propertyCubit.sortBy ==
-                                          AppStrings.SortByPrice
+                                              AppStrings.SortByPrice ||
+                                          propertyCubit.sortBy ==
+                                              AppStrings.SortByPaidPercentage
                                       ? propertyCubit.categoryColor
                                       : ColorManager.White,
                                   text: formatPrice(
@@ -233,8 +235,21 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                   );
                 });
               else
-                return Center(
-                  child: const CircularProgressIndicator(),
+                return BlocBuilder<ScrollCubit, ScrollState>(
+                  builder: (context, state) {
+                    scrollCubit.properties = widget.properties;
+                    print("${scrollCubit.page * 50} pagination");
+                    print("${widget.properties.length} properties");
+
+                    if (scrollCubit.loading == true &&
+                        widget.properties.length <= scrollCubit.page * 50) {
+                      return Center(
+                        child: const CircularProgressIndicator(),
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
                 );
             }),
       ],

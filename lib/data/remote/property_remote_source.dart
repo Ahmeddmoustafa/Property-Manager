@@ -1,4 +1,7 @@
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/domain/Usecases/notpaid_usecase.dart';
+import 'package:admin/domain/Usecases/update_property_usecase.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -27,13 +30,58 @@ class PropertyRemoteSource {
   }
 
   //Overwrites the property data in the Firebase
-  Future<void> updateProperty(PropertyModel property) async {
-    await _firestore
+  Future<void> updateProperty(UpdatePropertyParams params) async {
+    DocumentReference docRef = _firestore
         .collection("allproperties")
         .doc(_firebaseAuth.currentUser!.uid)
         .collection("properties")
-        .doc(property.id)
-        .set(property.toJson());
+        .doc(params.model.id);
+
+    DocumentSnapshot doc = await docRef.get();
+
+    if (doc.exists) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      List<dynamic> installments = data['installments'];
+
+      params.updatedIndices.forEach((index) {
+        installments[index]["type"] = AppStrings.PaidType;
+      });
+
+      data["installments"] = installments;
+      data["paid"] = params.model.paid;
+      data["notpaid"] = params.model.notPaid;
+      data["type"] = params.model.type;
+
+      // Get the installment array from the data
+      await docRef.update(data);
+    }
+  }
+
+  Future<void> setPropertyNotPaid(SetNotPaidParams params) async {
+    DocumentReference docRef = _firestore
+        .collection("allproperties")
+        .doc(_firebaseAuth.currentUser!.uid)
+        .collection("properties")
+        .doc(params.model.id);
+
+    DocumentSnapshot doc = await docRef.get();
+
+    if (doc.exists) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      List<dynamic> installments = data['installments'];
+
+      params.notPaidIndices.forEach((index) {
+        installments[index]["type"] = AppStrings.NotPaidType;
+      });
+
+      data["installments"] = installments;
+      data["paid"] = params.model.paid;
+      data["notpaid"] = params.model.notPaid;
+      data["type"] = params.model.type;
+
+      // Get the installment array from the data
+      await docRef.update(data);
+    }
   }
 
 // get all properties in the remote DB

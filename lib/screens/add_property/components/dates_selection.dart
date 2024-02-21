@@ -38,7 +38,7 @@ Future<void> selectSubmissionDate(BuildContext context) async {
   );
 
   if (pickedDate != null && pickedDate != formCubit.submissionDate) {
-    formCubit.submissionDate = pickedDate;
+    formCubit.selectSubmissionDate(pickedDate);
   }
 }
 
@@ -47,13 +47,13 @@ Future<void> selectContractDate(BuildContext context) async {
 
   DateTime? pickedDate = await showDatePicker(
     context: context,
-    initialDate: DateTime(2010),
+    initialDate: DateTime.now(),
     firstDate: DateTime(2000),
     lastDate: DateTime(2101),
   );
 
   if (pickedDate != null && pickedDate != formCubit.submissionDate) {
-    formCubit.contractDate = pickedDate;
+    formCubit.selectContractDate(pickedDate);
     // setState(() {
     //   contractDate = pickedDate;
     // });

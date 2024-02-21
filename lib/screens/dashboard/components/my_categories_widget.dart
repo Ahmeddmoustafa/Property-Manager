@@ -1,5 +1,6 @@
 import 'package:admin/Core/injection_control.dart' as di;
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
+import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
@@ -38,22 +39,21 @@ class MyCategoriesWidget extends StatelessWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => BlocProvider(
-                    create: (context) => di.sl<AddPropertyCubit>(),
-                    child: Dialog(
-                      backgroundColor: ColorManager.BackgroundColor,
-                      clipBehavior: Clip.antiAlias,
-                      insetAnimationDuration: const Duration(milliseconds: 500),
-                      insetAnimationCurve: Curves.easeIn,
-                      child: AddPropertyModal(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        width: Responsive.isDesktop(context)
-                            ? MediaQuery.of(context).size.width * 0.6
-                            : MediaQuery.of(context).size.width * 0.9,
-                      ),
+                  builder: (context) => Dialog(
+                    backgroundColor: ColorManager.BackgroundColor,
+                    clipBehavior: Clip.antiAlias,
+                    insetAnimationDuration: const Duration(milliseconds: 500),
+                    insetAnimationCurve: Curves.easeIn,
+                    child: AddPropertyModal(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      width: Responsive.isDesktop(context)
+                          ? MediaQuery.of(context).size.width * 0.6
+                          : MediaQuery.of(context).size.width * 0.9,
                     ),
                   ),
-                );
+                ).then((value) => context
+                    .read<AddPropertyCubit>()
+                    .reset(context.read<PropertyCubit>().properties));
               },
               icon: Icon(Icons.add),
               label: Text("Add New"),

@@ -1,5 +1,5 @@
 import 'package:admin/data/models/property_model.dart';
-import 'package:admin/domain/Usecases/paid_usecase.dart';
+import 'package:admin/domain/Usecases/update_property_usecase.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,7 +46,7 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
     loading = true;
     emit(state.copyWith(prop: property!));
 
-    await Future.delayed(Duration(seconds: 3), () {});
+    await Future.delayed(Duration(seconds: 1), () {});
 
     if (property != null) {
       paidInstallmentsIndex.forEach((index) {
@@ -59,19 +59,36 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
         installment.payInstallment();
       });
       property!.updateType();
+      final result = await updatePropertyUsecase(
+        UpdatePropertyParams(
+          updatedIndices: paidInstallmentsIndex,
+          model: property!,
+        ),
+      );
+      result.fold((f) {
+        success = false;
+      }, (r) {
+        success = true;
+      });
 
       loading = false;
 
       print(property!.getType());
       reset();
-      // final result = await updatePropertyUsecase(property!);
-      // result.fold((f) {
-      //   success = false;
-      // }, (r) {
-      //   success = true;
-      // });
     }
     return success;
+  }
+
+  Map<String, dynamic> getUpdatedInfo() {
+    Map<String, dynamic> fields = {
+      "paid": property!.paid,
+      "notpaid": property!.notPaid,
+      "type": property!.type,
+    };
+    paidInstallmentsIndex.forEach((index) {
+      fields.addAll({"installments.$index.type": AppStrings.PaidType});
+    });
+    return fields;
   }
 
   void reset() {
