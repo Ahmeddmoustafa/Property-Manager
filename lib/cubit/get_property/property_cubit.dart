@@ -20,6 +20,9 @@ class PropertyCubit extends Cubit<PropertyState> {
   final GetProperties getProperties;
   final SetNotPaidUsecase setNotPaidUsecase;
   final TextEditingController searchController = TextEditingController();
+
+  bool foundNotPaid = false;
+
   late int filterOption = 1;
   String filterQuery = "";
 
@@ -70,6 +73,8 @@ class PropertyCubit extends Cubit<PropertyState> {
             return order * (a.price - a.paid).compareTo(b.price - b.paid);
           case AppStrings.SortByDate:
             return order * a.price.compareTo(b.price);
+          case AppStrings.SortByNotPaid:
+            return order * a.notPaid.compareTo(b.notPaid);
           default:
             return 1;
         }
@@ -201,7 +206,8 @@ class PropertyCubit extends Cubit<PropertyState> {
     switch (filterOption) {
       case 1:
         return list.where((property) {
-          return regExp.hasMatch(property.description.toLowerCase());
+          return regExp
+              .hasMatch(property.description.toLowerCase().replaceAll(" ", ""));
         }).toList();
       case 2:
         return list.where((property) {
@@ -220,6 +226,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   Future<void> fetchData() async {
     loading = true;
     hasError = false;
+    foundNotPaid = false;
     error = "";
 
     // await localSource.removeAllBoxes();
@@ -253,11 +260,13 @@ class PropertyCubit extends Cubit<PropertyState> {
       // upcomingproperties = list;
 
       await checkNotPaid();
+      await getPropertiesByCategory(index: selectedCategory);
 
       // upcomingproperties = list;
       // list = await localSource.getProperties(3);
       // notPaidproperties.addAll(list);
-      emit(state.copyWith(list: []));
+      // emit(state.copyWith(list: []));
+      foundNotPaid = false;
     } catch (err) {
       loading = false;
       hasError = true;
@@ -291,7 +300,7 @@ class PropertyCubit extends Cubit<PropertyState> {
         notPaidAmount += property.notPaid;
       }
     });
-    getPropertiesByCategory(index: selectedCategory);
+    // await getPropertiesByCategory(index: selectedCategory);
   }
 
   Future<bool> checkNotPaid() async {
@@ -307,14 +316,18 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // Check if it's a new day
     if (currentDate != storedDate) {
-      List<int> notPaidIndices = [];
       List<SetNotPaidParams> notpaidList = [];
       print("must find not paid");
       bool found = false;
+      DateTime currDateWithoutTime = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
       for (PropertyModel property in notPaidproperties) {
         int index = 0;
+        List<int> notPaidIndices = [];
         for (Installment installment in property.installments) {
-          if (installment.date.compareTo(DateTime.now()) <= 0) {
+          DateTime instDate = DateTime(installment.date.year,
+              installment.date.month, installment.date.day);
+          if (instDate.compareTo(currDateWithoutTime) <= 0) {
             if (installment.getType() == AppStrings.UpcomingType) {
               notPaidIndices.add(index);
               installment.setType(AppStrings.NotPaidType);
@@ -345,7 +358,7 @@ class PropertyCubit extends Cubit<PropertyState> {
           notPaidproperties.add(property);
 
           notpaidList.add(SetNotPaidParams(
-            notPaidIndices: notPaidIndices,
+            notPaidIndices: indices,
             model: property,
           ));
           return true;
@@ -353,7 +366,10 @@ class PropertyCubit extends Cubit<PropertyState> {
         return false;
       });
 
-      if (notpaidList.isNotEmpty) await setNotPaidUsecase(notpaidList);
+      if (notpaidList.isNotEmpty) {
+        foundNotPaid = true;
+        await setNotPaidUsecase(notpaidList);
+      }
 
       // Execute your function here
 

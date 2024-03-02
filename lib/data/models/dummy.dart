@@ -55,7 +55,7 @@ List<PropertyModel> getRandomData() {
   List<PropertyModel> models = [];
   Random random = Random();
 
-  for (int i = 1; i <= 40; i++) {
+  for (int i = 1; i <= 50; i++) {
     String id = i.toString();
     String description =
         "Chalett $i in Compound ${compoundNames[random.nextInt(compoundNames.length)]} in ${cityNames[random.nextInt(cityNames.length)]}";

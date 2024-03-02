@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+//FIREBASE AUTH GATE
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -13,7 +14,9 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
+      // stream: channel.stream,
       builder: (context, snapshot) {
+        print(snapshot.data);
         if (snapshot.hasData) {
           return MultiProvider(
             providers: [

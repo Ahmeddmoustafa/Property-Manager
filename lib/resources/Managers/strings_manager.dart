@@ -10,6 +10,7 @@ class AppStrings {
   static const SortByPrice = "Sort By Total Price";
   static const SortByPaidAmount = "Sort By Paid Amount";
   static const SortByPaidPercentage = "Sort By Paid Difference";
+  static const SortByNotPaid = "Sort By Not Paid";
 
   static const SortByDate = "Sort By Next Date";
 }

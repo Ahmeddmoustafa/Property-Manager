@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:admin/cubit/auth/login_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/fonts_manager.dart';
@@ -6,6 +8,7 @@ import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -92,10 +95,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: AppSize.s30),
                     InkWell(
-                      onTap: () {
-                        // Navigator.pushReplacementNamed(
-                        //     context, Routes.mainRoute);
+                      onTap: () async {
+                        // Map<String, String> loginData = {
+                        //   'email': 'test@gmail.com',
+                        //   'password': 'password',
+                        // };
+                        // String requestBody = json.encode(loginData);
+
                         cubit.signIn();
+                        // final response = await http.post(
+                        //   Uri.parse("http://localhost:5000/auth/login"),
+                        //   headers: {
+                        //     'Content-Type':
+                        //         'application/json', // Specify the content type as JSON
+                        //   },
+                        //   body:
+                        //       requestBody, // Pass the encoded JSON data as the request body
+                        // );
+                        // print(response.body);
                       },
                       child: Container(
                         decoration: BoxDecoration(

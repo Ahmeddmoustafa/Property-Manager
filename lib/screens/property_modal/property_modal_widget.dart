@@ -85,6 +85,11 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                                         // propertycubit.updateProperty(
                                         //     modalcubit.property!);
                                         await propertycubit.categorize();
+                                        await propertycubit
+                                            .getPropertiesByCategory(
+                                                index: propertycubit
+                                                    .selectedCategory);
+
                                         // Navigator.pushReplacementNamed(context,Routes.homeRoute);
                                       }
 

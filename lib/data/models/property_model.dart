@@ -1,4 +1,5 @@
 import 'package:admin/resources/Managers/strings_manager.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
@@ -118,8 +119,12 @@ class PropertyModel {
     bool isnotPaid = false;
     List<int> notpaidIndices = [];
     int index = 0;
+    DateTime currDateWithoutTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    DateTime instDate = DateTime.now();
     for (Installment inst in installments) {
-      if (inst.date.compareTo(DateTime.now()) <= 0) {
+      instDate = DateTime(inst.date.year, inst.date.month, inst.date.day);
+      if (instDate.compareTo(currDateWithoutTime) <= 0) {
         if (inst.isNotPaid()) {
           type = AppStrings.NotPaidType;
           notPaid += inst.amount;
@@ -127,9 +132,9 @@ class PropertyModel {
           notpaidIndices.add(index);
           // return;
         }
-        index++;
       } else
         break;
+      index++;
     }
     return notpaidIndices;
   }
@@ -225,8 +230,12 @@ class Installment {
   }
 
   bool isNotPaid() {
+    print(type);
     if (type == AppStrings.UpcomingType) {
-      bool notPaid = date.compareTo(DateTime.now()) <= 0;
+      DateTime currDateWithoutTime = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DateTime instDate = DateTime(date.year, date.month, date.day);
+      bool notPaid = instDate.compareTo(currDateWithoutTime) <= 0;
       if (notPaid) {
         type = AppStrings.NotPaidType;
         return notPaid;

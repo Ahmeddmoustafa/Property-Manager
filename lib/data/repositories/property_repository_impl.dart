@@ -25,7 +25,7 @@ class PropertyRepositoryImpl implements PropertyRepository {
       // if 30 mins passed then we will fetch from the remote DB
       bool updated = await AppPreferences.isLocalUpdated();
       // the app is up to date with the remote DB, so no need to fetch again
-      if (updated) {
+      if (false) {
         print("Still less than 30 mins");
         final List<PropertyModel> list =
             await propertyLocalSource.getProperties();

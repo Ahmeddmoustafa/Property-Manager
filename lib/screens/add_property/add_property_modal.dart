@@ -28,7 +28,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
   @override
   void initState() {
     super.initState();
-    context.read<AddPropertyCubit>().addTestData();
+    // context.read<AddPropertyCubit>().addTestData();
   }
 
   @override
@@ -246,6 +246,8 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                                 if (!formCubit.hasError() && model != null) {
                                   propertyCubit.addProperty(model);
                                   await propertyCubit.categorize();
+                                  await propertyCubit.getPropertiesByCategory(
+                                      index: propertyCubit.selectedCategory);
                                   Navigator.pop(context);
                                   // Navigator.pushReplacementNamed(
                                   //     context, Routes.homeRoute);

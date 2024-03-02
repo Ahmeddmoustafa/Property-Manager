@@ -76,6 +76,7 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
                               AppStrings.SortByPrice,
                               AppStrings.SortByPaidAmount,
                               AppStrings.SortByPaidPercentage,
+                              AppStrings.SortByNotPaid,
                               AppStrings.SortByDate,
                               "Default"
                             ].map<DropdownMenuItem<String>>((String value) {

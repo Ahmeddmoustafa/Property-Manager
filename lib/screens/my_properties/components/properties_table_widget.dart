@@ -86,11 +86,17 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                 color: ColorManager.White,
                 text: "Total Price",
                 padding: 0),
-            tableText(
-                flex: 1,
-                color: ColorManager.White,
-                text: "Next Date",
-                padding: 0),
+            propertyCubit.selectedCategory == 3
+                ? tableText(
+                    flex: 1,
+                    color: ColorManager.White,
+                    text: "Not Paid",
+                    padding: 0)
+                : tableText(
+                    flex: 1,
+                    color: ColorManager.White,
+                    text: "Next Date",
+                    padding: 0),
             tableText(
                 flex: 2,
                 color: ColorManager.White,
@@ -193,20 +199,33 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                                       widget.properties[index].price),
                                   padding: 8.0,
                                 ),
-                                tableText(
-                                  flex: 1,
-                                  color: propertyCubit.sortBy ==
-                                          AppStrings.SortByDate
-                                      ? propertyCubit.categoryColor
-                                      : ColorManager.White,
-                                  text: widget.properties[index].installments
-                                              .length >
-                                          0
-                                      ? formatDate(widget.properties[index]
-                                          .installments[0].date)
-                                      : "NA",
-                                  padding: 8.0,
-                                ),
+                                propertyCubit.selectedCategory == 3
+                                    ? tableText(
+                                        flex: 1,
+                                        color: propertyCubit.sortBy ==
+                                                AppStrings.SortByNotPaid
+                                            ? propertyCubit.categoryColor
+                                            : ColorManager.White,
+                                        text: formatPrice(
+                                            widget.properties[index].notPaid),
+                                        padding: 8.0,
+                                      )
+                                    : tableText(
+                                        flex: 1,
+                                        color: propertyCubit.sortBy ==
+                                                AppStrings.SortByDate
+                                            ? propertyCubit.categoryColor
+                                            : ColorManager.White,
+                                        text: widget.properties[index]
+                                                    .installments.length >
+                                                0
+                                            ? formatDate(widget
+                                                .properties[index]
+                                                .installments[0]
+                                                .date)
+                                            : "NA",
+                                        padding: 8.0,
+                                      ),
                                 tableText(
                                   flex: 2,
                                   color: ColorManager.White,

@@ -1,9 +1,12 @@
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/scroll/scroll_cubit.dart';
+import 'package:admin/resources/Managers/assets_manager.dart';
+import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/dashboard/components/my_categories_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../constants.dart';
 import 'components/header.dart';
@@ -32,51 +35,93 @@ class DashboardScreen extends StatelessWidget {
           // padding: EdgeInsets.all(defaultPadding),
           child: FutureBuilder(
             future: BlocProvider.of<PropertyCubit>(context).fetchData(),
-            builder: (contex, snapshot) => Column(
-              children: [
-                Header(),
-                SizedBox(height: defaultPadding),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: Responsive.isMobile(context) ? width : width * 0.7,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          MyCategoriesWidget(),
-                          SizedBox(height: defaultPadding),
-                          MyPropertiesWidget(
-                            width: Responsive.isMobile(context)
-                                ? width
-                                : width * 0.7,
-                          ),
-                          if (Responsive.isMobile(context))
+            builder: (contex, snapshot) =>
+                BlocListener<PropertyCubit, PropertyState>(
+              listener: (context, state) {
+                if (BlocProvider.of<PropertyCubit>(context).foundNotPaid) {
+                  _showNotPaidAlarm(context);
+                }
+              },
+              child: Column(
+                children: [
+                  const Header(),
+                  const SizedBox(height: defaultPadding),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width:
+                            Responsive.isMobile(context) ? width : width * 0.7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const MyCategoriesWidget(),
                             SizedBox(height: defaultPadding),
-                          if (Responsive.isMobile(context))
-                            SizedBox(
-                                child: StorageDetails(
-                              width: width,
-                            )),
-                        ],
+                            MyPropertiesWidget(
+                              width: Responsive.isMobile(context)
+                                  ? width
+                                  : width * 0.7,
+                            ),
+                            if (Responsive.isMobile(context))
+                              const SizedBox(height: defaultPadding),
+                            if (Responsive.isMobile(context))
+                              SizedBox(
+                                  child: StorageDetails(
+                                width: width,
+                              )),
+                          ],
+                        ),
                       ),
-                    ),
-                    if (!Responsive.isMobile(context))
-                      // SizedBox(width: defaultPadding),
-                      // On Mobile means if the screen is less than 850 we don't want to show it
-                      StorageDetails(
-                        width: width * 0.26,
-                      ),
-                  ],
-                )
-              ],
+                      if (!Responsive.isMobile(context))
+                        // SizedBox(width: defaultPadding),
+                        // On Mobile means if the screen is less than 850 we don't want to show it
+                        StorageDetails(
+                          width: width * 0.26,
+                        ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+void _showNotPaidAlarm(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: ColorManager.BackgroundColor,
+        icon: SvgPicture.asset(
+          AssetsManager.NotPaidPropertiesIcon,
+          colorFilter: ColorFilter.mode(ColorManager.error, BlendMode.srcIn),
+          width: 70,
+          height: 70,
+        ),
+        content: Text(
+          'Found Not Paid Properties',
+          textAlign: TextAlign.center,
+        ),
+        actions: <Widget>[
+          Center(
+            child: TextButton(
+              onPressed: () {
+                // Perform action when "Yes" is pressed
+                Navigator.of(context)
+                    .pop(true); // Close the dialog and return true
+              },
+              child: Text('OK'),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 void scrollListener(BuildContext context) async {
