@@ -1,5 +1,3 @@
-import 'dart:ui_web';
-
 import 'package:admin/constants.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
@@ -85,10 +83,9 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                                         // propertycubit.updateProperty(
                                         //     modalcubit.property!);
                                         await propertycubit.categorize();
-                                        await propertycubit
-                                            .getPropertiesByCategory(
-                                                index: propertycubit
-                                                    .selectedCategory);
+                                        propertycubit.getPropertiesByCategory(
+                                            index:
+                                                propertycubit.selectedCategory);
 
                                         // Navigator.pushReplacementNamed(context,Routes.homeRoute);
                                       }

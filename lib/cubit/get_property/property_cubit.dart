@@ -54,9 +54,9 @@ class PropertyCubit extends Cubit<PropertyState> {
     getPropertiesByCategory(index: selectedCategory);
   }
 
-  void selectSortCriteria(String critertia) async {
+  void selectSortCriteria(String critertia) {
     sortBy = critertia;
-    await getPropertiesByCategory(index: selectedCategory);
+    getPropertiesByCategory(index: selectedCategory);
   }
 
   List<PropertyModel> sortProperties(List<PropertyModel> list) {
@@ -93,7 +93,6 @@ class PropertyCubit extends Cubit<PropertyState> {
 
   Future<void> getPropertiesByCategory(
       {int index = 0, int pagination = 1}) async {
-    loading = true;
     error = "";
     // int step = 50;
     try {
@@ -108,12 +107,12 @@ class PropertyCubit extends Cubit<PropertyState> {
           icon = AssetsManager.AllPropertiesIcon;
           // properties = list;
           categoryColor = ColorManager.PrimaryColor;
-          loading = false;
           hasError = false;
           List<PropertyModel> list = applyFilter(properties);
           list = sortProperties(list);
           list = paginate(list, pagination);
           // print(end);
+          // loading = false;
           emit(state.copyWith(list: list));
           return;
         case 1:
@@ -195,13 +194,14 @@ class PropertyCubit extends Cubit<PropertyState> {
 
   Future<void> setFilterQuery(String text) async {
     filterQuery = text;
-    await getPropertiesByCategory(
+    getPropertiesByCategory(
       index: selectedCategory,
     );
   }
 
   List<PropertyModel> applyFilter(List<PropertyModel> list) {
-    RegExp regExp = RegExp(filterQuery.toLowerCase().split('').join('.*'));
+    RegExp regExp = RegExp(
+        filterQuery.toLowerCase().split('').join('.*').replaceAll(" ", ""));
 
     switch (filterOption) {
       case 1:
@@ -211,7 +211,8 @@ class PropertyCubit extends Cubit<PropertyState> {
         }).toList();
       case 2:
         return list.where((property) {
-          return regExp.hasMatch(property.buyerName.toLowerCase());
+          return regExp
+              .hasMatch(property.buyerName.toLowerCase().replaceAll(" ", ""));
         }).toList();
       case 3:
         return list.where((property) {
@@ -224,11 +225,13 @@ class PropertyCubit extends Cubit<PropertyState> {
   }
 
   Future<void> fetchData() async {
+    print('fetch called');
     loading = true;
     hasError = false;
     foundNotPaid = false;
     error = "";
-
+    emit(state.copyWith(list: []));
+    print("emitted $loading");
     // await localSource.removeAllBoxes();
     // await localSource.clearProperties();
     // await localSource.addProperties(getRandomData());
@@ -239,34 +242,14 @@ class PropertyCubit extends Cubit<PropertyState> {
       List<PropertyModel> list =
           result.fold((failure) => properties, (data) => data);
       properties = list;
-      // upcomingproperties = [];
-      // notPaidproperties = [];
-      // paidproperties = [];
 
       await categorize();
-
-      // properties.forEach((property) {
-      //   if (property.getType() == AppStrings.PaidType)
-      //     paidproperties.add(property);
-      //   else if (property.getType() == AppStrings.UpcomingType)
-      //     upcomingproperties.add(property);
-      //   else if (property.getType() == AppStrings.NotPaidType)
-      //     notPaidproperties.add(property);
-      // });
-      // properties = list;
-      // list = await localSource.getProperties(1);
-      // paidproperties = list;
-      // list = await localSource.getProperties(2);
-      // upcomingproperties = list;
 
       await checkNotPaid();
       await getPropertiesByCategory(index: selectedCategory);
 
-      // upcomingproperties = list;
-      // list = await localSource.getProperties(3);
-      // notPaidproperties.addAll(list);
-      // emit(state.copyWith(list: []));
       foundNotPaid = false;
+      loading = false;
     } catch (err) {
       loading = false;
       hasError = true;
@@ -306,7 +289,7 @@ class PropertyCubit extends Cubit<PropertyState> {
   Future<bool> checkNotPaid() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString('storedDate', "");
+    // await prefs.setString('storedDate', "");
 
     // Get the stored date (if available)
     String storedDate = prefs.getString('storedDate') ?? '';
@@ -316,13 +299,15 @@ class PropertyCubit extends Cubit<PropertyState> {
 
     // Check if it's a new day
     if (currentDate != storedDate) {
-      List<SetNotPaidParams> notpaidList = [];
       print("must find not paid");
-      bool found = false;
+      List<SetNotPaidParams> notpaidList = [];
+      SetNotPaidParams notPaidParams =
+          SetNotPaidParams(updatedData: [], models: []);
       DateTime currDateWithoutTime = DateTime(
           DateTime.now().year, DateTime.now().month, DateTime.now().day);
       for (PropertyModel property in notPaidproperties) {
         int index = 0;
+        bool found = false;
         List<int> notPaidIndices = [];
         for (Installment installment in property.installments) {
           DateTime instDate = DateTime(installment.date.year,
@@ -341,10 +326,18 @@ class PropertyCubit extends Cubit<PropertyState> {
           index++;
         }
         if (found) {
-          notpaidList.add(SetNotPaidParams(
-            notPaidIndices: notPaidIndices,
-            model: property,
-          ));
+          notPaidParams.updatedData.add({
+            "id": property.id,
+            "indices": notPaidIndices,
+            "paid": property.paid,
+            "notpaid": property.notPaid,
+            "type": property.type,
+          });
+          notPaidParams.models.add(property);
+          // notpaidList.add(SetNotPaidParams(
+          //   notPaidIndices: notPaidIndices,
+          //   model: property,
+          // ));
         }
 
         // found? then we must update the not paid array
@@ -357,18 +350,29 @@ class PropertyCubit extends Cubit<PropertyState> {
           notPaidAmount += property.notPaid;
           notPaidproperties.add(property);
 
-          notpaidList.add(SetNotPaidParams(
-            notPaidIndices: indices,
-            model: property,
-          ));
+          notPaidParams.updatedData.add({
+            "id": property.id,
+            "indices": indices,
+            "paid": property.paid,
+            "notpaid": property.notPaid,
+            "type": property.type,
+          });
+          notPaidParams.models.add(property);
+
+          // notpaidList.add(SetNotPaidParams(
+          //   notPaidIndices: indices,
+          //   model: property,
+          // ));
           return true;
         }
         return false;
       });
 
-      if (notpaidList.isNotEmpty) {
+      if (notPaidParams.updatedData.isNotEmpty) {
         foundNotPaid = true;
-        await setNotPaidUsecase(notpaidList);
+        // print("Not paid ${notPaidParams.updatedData.length}");
+        // print("${notPaidParams.models.length}");
+        await setNotPaidUsecase(notPaidParams);
       }
 
       // Execute your function here

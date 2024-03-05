@@ -1,6 +1,9 @@
+import 'package:admin/Core/Errors/failures.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
+import 'package:admin/domain/Usecases/token_usecase.dart';
 import 'package:admin/domain/Usecases/usecase.dart';
+import 'package:dartz/dartz.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +13,7 @@ part "login_state.dart";
 class LoginCubit extends Cubit<LoginState> {
   final LoginUsecase loginUsecase;
   final LogoutUsecase logoutUsecase;
+  final TokenUsecase tokenUsecase;
   bool loading = true;
   bool signedIn = false;
   bool isfailed = false;
@@ -22,7 +26,10 @@ class LoginCubit extends Cubit<LoginState> {
   late String passwordError;
   bool emailHasError = false;
   bool passwordHasError = false;
-  LoginCubit({required this.loginUsecase, required this.logoutUsecase})
+  LoginCubit(
+      {required this.tokenUsecase,
+      required this.loginUsecase,
+      required this.logoutUsecase})
       : super(LoginState());
 
   void initVariables() {
@@ -32,13 +39,13 @@ class LoginCubit extends Cubit<LoginState> {
     passwordError = "";
   }
 
-  void signIn() async {
+  Future<void> signIn() async {
     initVariables();
     emailHasError = false;
     passwordHasError = false;
-
     isfailed = false;
     loading = true;
+    emit(state.copyWith());
 
     if (!EmailValidator.validate(email)) {
       emailError = "Invalid Email Address";
@@ -60,13 +67,23 @@ class LoginCubit extends Cubit<LoginState> {
         // await authservice.signIn(email, password);
         await loginUsecase(LoginParams(email: email, password: password));
         signedIn = true;
+        loading = false;
         emit(state.copyWith());
       } catch (err) {
         isfailed = true;
+        signedIn = false;
         error = err.toString();
         emit(state.copyWith());
       }
       return;
+    }
+  }
+
+  Future<void> isLoggedIn() async {
+    if (!signedIn) {
+      final result = await tokenUsecase(NoParams());
+      bool validated = result.fold((l) => false, (r) => true);
+      signedIn = validated;
     }
   }
 

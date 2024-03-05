@@ -19,16 +19,12 @@ class StepperCubit extends Cubit<StepperState> {
     Color color = ColorManager.Green;
     for (var installment in installments) {
       if (installment.getType() == AppStrings.NotPaidType) {
-        print("found not paid");
-        print(color);
         color = ColorManager.error;
         break;
       } else if (installment.getType() == AppStrings.UpcomingType) {
         color = ColorManager.Orange;
       }
     }
-    print("got out of the loop");
-    print(color);
     return color;
   }
 }

@@ -8,10 +8,7 @@ import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/reminder/reminder_cubit.dart';
 import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
-import 'package:admin/firebase_options.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,9 +17,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   await Hive.initFlutter();
   hiveInit();
 

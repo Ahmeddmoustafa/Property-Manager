@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.5)
 project(flutter_admin_portal LANGUAGES CXX)
 
 set(BINARY_NAME "FAP")
@@ -6,6 +6,8 @@ set(BINARY_NAME "FAP")
 cmake_policy(SET CMP0063 NEW)
 
 set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
+set(PDFIUM_VERSION "4634" CACHE STRING "")
+cmake_policy(SET CMP0079 NEW)
 
 # Configure build options.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)

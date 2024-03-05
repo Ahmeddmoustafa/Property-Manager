@@ -13,6 +13,7 @@ import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
 import 'package:admin/domain/Usecases/notpaid_usecase.dart';
+import 'package:admin/domain/Usecases/token_usecase.dart';
 import 'package:admin/domain/Usecases/update_property_usecase.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
 import 'package:get_it/get_it.dart';
@@ -83,6 +84,11 @@ Future<void> init() async {
       authRepository: sl(),
     ),
   );
+  sl.registerLazySingleton<TokenUsecase>(
+    () => TokenUsecase(
+      authRepository: sl(),
+    ),
+  );
   sl.registerLazySingleton<CreatePropertyUsecase>(
     () => CreatePropertyUsecase(
       propertyRepository: sl(),
@@ -107,6 +113,7 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => LoginCubit(
+      tokenUsecase: sl(),
       loginUsecase: sl(),
       logoutUsecase: sl(),
     ),

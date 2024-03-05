@@ -2,6 +2,7 @@ import 'package:admin/controllers/MenuAppController.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
+import 'package:admin/screens/change_password/change_password_widget.dart';
 import 'package:admin/screens/dashboard/components/filter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,20 +59,42 @@ class ProfileCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         border: Border.all(color: Colors.white10),
       ),
-      child: Row(
-        children: [
-          Icon(Icons.account_circle),
-          // Image.asset(
-          //   "assets/images/profile_pic.png",
-          //   height: 38,
-          // ),
-          if (!Responsive.isMobile(context))
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: Text("Eng Mohamed Mostafa"),
-            ),
-          Icon(Icons.keyboard_arrow_down),
+      child: PopupMenuButton(
+        tooltip: "",
+        position: PopupMenuPosition.under,
+        child: Row(
+          children: [
+            Icon(Icons.account_circle),
+            // Image.asset(
+            //   "assets/images/profile_pic.png",
+            //   height: 38,
+            // ),
+            if (!Responsive.isMobile(context))
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text("Eng Mohamed Mostafa"),
+              ),
+            Icon(Icons.keyboard_arrow_down),
+          ],
+        ),
+        color: secondaryColor,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          PopupMenuItem<String>(
+            value: '1',
+            child: Text('CHANGE PASSWORD'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => Dialog(
+                    backgroundColor: ColorManager.BackgroundColor,
+                    clipBehavior: Clip.antiAlias,
+                    insetAnimationDuration: const Duration(milliseconds: 500),
+                    insetAnimationCurve: Curves.easeIn,
+                    child: ChangePasswordWidget()),
+              );
+            },
+          ),
         ],
       ),
     );

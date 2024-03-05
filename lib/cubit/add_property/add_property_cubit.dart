@@ -82,39 +82,39 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   }
 
 //******************* PRACTICAL DATA INSTALLMENTS  ************************ */
-  void generateRegularInstallments() {
-    if (lastInstallment.isAfter(firstInstallment)) {
-      installmentsConttrollers = [];
-      installmentDates = [];
-      double installmentAmount =
-          double.parse(installmentsAmountController.text.replaceAll(',', ''));
-      int numberOfInstallments =
-          (differenceInMonths(firstInstallment, lastInstallment) /
-                      int.parse(installmentsDurationController.text))
-                  .ceil() +
-              2;
+  // void generateRegularInstallments() {
+  //   if (lastInstallment.isAfter(firstInstallment)) {
+  //     installmentsConttrollers = [];
+  //     installmentDates = [];
+  //     double installmentAmount =
+  //         double.parse(installmentsAmountController.text.replaceAll(',', ''));
+  //     int numberOfInstallments =
+  //         (differenceInMonths(firstInstallment, lastInstallment) /
+  //                     int.parse(installmentsDurationController.text))
+  //                 .ceil() +
+  //             2;
 
-      Duration installmentPeriod =
-          Duration(days: int.parse(installmentsDurationController.text) * 30);
+  //     Duration installmentPeriod =
+  //         Duration(days: int.parse(installmentsDurationController.text) * 30);
 
-      for (int i = 0; i < numberOfInstallments; i++) {
-        // DateTime dueDate = DateTime(year);
-        DateTime dueDate = firstInstallment.add(installmentPeriod * i);
-        dueDate = dueDate.copyWith(day: firstInstallment.day);
-        if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
-        installmentsConttrollers.add(
-          TextEditingController(
-            text: installmentAmount.toString(),
-          ),
-        );
-        installmentDates.add(dueDate);
-        // installments
-        //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
-      }
-      regularInstallmentsGenerated = true;
-      emit(state.copyWith(err: false));
-    }
-  }
+  //     for (int i = 0; i < numberOfInstallments; i++) {
+  //       // DateTime dueDate = DateTime(year);
+  //       DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+  //       dueDate = dueDate.copyWith(day: firstInstallment.day);
+  //       if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
+  //       installmentsConttrollers.add(
+  //         TextEditingController(
+  //           text: installmentAmount.toString(),
+  //         ),
+  //       );
+  //       installmentDates.add(dueDate);
+  //       // installments
+  //       //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+  //     }
+  //     regularInstallmentsGenerated = true;
+  //     emit(state.copyWith(err: false));
+  //   }
+  // }
 
   void addTestData() {
     Random random = Random();
@@ -130,7 +130,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     installmentsConttrollers = [];
     installmentDates = [];
     int firstdate = random.nextInt(4) + 3;
-    firstInstallment = DateTime.now().add(Duration(days: 0));
+    firstInstallment = DateTime.now().add(Duration(days: firstdate));
     // lastInstallment =
     //     firstInstallment.add(Duration(days: 10 + random.nextInt(30)));
     lastInstallment =
@@ -142,7 +142,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         30;
     // int installment = (int.parse(priceController.text) -
     //         int.parse(paidAmountController.text)) ~/
-    //     duration ;
+    //     duration;
     installmentsAmountController.text = "$installment";
     installmentsDurationController.text = "1";
     regularInstallmentsGenerated = true;
@@ -164,39 +164,53 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   //                 .ceil() +
   //             2;
 
-  //     Duration installmentPeriod =
-  //         Duration(days: int.parse(installmentsDurationController.text) * 30);
-  //     double totalinstallments = 0;
-  //     for (int i = 0; i < numberOfInstallments; i++) {
-  //       // DateTime dueDate = DateTime(year);
-  //       DateTime dueDate = firstInstallment.add(installmentPeriod * i);
-  //       dueDate = dueDate.copyWith(day: firstInstallment.day);
-  //       // if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
-  //       totalinstallments += installmentAmount;
+  void generateRegularInstallments() {
+    if (lastInstallment.isAfter(firstInstallment)) {
+      installmentsConttrollers = [];
+      installmentDates = [];
+      double price = double.parse(priceController.text.replaceAll(",", ""));
+      double paid = double.parse(paidAmountController.text.replaceAll(",", ""));
 
-  //       if (totalinstallments > (price - paid)) {
-  //         if (price - paid - totalinstallments + installmentAmount < 0) break;
-  //         installmentsConttrollers.add(
-  //           TextEditingController(
-  //             text: (price - paid - totalinstallments + installmentAmount)
-  //                 .toString(),
-  //           ),
-  //         );
-  //       } else {
-  //         installmentsConttrollers.add(
-  //           TextEditingController(
-  //             text: installmentAmount.toString(),
-  //           ),
-  //         );
-  //       }
-  //       installmentDates.add(dueDate);
-  //       // installments
-  //       //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
-  //     }
-  //     regularInstallmentsGenerated = true;
-  //     emit(state.copyWith(err: false));
-  //   }
-  // }
+      double installmentAmount =
+          double.parse(installmentsAmountController.text.replaceAll(',', ''));
+      int numberOfInstallments =
+          (differenceInMonths(firstInstallment, lastInstallment) /
+                      int.parse(installmentsDurationController.text))
+                  .ceil() +
+              2;
+      Duration installmentPeriod =
+          Duration(days: int.parse(installmentsDurationController.text) * 30);
+      double totalinstallments = 0;
+      for (int i = 0; i < numberOfInstallments; i++) {
+        // DateTime dueDate = DateTime(year);
+        DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+        dueDate = dueDate.copyWith(day: firstInstallment.day);
+        // if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
+        totalinstallments += installmentAmount;
+
+        if (totalinstallments > (price - paid)) {
+          if (price - paid - totalinstallments + installmentAmount < 0) break;
+          installmentsConttrollers.add(
+            TextEditingController(
+              text: (price - paid - totalinstallments + installmentAmount)
+                  .toString(),
+            ),
+          );
+        } else {
+          installmentsConttrollers.add(
+            TextEditingController(
+              text: installmentAmount.toString(),
+            ),
+          );
+        }
+        installmentDates.add(dueDate);
+        // installments
+        //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+      }
+      regularInstallmentsGenerated = true;
+      emit(state.copyWith(err: false));
+    }
+  }
 // ***********************TEST WITH DAILY INSTALLMENTS*****************
   // void generateRegularInstallments() {
   //   if (lastInstallment.isAfter(firstInstallment)) {

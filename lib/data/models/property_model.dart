@@ -1,6 +1,5 @@
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
 part 'property_model.g.dart';
@@ -46,9 +45,9 @@ class PropertyModel {
 
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
     return PropertyModel(
-      submissionDate: (json['submissiondate'] as Timestamp).toDate(),
-      contractDate: (json['contractdate'] as Timestamp).toDate(),
-      id: json['id'] as String,
+      submissionDate: DateTime.parse(json['submissiondate']),
+      contractDate: DateTime.parse(json['contractdate']),
+      id: json['_id'] as String,
       description: json['description'] as String,
       price: json['price'] as double,
       paid: json['paid'] as double,
@@ -62,6 +61,23 @@ class PropertyModel {
 
       // installments: [],
     );
+    // return PropertyModel(
+    //   submissionDate: DateTime.parse(json['submissiondate']),
+    //   contractDate: DateTime.parse(json['contractdate']),
+    //   id: json['_id'] as String,
+    //   description: json['description'] as String,
+    //   price: (json['price'] as int).toDouble(),
+    //   paid: (json['paid'] as int).toDouble(),
+    //   buyerName: json['buyername'] as String,
+    //   buyerNumber: json['buyernumber'] as String,
+    //   installments: installmentsFromJson(
+    //     json['installments'] as List,
+    //   ),
+    //   notPaid: (json['notpaid'] as int).toDouble(),
+    //   type: json['type'] as String,
+
+    //   // installments: [],
+    // );
   }
   Map<String, dynamic> toJson() {
     return {
@@ -74,8 +90,8 @@ class PropertyModel {
       "buyername": buyerName,
       "buyernumber": buyerNumber,
       "installments": installmentsToJson(installments),
-      "contractdate": Timestamp.fromDate(contractDate),
-      "submissiondate": Timestamp.fromDate(submissionDate),
+      "contractdate": dateToString(contractDate),
+      "submissiondate": dateToString(submissionDate),
     };
   }
 
@@ -196,23 +212,32 @@ class Installment {
 
   factory Installment.fromJson(Map<String, dynamic> json) {
     return Installment(
-      remindedOn: (json['remindedon'] as Timestamp).toDate(),
+      remindedOn: DateTime.parse(json['remindedon']),
       type: json['type'] as String,
       reminded: json['reminded'] as bool,
       id: json['id'] as String,
       name: json['name'] as String,
-      date: (json['date'] as Timestamp).toDate(),
+      date: DateTime.parse(json['date']),
       amount: json['amount'] as double,
     );
+    // return Installment(
+    //   remindedOn: DateTime.parse(json['remindedon']),
+    //   type: json['type'] as String,
+    //   reminded: json['reminded'] as bool,
+    //   id: json['id'] as String,
+    //   name: json['name'] as String,
+    //   date: DateTime.parse(json['date']),
+    //   amount: (json['amount'] as int).toDouble(),
+    // );
   }
   Map<String, dynamic> toJson() {
     return {
       "id": id,
       "name": name,
-      "date": Timestamp.fromDate(date),
+      "date": dateToString(date),
       "amount": amount,
       "reminded": reminded,
-      "remindedon": Timestamp.fromDate(remindedOn),
+      "remindedon": dateToString(remindedOn),
       "type": type,
     };
   }

@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart';
 
 abstract class PropertyRepository {
   Future<Either<Failure, List<PropertyModel>>> getProperties();
-  Future<Either<Failure, void>> setNotPaid(List<SetNotPaidParams> params);
+  Future<Either<Failure, void>> setNotPaid(SetNotPaidParams params);
   Future<Either<Failure, void>> updateProperty(UpdatePropertyParams property);
   Future<Either<Failure, void>> createProperty(PropertyModel property);
 }

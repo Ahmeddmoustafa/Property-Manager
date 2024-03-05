@@ -1,4 +1,5 @@
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/domain/Usecases/notpaid_usecase.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class PropertyLocalSource {
@@ -36,6 +37,14 @@ class PropertyLocalSource {
 
     await box.put(model.id, model);
 
+    await box.close();
+  }
+
+  Future<void> updateProperties(SetNotPaidParams params) async {
+    final Box box = await Hive.openBox<PropertyModel>("properties");
+    for (PropertyModel model in params.models) {
+      await box.put(model.id, model);
+    }
     await box.close();
   }
 

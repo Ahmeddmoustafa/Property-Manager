@@ -5,22 +5,27 @@ import 'package:admin/domain/Usecases/usecase.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-class SetNotPaidUsecase implements UseCase<void, List<SetNotPaidParams>> {
+class SetNotPaidUsecase implements UseCase<void, SetNotPaidParams> {
   final PropertyRepository propertyRepository;
 
   SetNotPaidUsecase({required this.propertyRepository});
 
   @override
-  Future<Either<Failure, void>> call(List<SetNotPaidParams> params) =>
+  Future<Either<Failure, void>> call(SetNotPaidParams params) =>
       propertyRepository.setNotPaid(params);
 }
 
 class SetNotPaidParams extends Equatable {
-  final List<int> notPaidIndices;
-  final PropertyModel model;
+  late List<Map<String, dynamic>> updatedData;
+  late List<PropertyModel> models;
 
-  SetNotPaidParams({required this.notPaidIndices, required this.model});
+  SetNotPaidParams({
+    required this.updatedData,
+    required this.models,
+  });
 
   @override
-  List<Object?> get props => [notPaidIndices, model];
+  List<Object?> get props => [
+        updatedData,
+      ];
 }

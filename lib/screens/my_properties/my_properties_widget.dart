@@ -27,161 +27,164 @@ class _MyPropertiesWidgetState extends State<MyPropertiesWidget> {
   void initState() {
     super.initState();
     // if (context.read<PropertyCubit>().selectedCategory == -1) ;
-    // BlocProvider.of<PropertyCubit>(context).getPropertiesByCategory(0);
+    // BlocProvider.of<PropertyCubit>(context).getPropertiesByCategory(index: 0);
   }
 
   @override
   Widget build(BuildContext context) {
     final PropertyCubit propertyCubit = context.read<PropertyCubit>();
     return FutureBuilder(
-      future: propertyCubit.getPropertiesByCategory(index: 0),
-      builder: (context, snapshot) => Container(
-        width: widget.width,
-        margin: EdgeInsets.only(bottom: defaultPadding),
-        // padding: EdgeInsets.all(defaultPadding),
-        decoration: BoxDecoration(
-          color: secondaryColor,
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        future: propertyCubit.getPropertiesByCategory(index: 0),
+        builder: (context, snapshot) {
+          return Container(
+            width: widget.width,
+            margin: EdgeInsets.only(bottom: defaultPadding),
+            // padding: EdgeInsets.all(defaultPadding),
+            decoration: BoxDecoration(
+              color: secondaryColor,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
-                  child: Text(
-                    "My Properties",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
-                  child: BlocBuilder<PropertyCubit, PropertyState>(
-                    builder: (context, state) {
-                      return Row(
-                        children: [
-                          DropdownButton<String>(
-                            value: propertyCubit.sortBy,
-                            onChanged: (String? newValue) {
-                              context.read<ScrollCubit>().page = 1;
-                              propertyCubit.selectSortCriteria(newValue!);
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(defaultPadding),
+                      child: Text(
+                        "My Properties",
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(defaultPadding),
+                      child: BlocBuilder<PropertyCubit, PropertyState>(
+                        builder: (context, state) {
+                          return Row(
+                            children: [
+                              DropdownButton<String>(
+                                value: propertyCubit.sortBy,
+                                onChanged: (String? newValue) {
+                                  context.read<ScrollCubit>().page = 1;
+                                  propertyCubit.selectSortCriteria(newValue!);
 
-                              // Implement your sorting logic based on selectedSortOption
-                            },
-                            icon: SizedBox.shrink(),
-                            alignment: Alignment.center,
-                            items: <String>[
-                              AppStrings.SortByPrice,
-                              AppStrings.SortByPaidAmount,
-                              AppStrings.SortByPaidPercentage,
-                              AppStrings.SortByNotPaid,
-                              AppStrings.SortByDate,
-                              "Default"
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                      color: ColorManager.White, fontSize: 12),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(defaultPadding * 0.5),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  border:
-                                      Border.all(color: ColorManager.White)),
-                              child: InkWell(
-                                onTap: () => propertyCubit.toggleSort(),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.arrow_downward,
-                                      color: propertyCubit.ascending
-                                          ? ColorManager.White
-                                          : ColorManager.LightGrey,
-                                      size: 15,
+                                  // Implement your sorting logic based on selectedSortOption
+                                },
+                                icon: SizedBox.shrink(),
+                                alignment: Alignment.center,
+                                items: <String>[
+                                  AppStrings.SortByPrice,
+                                  AppStrings.SortByPaidAmount,
+                                  AppStrings.SortByPaidPercentage,
+                                  AppStrings.SortByNotPaid,
+                                  AppStrings.SortByDate,
+                                  "Default"
+                                ].map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: TextStyle(
+                                          color: ColorManager.White,
+                                          fontSize: 12),
                                     ),
-                                    Icon(
-                                      Icons.arrow_upward,
-                                      color: propertyCubit.ascending
-                                          ? ColorManager.LightGrey
-                                          : ColorManager.White,
-                                      size: 15,
+                                  );
+                                }).toList(),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.all(defaultPadding * 0.5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                          color: ColorManager.White)),
+                                  child: InkWell(
+                                    onTap: () => propertyCubit.toggleSort(),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.arrow_downward,
+                                          color: propertyCubit.ascending
+                                              ? ColorManager.White
+                                              : ColorManager.LightGrey,
+                                          size: 15,
+                                        ),
+                                        Icon(
+                                          Icons.arrow_upward,
+                                          color: propertyCubit.ascending
+                                              ? ColorManager.LightGrey
+                                              : ColorManager.White,
+                                          size: 15,
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        },
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: defaultPadding,
+                ),
+                SizedBox(
+                  child: BlocBuilder<PropertyCubit, PropertyState>(
+                    builder: (context, state) {
+                      if (propertyCubit.loading) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (!propertyCubit.loading &&
+                          state.properties.isEmpty &&
+                          !propertyCubit.hasError) {
+                        return NoDataWidget();
+                      }
+                      return PropertiesTableWidget(
+                        width: widget.width,
+                        properties: state.properties,
                       );
+                      // return DataTable(
+                      //   columnSpacing: defaultPadding,
+                      //   dataRowMinHeight: AppSize.s100,
+                      //   dataRowMaxHeight: AppSize.s100,
+                      //   // minWidth: 600,
+                      //   columns: [
+                      //     DataColumn(
+                      //       label: Text("Property Description"),
+                      //     ),
+                      //     DataColumn(
+                      //       label: Text(
+                      //         "Price in EGP",
+                      //         overflow: TextOverflow.ellipsis,
+                      //       ),
+                      //     ),
+                      //     DataColumn(
+                      //       label: Text("Date"),
+                      //     ),
+                      //     DataColumn(
+                      //       label: Text("Buyer Name"),
+                      //     ),
+                      //   ],
+                      //   rows: List.generate(
+                      //     state.properties.length,
+                      //     (index) => recentFileDataRow(
+                      //         context, state.properties[index], index),
+                      //   ),
+                      // );
                     },
                   ),
-                )
+                ),
               ],
             ),
-            SizedBox(
-              height: defaultPadding,
-            ),
-            SizedBox(
-              child: BlocBuilder<PropertyCubit, PropertyState>(
-                builder: (context, state) {
-                  if (propertyCubit.loading) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (!propertyCubit.loading &&
-                      state.properties.isEmpty &&
-                      !propertyCubit.hasError) {
-                    return NoDataWidget();
-                  }
-                  return PropertiesTableWidget(
-                    width: widget.width,
-                    properties: state.properties,
-                  );
-                  // return DataTable(
-                  //   columnSpacing: defaultPadding,
-                  //   dataRowMinHeight: AppSize.s100,
-                  //   dataRowMaxHeight: AppSize.s100,
-                  //   // minWidth: 600,
-                  //   columns: [
-                  //     DataColumn(
-                  //       label: Text("Property Description"),
-                  //     ),
-                  //     DataColumn(
-                  //       label: Text(
-                  //         "Price in EGP",
-                  //         overflow: TextOverflow.ellipsis,
-                  //       ),
-                  //     ),
-                  //     DataColumn(
-                  //       label: Text("Date"),
-                  //     ),
-                  //     DataColumn(
-                  //       label: Text("Buyer Name"),
-                  //     ),
-                  //   ],
-                  //   rows: List.generate(
-                  //     state.properties.length,
-                  //     (index) => recentFileDataRow(
-                  //         context, state.properties[index], index),
-                  //   ),
-                  // );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   Future<void> showReminderDialog() async {

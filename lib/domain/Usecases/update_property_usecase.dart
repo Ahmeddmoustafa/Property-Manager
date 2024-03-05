@@ -16,11 +16,14 @@ class UpdatePropertyUsecase implements UseCase<void, UpdatePropertyParams> {
 }
 
 class UpdatePropertyParams extends Equatable {
-  final List<int> updatedIndices;
   final PropertyModel model;
-
-  UpdatePropertyParams({required this.updatedIndices, required this.model});
+  final Map<String, dynamic> updatedData;
+  final String propertyId;
+  UpdatePropertyParams(
+      {required this.model,
+      required this.updatedData,
+      required this.propertyId});
 
   @override
-  List<Object?> get props => [updatedIndices, model];
+  List<Object?> get props => [updatedData, propertyId];
 }

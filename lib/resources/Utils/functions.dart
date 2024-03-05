@@ -10,6 +10,10 @@ String formatDate(DateTime date) {
   return "${date.day}-${date.month}-${date.year}";
 }
 
+String dateToString(DateTime date) {
+  return "${date.year}-${date.month}-${date.day}";
+}
+
 Future<bool> openUrl(String url) async {
   if (await canLaunchUrl(Uri.parse(url))) {
     await launchUrl(Uri.parse(url));

@@ -39,13 +39,9 @@ dependencies:
   flutter_spinkit:
   shared_preferences:
   dartz: ^0.10.1
-  firebase_core:
   email_validator:
-  firebase_auth:
-  cloud_firestore:
   get_it:
-  url_launcher: 
-  web_socket_channel:
+  url_launcher:
   
 
 

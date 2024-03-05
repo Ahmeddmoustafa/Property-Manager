@@ -32,10 +32,8 @@ class _FileInfoCardState extends State<FileInfoCard> {
     return GestureDetector(
       onTap: () async {
         BlocProvider.of<ScrollCubit>(context).page = 1;
-        if (mounted) {
-          await BlocProvider.of<PropertyCubit>(context)
-              .getPropertiesByCategory(index: widget.index);
-        }
+        await BlocProvider.of<PropertyCubit>(context)
+            .getPropertiesByCategory(index: widget.index);
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,

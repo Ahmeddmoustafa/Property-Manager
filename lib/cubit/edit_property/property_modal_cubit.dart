@@ -61,8 +61,15 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
       property!.updateType();
       final result = await updatePropertyUsecase(
         UpdatePropertyParams(
-          updatedIndices: paidInstallmentsIndex,
           model: property!,
+          propertyId: property!.id,
+          updatedData: {
+            'price': property!.price,
+            'paid': property!.paid,
+            'notpaid': property!.notPaid,
+            'type': property!.type,
+            'installments': getupdatedIndicesData(),
+          },
         ),
       );
       result.fold((f) {
@@ -70,13 +77,21 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
       }, (r) {
         success = true;
       });
-
       loading = false;
-
-      print(property!.getType());
       reset();
     }
     return success;
+  }
+
+  List<Map<String, dynamic>> getupdatedIndicesData() {
+    List<Map<String, dynamic>> data = [];
+    for (int index in paidInstallmentsIndex) {
+      data.add({
+        "index": index,
+        "type": AppStrings.PaidType,
+      });
+    }
+    return data;
   }
 
   Map<String, dynamic> getUpdatedInfo() {
