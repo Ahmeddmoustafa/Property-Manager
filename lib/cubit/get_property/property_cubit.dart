@@ -10,6 +10,7 @@ import 'package:admin/domain/Usecases/usecase.dart';
 import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -102,7 +103,6 @@ class PropertyCubit extends Cubit<PropertyState> {
       switch (index) {
         case 0:
           // properties = await localSource.getProperties(0);
-
           selectedCategory = 0;
           icon = AssetsManager.AllPropertiesIcon;
           // properties = list;
@@ -206,8 +206,9 @@ class PropertyCubit extends Cubit<PropertyState> {
     switch (filterOption) {
       case 1:
         return list.where((property) {
-          return regExp
-              .hasMatch(property.description.toLowerCase().replaceAll(" ", ""));
+          return property.description
+              .toUpperCase()
+              .contains(filterQuery.toUpperCase());
         }).toList();
       case 2:
         return list.where((property) {

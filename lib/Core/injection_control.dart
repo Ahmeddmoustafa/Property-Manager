@@ -1,5 +1,6 @@
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/auth/login_cubit.dart';
+import 'package:admin/cubit/change_password/change_password_cubit.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/local/property_local_source.dart';
@@ -9,6 +10,8 @@ import 'package:admin/data/repositories/auth_repository_impl.dart';
 import 'package:admin/data/repositories/property_repository_impl.dart';
 import 'package:admin/domain/Repositories/auth_repository.dart';
 import 'package:admin/domain/Repositories/property_repository.dart';
+import 'package:admin/domain/Usecases/change_pass_usecase.dart';
+import 'package:admin/domain/Usecases/confirm_pass_usecase.dart';
 import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
@@ -84,6 +87,16 @@ Future<void> init() async {
       authRepository: sl(),
     ),
   );
+  sl.registerLazySingleton<ConfirmCurrentPasswordUseCase>(
+    () => ConfirmCurrentPasswordUseCase(
+      authRepository: sl(),
+    ),
+  );
+  sl.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(
+      authRepository: sl(),
+    ),
+  );
   sl.registerLazySingleton<TokenUsecase>(
     () => TokenUsecase(
       authRepository: sl(),
@@ -109,6 +122,12 @@ Future<void> init() async {
     () => PropertyCubit(
       getProperties: sl(),
       setNotPaidUsecase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => ChangePasswordCubit(
+      changePasswordUseCase: sl(),
+      confirmCurrentPasswordUseCase: sl(),
     ),
   );
   sl.registerFactory(

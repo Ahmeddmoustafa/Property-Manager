@@ -41,8 +41,6 @@ class DashboardScreen extends StatelessWidget {
               builder: (contex, snapshot) =>
                   BlocListener<PropertyCubit, PropertyState>(
                 listener: (context, state) {
-                  print(
-                      "data is loading ? ${BlocProvider.of<PropertyCubit>(context).loading}");
                   if (context.read<PropertyCubit>().loading) {
                     showDialog(
                       context: context,

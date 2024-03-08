@@ -28,7 +28,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
   @override
   void initState() {
     super.initState();
-    context.read<AddPropertyCubit>().addTestData();
+    // context.read<AddPropertyCubit>().addTestData();
   }
 
   @override

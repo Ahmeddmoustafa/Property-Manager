@@ -42,9 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
             height: height * 0.7,
             child: BlocConsumer<LoginCubit, LoginState>(
               listener: (context, state) {
-                if (cubit.signedIn) {
-                  Navigator.pushReplacementNamed(context, Routes.authRoute);
-                } else if (cubit.isfailed) {
+                // if (cubit.signedIn && mounted && context.mounted) {
+                //   // Future(() {
+                //   Navigator.pushReplacementNamed(context, Routes.authRoute);
+                //   // });
+                // }
+                if (cubit.isfailed) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     showCloseIcon: true,
                     content: Text(cubit.error),
@@ -91,22 +94,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSize.s30),
-                    InkWell(
-                      onTap: () async {
-                        await cubit.signIn();
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: ColorManager.PrimaryColor,
-                            borderRadius: BorderRadius.circular(AppSize.s10)),
-                        width: AppSize.s200,
-                        height: AppSize.s40,
-                        child: const Center(
-                          child: Text(
-                            "Sign In",
+                    BlocBuilder<LoginCubit, LoginState>(
+                      builder: (context, state) {
+                        return InkWell(
+                          onTap: cubit.loading
+                              ? null
+                              : () async {
+                                  await cubit.signIn();
+                                },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: ColorManager.PrimaryColor,
+                                borderRadius:
+                                    BorderRadius.circular(AppSize.s10)),
+                            width: AppSize.s200,
+                            height: AppSize.s40,
+                            child: const Center(
+                              child: Text(
+                                "Sign In",
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                     const SizedBox(height: AppSize.s25),
                     Row(

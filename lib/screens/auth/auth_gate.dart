@@ -14,28 +14,30 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final LoginCubit cubit = BlocProvider.of<LoginCubit>(context);
     return FutureBuilder(
-      future: cubit.isLoggedIn(),
-      // stream: channel.stream,
-      builder: (context, snapshot) {
-        if (cubit.signedIn) {
-          return MultiProvider(
-            providers: [
-              ChangeNotifierProvider(
-                create: (context) => MenuAppController(),
-              ),
-            ],
-            child: MainScreen(),
+        future: cubit.isLoggedIn(),
+        builder: (context, snapshot) {
+          return BlocBuilder<LoginCubit, LoginState>(
+            // stream: channel.stream,
+            builder: (context, state) {
+              print("signed in ${cubit.signedIn}");
+              if (cubit.signedIn) {
+                return MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider(
+                      create: (context) => MenuAppController(),
+                    ),
+                  ],
+                  child: MainScreen(),
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.done &&
+                  !cubit.signedIn) {
+                return LoginScreen();
+              }
+              return SizedBox.shrink();
+            },
           );
-        }
-        // if (cubit.loading) {
-        //   return LoadPage();
-        // }
-        if (snapshot.connectionState == ConnectionState.done) {
-          return LoginScreen();
-        }
-        return SizedBox.shrink();
-      },
-    );
+        });
   }
 }
 

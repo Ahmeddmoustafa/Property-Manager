@@ -39,6 +39,7 @@ String chartFormatPrice(double price) {
     String formattedValue = (numericPrice / 1000000)
         .toStringAsFixed(numericPrice % 1000000 == 0 ? 0 : 2);
     return removeTrailingZeros(formattedValue) + 'M';
+    // return formattedValue + 'M';
   } else if (numericPrice >= 100000) {
     // Convert to hundreds of thousands and format as specified
     String formattedValue = (numericPrice / 1000000).toStringAsFixed(3);
@@ -59,7 +60,7 @@ String chartFormatPrice(double price) {
 
 String removeTrailingZeros(String value) {
   // Remove trailing zeros and decimal point if necessary
-  value = value.replaceAll(RegExp(r'0*$'), '');
+  // value = value.replaceAll(RegExp(r'0*$'), '');
   value = value.replaceAll(RegExp(r'\.$'), '');
   return value;
 }

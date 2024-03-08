@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:admin/Core/Errors/exceptions.dart';
 import 'package:admin/data/local/app_preferences.dart';
+import 'package:admin/domain/Usecases/confirm_pass_usecase.dart';
 import 'package:http/http.dart' as http;
 
 //NODEJS & MONGODB AUTH
@@ -42,6 +44,59 @@ class AuthRemoteSource {
         throw Exception("NOT VALID TOKEN");
       }
       print("token is valid $token");
+    } catch (err) {
+      throw Exception(err.toString());
+    }
+  }
+
+  Future<void> confirmPassword(ChangePasswordParams params) async {
+    try {
+      Map<String, String> loginData = {
+        'password': params.oldPassword,
+      };
+      String requestBody = json.encode(loginData);
+      final String token = await AppPreferences.getToken();
+      final response = await http.put(
+        Uri.parse("http://localhost:5000/auth/check-password"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: requestBody, // Pass the encoded JSON data
+      );
+      if (response.statusCode == 401) {
+        throw "INCORRECT PASSWORD";
+      } else if (response.statusCode != 200) {
+        throw "REQUEST FAILED";
+      }
+    } catch (err) {
+      throw Exception(err.toString());
+    }
+  }
+
+  Future<void> changePassword(ChangePasswordParams params) async {
+    try {
+      final String token = await AppPreferences.getToken();
+
+      Map<String, String> loginData = {
+        'oldPassword': params.oldPassword,
+        'newPassword': params.newPassword,
+        "token": token
+      };
+      String requestBody = json.encode(loginData);
+      final response = await http.put(
+        Uri.parse("http://localhost:5000/auth/change-password"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+      );
+      if (response.statusCode == 401) {
+        throw "INCORRECT PASSWORD";
+      } else if (response.statusCode != 200) {
+        throw "NOT VALID TOKEN";
+      }
+      // print("token is valid $token");
     } catch (err) {
       throw Exception(err.toString());
     }

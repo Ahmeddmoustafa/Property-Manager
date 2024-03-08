@@ -1,4 +1,5 @@
 import 'package:admin/Core/Errors/failures.dart';
+import 'package:admin/data/local/app_preferences.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
 import 'package:admin/domain/Usecases/token_usecase.dart';
@@ -14,7 +15,7 @@ class LoginCubit extends Cubit<LoginState> {
   final LoginUsecase loginUsecase;
   final LogoutUsecase logoutUsecase;
   final TokenUsecase tokenUsecase;
-  bool loading = true;
+  bool loading = false;
   bool signedIn = false;
   bool isfailed = false;
   String error = "";
@@ -65,8 +66,14 @@ class LoginCubit extends Cubit<LoginState> {
     if (EmailValidator.validate(email) && password.length >= 8) {
       try {
         // await authservice.signIn(email, password);
-        await loginUsecase(LoginParams(email: email, password: password));
-        signedIn = true;
+        final result =
+            await loginUsecase(LoginParams(email: email, password: password));
+        result.fold((l) {
+          signedIn = false;
+          isfailed = true;
+          error = l.msg;
+        }, (r) => signedIn = true);
+
         loading = false;
         emit(state.copyWith());
       } catch (err) {
@@ -88,12 +95,18 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> logout() async {
-    try {
-      final result = await logoutUsecase(NoParams());
-      result.fold((l) {
-        isfailed = true;
-        error = "Something Unexpected Happened";
-      }, (r) => null);
-    } catch (err) {}
+    signedIn = false;
+    isfailed = false;
+    await AppPreferences.setToken("");
+    emit(state.copyWith());
   }
+  // Future<void> logout() async {
+  //   try {
+  //     final result = await logoutUsecase(NoParams());
+  //     result.fold((l) {
+  //       isfailed = true;
+  //       error = "Something Unexpected Happened";
+  //     }, (r) => null);
+  //   } catch (err) {}
+  // }
 }

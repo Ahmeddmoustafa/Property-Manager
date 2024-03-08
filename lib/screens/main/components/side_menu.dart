@@ -1,4 +1,6 @@
 import 'package:admin/cubit/auth/login_cubit.dart';
+import 'package:admin/data/local/app_preferences.dart';
+import 'package:admin/resources/Managers/routes_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,6 +28,13 @@ class SideMenu extends StatelessWidget {
             svgSrc: "assets/icons/menu_tran.svg",
             press: () async {
               await context.read<LoginCubit>().logout();
+              // await AppPreferences.setToken("");
+              // if (context.mounted) {
+              //   Future.delayed(
+              //       Duration.zero,
+              //       () => Navigator.pushReplacementNamed(
+              //           context, Routes.authRoute));
+              // }
             },
           ),
           // DrawerListTile(

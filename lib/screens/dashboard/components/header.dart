@@ -1,4 +1,5 @@
 import 'package:admin/controllers/MenuAppController.dart';
+import 'package:admin/cubit/change_password/change_password_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
@@ -7,6 +8,7 @@ import 'package:admin/screens/dashboard/components/filter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:admin/Core/injection_control.dart' as di;
 
 import '../../../constants.dart';
 
@@ -42,7 +44,9 @@ class Header extends StatelessWidget {
 }
 
 class ProfileCard extends StatelessWidget {
-  const ProfileCard({
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  ProfileCard({
     Key? key,
   }) : super(key: key);
 
@@ -86,12 +90,15 @@ class ProfileCard extends StatelessWidget {
             onTap: () {
               showDialog(
                 context: context,
-                builder: (context) => Dialog(
-                    backgroundColor: ColorManager.BackgroundColor,
-                    clipBehavior: Clip.antiAlias,
-                    insetAnimationDuration: const Duration(milliseconds: 500),
-                    insetAnimationCurve: Curves.easeIn,
-                    child: ChangePasswordWidget()),
+                builder: (context) => BlocProvider(
+                  create: (context) => di.sl<ChangePasswordCubit>(),
+                  child: Dialog(
+                      backgroundColor: ColorManager.BackgroundColor,
+                      clipBehavior: Clip.antiAlias,
+                      insetAnimationDuration: const Duration(milliseconds: 500),
+                      insetAnimationCurve: Curves.easeIn,
+                      child: ChangePasswordWidget()),
+                ),
               );
             },
           ),
