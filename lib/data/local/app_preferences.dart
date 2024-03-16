@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppPreferences {
   static const String keyLastUpdateDate = 'lastUpdateDate';
   static const String tokenKey = 'JWTstoredToken';
+  static const String refreshTokenKey = 'JWTstoredRefreshToken';
+
   // Function to update the date
   static Future<void> updateAppStatus() async {
     await _setUpdateDate(DateTime.now());
@@ -41,6 +43,17 @@ class AppPreferences {
   static Future<void> setToken(String token) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(tokenKey, token);
+  }
+
+  static Future<void> setRefreshToken(String token) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(refreshTokenKey, token);
+  }
+
+  static Future<String> getRefreshToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString(refreshTokenKey) ?? "";
+    return token;
   }
 }
 

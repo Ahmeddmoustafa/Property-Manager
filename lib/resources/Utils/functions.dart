@@ -23,7 +23,7 @@ Future<bool> openUrl(String url) async {
 }
 
 Future<bool> openWhatsApp(String number) async {
-  return await openUrl("https://wa.me/201100888552");
+  return await openUrl("https://wa.me/2$number");
 }
 
 String chartFormatPrice(double price) {
@@ -42,8 +42,8 @@ String chartFormatPrice(double price) {
     // return formattedValue + 'M';
   } else if (numericPrice >= 100000) {
     // Convert to hundreds of thousands and format as specified
-    String formattedValue = (numericPrice / 1000000).toStringAsFixed(3);
-    return removeTrailingZeros(formattedValue) + 'M';
+    String formattedValue = (numericPrice / 1000).toStringAsFixed(1);
+    return removeTrailingZeros(formattedValue) + 'K';
   } else if (numericPrice >= 1000) {
     // Convert to thousands and format as specified
     String formattedValue =

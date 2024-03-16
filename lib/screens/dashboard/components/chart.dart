@@ -18,7 +18,7 @@ class StorageChart extends StatelessWidget {
     final double paid = cubit.paidAmount;
     final double all = cubit.totalAmount;
     final double notpaid = cubit.notPaidAmount;
-    final double upcoming = all - paid - notpaid;
+    final double upcoming = all - paid - notpaid - cubit.unSoldAmount;
 
     return SizedBox(
       height: 200,
@@ -29,7 +29,8 @@ class StorageChart extends StatelessWidget {
               sectionsSpace: 0,
               centerSpaceRadius: 70,
               startDegreeOffset: -90,
-              sections: getChartData(paid, upcoming, notpaid),
+              sections:
+                  getChartData(paid, upcoming, notpaid, cubit.unSoldAmount),
             ),
           ),
           Positioned.fill(
@@ -56,7 +57,7 @@ class StorageChart extends StatelessWidget {
   }
 
   List<PieChartSectionData> getChartData(
-      double paid, double upcoming, double notpaid) {
+      double paid, double upcoming, double notpaid, double unsold) {
     if (paid == 0 && upcoming == 0 && notpaid == 0) {
       return [
         PieChartSectionData(
@@ -68,6 +69,12 @@ class StorageChart extends StatelessWidget {
       ];
     }
     return [
+      PieChartSectionData(
+        color: ColorManager.DarkGrey,
+        value: unsold,
+        showTitle: false,
+        radius: 14,
+      ),
       PieChartSectionData(
         color: ColorManager.Green,
         value: paid,

@@ -16,6 +16,7 @@ import 'package:admin/domain/Usecases/create_property_usecase.dart';
 import 'package:admin/domain/Usecases/login_usercase.dart';
 import 'package:admin/domain/Usecases/logout_usecase.dart';
 import 'package:admin/domain/Usecases/notpaid_usecase.dart';
+import 'package:admin/domain/Usecases/sold_property_usecase.dart';
 import 'package:admin/domain/Usecases/token_usecase.dart';
 import 'package:admin/domain/Usecases/update_property_usecase.dart';
 import 'package:admin/domain/Usecases/property_usecase.dart';
@@ -117,6 +118,11 @@ Future<void> init() async {
       propertyRepository: sl(),
     ),
   );
+  sl.registerLazySingleton<SoldPropertyUsecase>(
+    () => SoldPropertyUsecase(
+      propertyRepository: sl(),
+    ),
+  );
 
   sl.registerFactory(
     () => PropertyCubit(
@@ -140,6 +146,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => AddPropertyCubit(
       createPropertyUsecase: sl(),
+      soldPropertyUsecase: sl(),
     ),
   );
   sl.registerFactory(() => PropertyModalCubit(

@@ -5,9 +5,12 @@ import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/dashboard/components/my_categories_widget.dart';
 import 'package:admin/screens/main/components/loading_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:sticky_headers/sticky_headers/widget.dart';
 
 import '../../constants.dart';
 import 'components/header.dart';
@@ -35,26 +38,27 @@ class DashboardScreen extends StatelessWidget {
           primary: false,
           // padding: EdgeInsets.all(defaultPadding),
           child: BlocListener<PropertyCubit, PropertyState>(
-            listener: (context, state) {},
+            listener: (context, state) {
+              print("refresh ${context.read<PropertyCubit>().loading}");
+              if (context.read<PropertyCubit>().loading) {
+                showDialog(
+                  context: context,
+                  barrierDismissible:
+                      false, // Prevent users from dismissing the dialog by tapping outside
+                  builder: (BuildContext context) {
+                    return GetPropertiesLoadingScreen();
+                  },
+                );
+              }
+              if (BlocProvider.of<PropertyCubit>(context).foundNotPaid) {
+                _showNotPaidAlarm(context);
+              }
+            },
             child: FutureBuilder(
               future: BlocProvider.of<PropertyCubit>(context).fetchData(),
               builder: (contex, snapshot) =>
                   BlocListener<PropertyCubit, PropertyState>(
-                listener: (context, state) {
-                  if (context.read<PropertyCubit>().loading) {
-                    showDialog(
-                      context: context,
-                      barrierDismissible:
-                          false, // Prevent users from dismissing the dialog by tapping outside
-                      builder: (BuildContext context) {
-                        return GetPropertiesLoadingScreen();
-                      },
-                    );
-                  }
-                  if (BlocProvider.of<PropertyCubit>(context).foundNotPaid) {
-                    _showNotPaidAlarm(context);
-                  }
-                },
+                listener: (context, state) {},
                 child: Column(
                   children: [
                     const Header(),

@@ -221,8 +221,7 @@ class _PropertiesTableWidgetState extends State<PropertiesTableWidget> {
                                                 0
                                             ? formatDate(widget
                                                 .properties[index]
-                                                .installments[0]
-                                                .date)
+                                                .getNextDate())
                                             : "NA",
                                         padding: 8.0,
                                       ),

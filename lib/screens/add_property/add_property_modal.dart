@@ -2,20 +2,32 @@ import 'package:admin/constants.dart';
 import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
+import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
+import 'package:admin/screens/add_property/components/input_price_formatter.dart';
 import 'package:admin/screens/add_property/components/installments_widget.dart';
 import 'package:admin/screens/add_property/components/property_inputs_widget.dart';
 import 'package:admin/screens/main/components/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AddPropertyModal extends StatefulWidget {
-  const AddPropertyModal({Key? key, required this.height, required this.width})
+  AddPropertyModal(
+      {Key? key,
+      required this.height,
+      required this.width,
+      required this.unsold,
+      this.model})
       : super(key: key);
   final double height;
   final double width;
+  final bool unsold;
+  late PropertyModel? model = null;
 
   @override
   State<AddPropertyModal> createState() => _AddPropertyModalState();
@@ -28,6 +40,12 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
   @override
   void initState() {
     super.initState();
+    if (widget.unsold && widget.model != null) {
+      context.read<AddPropertyCubit>().descriptionController.text =
+          widget.model!.description;
+      context.read<AddPropertyCubit>().priceController.text =
+          widget.model!.price.toString();
+    }
     // context.read<AddPropertyCubit>().addTestData();
   }
 
@@ -72,6 +90,29 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                         "Please Enter Property Details",
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
+                      if (!widget.unsold)
+                        ToggleButtons(
+                          children: [
+                            SvgPicture.asset(
+                              height: 30,
+                              width: 30,
+                              AssetsManager.UpcomingPropertiesIcon,
+                              colorFilter: ColorFilter.mode(
+                                  ColorManager.Orange, BlendMode.srcIn),
+                            ), // Icon for the first part
+                            SvgPicture.asset(
+                              height: 30,
+                              width: 30,
+                              AssetsManager.AllPropertiesIcon,
+                              colorFilter: ColorFilter.mode(
+                                  ColorManager.LightGrey, BlendMode.srcIn),
+                            ), // Icon for the second part
+                          ],
+                          isSelected: formCubit.sold,
+                          onPressed: (int index) {
+                            formCubit.toggleSold(index);
+                          },
+                        ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: FloatingActionButton(
@@ -82,85 +123,136 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                       ),
                     ],
                   ),
-                  PropertyInputsWidget(height: height, width: width),
-                  SizedBox(height: AppSize.s40),
-                  Row(
-                    children: [
-                      Text(
-                        "Please Enter Payment Installments",
-                        style: Theme.of(context).textTheme.titleLarge,
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: AppSize.s16,
-                  ),
-                  Center(
-                    child: Column(
+                  if (formCubit.sold[0])
+                    PropertyInputsWidget(height: height, width: width),
+                  if (formCubit.sold[1])
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        DataTable(
-                          columnSpacing: Responsive.isMobile(context)
-                              ? AppSize.s25
-                              : AppSize.s50,
-                          columns: [
-                            DataColumn(
-                              label: Flexible(
-                                  child: Text(
-                                "First Installment Date",
-                                overflow: TextOverflow.fade,
-                              )),
-                            ),
-                            DataColumn(
-                              label: Flexible(
-                                  child: Text(
-                                "Last Installment Date",
-                                overflow: TextOverflow.visible,
-                              )),
-                            ),
-                            DataColumn(
-                              label: Flexible(
-                                  child: Text(
-                                "Installment Amount",
-                                overflow: TextOverflow.visible,
-                              )),
-                            ),
-                            DataColumn(
-                              label: Flexible(
-                                child: Text(
-                                  "Installment Duration",
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                            ),
-                          ],
-                          rows: List.generate(
-                            1,
-                            (index) => getRegularInstallmentRow(context, width),
+                        SizedBox(
+                          width: widget.width * 0.3,
+                          child: TextFormField(
+                            maxLength: 100,
+                            controller: formCubit.descriptionController,
+                            onChanged: (value) {
+                              // formCubit.updateUsername(value);
+                            },
+                            decoration: InputDecoration(
+                                hintText: "",
+                                labelText: 'Property Description',
+                                counterText: "",
+                                errorText: formCubit.descriptionError
+                                    ? "Please Enter Valid Desription"
+                                    : null),
+                          ),
+                        ),
+                        SizedBox(
+                          width: widget.width * 0.2,
+                          child: TextFormField(
+                            maxLength: 20,
+                            controller: formCubit.priceController,
+                            onChanged: (value) {
+                              // formCubit.updateEmail(value);
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              PriceInputFormatter(), // Custom formatter
+                            ],
+                            decoration: InputDecoration(
+                                labelText: 'Price In EGP',
+                                counterText: "",
+                                errorText: formCubit.priceError
+                                    ? "Please Enter Valid Price"
+                                    : null),
                           ),
                         ),
                       ],
                     ),
+
+                  // SizedBox(height: 16),
+
+                  SizedBox(height: AppSize.s40),
+                  if (formCubit.sold[0])
+                    Row(
+                      children: [
+                        Text(
+                          "Please Enter Payment Installments",
+                          style: Theme.of(context).textTheme.titleLarge,
+                        )
+                      ],
+                    ),
+                  SizedBox(
+                    height: AppSize.s16,
                   ),
+                  if (formCubit.sold[0])
+                    Center(
+                      child: Column(
+                        children: [
+                          DataTable(
+                            columnSpacing: Responsive.isMobile(context)
+                                ? AppSize.s25
+                                : AppSize.s50,
+                            columns: [
+                              DataColumn(
+                                label: Flexible(
+                                    child: Text(
+                                  "First Installment Date",
+                                  overflow: TextOverflow.fade,
+                                )),
+                              ),
+                              DataColumn(
+                                label: Flexible(
+                                    child: Text(
+                                  "Last Installment Date",
+                                  overflow: TextOverflow.visible,
+                                )),
+                              ),
+                              DataColumn(
+                                label: Flexible(
+                                    child: Text(
+                                  "Installment Amount",
+                                  overflow: TextOverflow.visible,
+                                )),
+                              ),
+                              DataColumn(
+                                label: Flexible(
+                                  child: Text(
+                                    "Installment Duration",
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows: List.generate(
+                              1,
+                              (index) =>
+                                  getRegularInstallmentRow(context, width),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   SizedBox(height: AppSize.s25),
-                  Center(
-                    child: SizedBox(
-                      width: width * 0.25,
-                      height: height * 0.07,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          // Perform form submission logic here
-                          // You can access the form data using formCubit.state
-                          // print('Username: ${formCubit.state.username}');
-                          // print('Email: ${formCubit.state.email}');
-                          formCubit.generateRegularInstallments();
-                        },
-                        child: Text(
-                          'Generate Installments',
-                          textAlign: TextAlign.center,
+                  if (formCubit.sold[0])
+                    Center(
+                      child: SizedBox(
+                        width: width * 0.25,
+                        height: height * 0.07,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Perform form submission logic here
+                            // You can access the form data using formCubit.state
+                            // print('Username: ${formCubit.state.username}');
+                            // print('Email: ${formCubit.state.email}');
+                            formCubit.generateRegularInstallments();
+                          },
+                          child: Text(
+                            'Generate Installments',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   SizedBox(
                     height: defaultPadding,
                   ),
@@ -209,7 +301,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                         )
                       : SizedBox.shrink(),
                   SizedBox(height: AppSize.s50),
-                  formCubit.installmentError
+                  formCubit.installmentError && formCubit.sold[0]
                       ? Center(
                           child: Text(
                             "Please Fill or Remove Unneccessary Installments *",
@@ -218,7 +310,7 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                           ),
                         )
                       : SizedBox.shrink(),
-                  formCubit.priceValidationError
+                  formCubit.priceValidationError && formCubit.sold[0]
                       ? Center(
                           child: Text(
                             "Total Price not equal Installments + Paid amount *",
@@ -228,36 +320,81 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
                         )
                       : SizedBox.shrink(),
                   SizedBox(height: AppSize.s10),
-                  Center(
-                    child: SizedBox(
-                      width: width * 0.2,
-                      height: height * 0.1,
-                      child: ElevatedButton(
-                        onPressed: !formCubit.loading
-                            ? () async {
-                                // Perform form submission logic here
-                                // You can access the form data using formCubit.state
-                                // print('Username: ${formCubit.state.username}');
-                                // print('Email: ${formCubit.state.email}');
-
-                                PropertyModel? model =
-                                    await formCubit.addProperty();
-                                print(formCubit.hasError());
-                                if (!formCubit.hasError() && model != null) {
-                                  propertyCubit.addProperty(model);
-                                  await propertyCubit.categorize();
-                                  propertyCubit.getPropertiesByCategory(
-                                      index: propertyCubit.selectedCategory);
-                                  Navigator.pop(context);
-                                  // Navigator.pushReplacementNamed(
-                                  //     context, Routes.homeRoute);
-                                }
-                              }
-                            : null,
-                        child: Text('Add Property'),
-                      ),
-                    ),
-                  ),
+                  !widget.unsold
+                      ? Center(
+                          child: SizedBox(
+                            width: width * 0.2,
+                            height: height * 0.1,
+                            child: ElevatedButton(
+                              onPressed: !formCubit.loading
+                                  ? () async {
+                                      // Perform form submission logic here
+                                      // You can access the form data using formCubit.state
+                                      // print('Username: ${formCubit.state.username}');
+                                      // print('Email: ${formCubit.state.email}');
+                                      if (formCubit.sold[0]) {
+                                        PropertyModel? model =
+                                            await formCubit.addProperty();
+                                        if (!formCubit.hasError() &&
+                                            model != null) {
+                                          propertyCubit.addProperty(model);
+                                          await propertyCubit.categorize();
+                                          propertyCubit.getPropertiesByCategory(
+                                              index: propertyCubit
+                                                  .selectedCategory);
+                                          Navigator.pop(context);
+                                        }
+                                        // Navigator.pushReplacementNamed(
+                                        //     context, Routes.homeRoute);
+                                      } else {
+                                        PropertyModel? model =
+                                            await formCubit.addUnsoldProperty();
+                                        if (model != null) {
+                                          propertyCubit.addProperty(model);
+                                          await propertyCubit.categorize();
+                                          propertyCubit.getPropertiesByCategory(
+                                              index: propertyCubit
+                                                  .selectedCategory);
+                                          Navigator.pop(context);
+                                        }
+                                      }
+                                    }
+                                  : null,
+                              child: Text('Add Property'),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: SizedBox(
+                            width: width * 0.2,
+                            height: height * 0.1,
+                            child: ElevatedButton(
+                              onPressed: !formCubit.loading
+                                  ? () async {
+                                      if (widget.model != null) {
+                                        PropertyModel? model =
+                                            await formCubit.addProperty(
+                                                unsold: widget.unsold,
+                                                id: widget.model!.id);
+                                        if (!formCubit.hasError() &&
+                                            model != null) {
+                                          propertyCubit
+                                              .removeProperty(widget.model!);
+                                          propertyCubit.addProperty(model);
+                                          await propertyCubit.categorize();
+                                          propertyCubit.getPropertiesByCategory(
+                                              index: propertyCubit
+                                                  .selectedCategory);
+                                          Navigator.pop(context);
+                                        }
+                                        // Navigator.pushReplacementNamed(
+                                      }
+                                    }
+                                  : null,
+                              child: Text('Update Property'),
+                            ),
+                          ),
+                        ),
                 ],
               );
             },

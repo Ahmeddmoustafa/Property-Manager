@@ -53,12 +53,12 @@ List<CloudStorageInfo> demoMyFiles = [
     percentage: 10,
   ),
   // REMOVED IN PRODUCTION
-  // CloudStorageInfo(
-  //   title: "UnSold",
-  //   numOfProperties: 1328,
-  //   svgSrc: AssetsManager.AllPropertiesIcon,
-  //   totalMoney: "128M",
-  //   color: ColorManager.DarkGrey,
-  //   percentage: 35,
-  // ),
+  CloudStorageInfo(
+    title: "UnSold",
+    numOfProperties: 1328,
+    svgSrc: AssetsManager.AllPropertiesIcon,
+    totalMoney: "128M",
+    color: ColorManager.DarkGrey,
+    percentage: 35,
+  ),
 ];

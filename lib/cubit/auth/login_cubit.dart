@@ -98,6 +98,8 @@ class LoginCubit extends Cubit<LoginState> {
     signedIn = false;
     isfailed = false;
     await AppPreferences.setToken("");
+    await AppPreferences.setRefreshToken("");
+
     emit(state.copyWith());
   }
   // Future<void> logout() async {

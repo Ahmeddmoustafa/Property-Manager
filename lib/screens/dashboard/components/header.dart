@@ -19,25 +19,28 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(defaultPadding),
-      child: Row(
-        children: [
-          // if (!Responsive.isDesktop(context))
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: context.read<MenuAppController>().controlMenu,
-          ),
-          if (!Responsive.isMobile(context))
-            Text(
-              "Dashboard",
-              style: Theme.of(context).textTheme.titleLarge,
+    return Container(
+      color: ColorManager.BackgroundColor,
+      child: Padding(
+        padding: EdgeInsets.all(defaultPadding),
+        child: Row(
+          children: [
+            // if (!Responsive.isDesktop(context))
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: context.read<MenuAppController>().controlMenu,
             ),
-          if (!Responsive.isMobile(context))
-            Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-          Expanded(child: SearchField()),
-          ProfileCard()
-        ],
+            if (!Responsive.isMobile(context))
+              Text(
+                "Dashboard",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            if (!Responsive.isMobile(context))
+              Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
+            Expanded(child: SearchField()),
+            ProfileCard()
+          ],
+        ),
       ),
     );
   }
@@ -77,7 +80,7 @@ class ProfileCard extends StatelessWidget {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text("Eng Mohamed Mostafa"),
+                child: Text("Edit Account"),
               ),
             Icon(Icons.keyboard_arrow_down),
           ],

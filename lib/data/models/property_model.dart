@@ -81,7 +81,7 @@ class PropertyModel {
   }
   Map<String, dynamic> toJson() {
     return {
-      "id": id,
+      "_id": id,
       "description": description,
       "type": type,
       "price": price,
@@ -102,6 +102,19 @@ class PropertyModel {
   //   });
   //   return total;
   // }
+
+  DateTime getNextDate() {
+    DateTime currDateWithoutTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    for (var inst in installments) {
+      DateTime instWithoutTime =
+          DateTime(inst.date.year, inst.date.month, inst.date.day);
+      if (instWithoutTime.isAfter(currDateWithoutTime)) {
+        return inst.date;
+      }
+    }
+    return DateTime.now();
+  }
 
   double calculateUpcomingInstallments() {
     double total = 0.0;

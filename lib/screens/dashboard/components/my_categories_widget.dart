@@ -3,6 +3,7 @@ import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/data/models/MyFiles.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/values_manager.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/add_property/add_property_modal.dart';
 import 'package:flutter/material.dart';
@@ -28,35 +29,57 @@ class MyCategoriesWidget extends StatelessWidget {
               "Property Categories",
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            ElevatedButton.icon(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  // horizontal: defaultPadding * 1.5,
-                  vertical:
-                      defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
-                ),
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: ColorManager.BackgroundColor,
-                    clipBehavior: Clip.antiAlias,
-                    insetAnimationDuration: const Duration(milliseconds: 500),
-                    insetAnimationCurve: Curves.easeIn,
-                    child: AddPropertyModal(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      width: Responsive.isDesktop(context)
-                          ? MediaQuery.of(context).size.width * 0.6
-                          : MediaQuery.of(context).size.width * 0.9,
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      BlocProvider.of<PropertyCubit>(context).fetchData(),
+                  icon: Icon(Icons.refresh),
+                  label: Text("Refresh"),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                      // horizontal: defaultPadding * 1.5,
+                      vertical: defaultPadding /
+                          (Responsive.isMobile(context) ? 2 : 1),
                     ),
                   ),
-                ).then((value) => context
-                    .read<AddPropertyCubit>()
-                    .reset(context.read<PropertyCubit>().properties));
-              },
-              icon: Icon(Icons.add),
-              label: Text("Add New"),
+                ),
+                SizedBox(
+                  width: AppSize.s50,
+                ),
+                ElevatedButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                      // horizontal: defaultPadding * 1.5,
+                      vertical: defaultPadding /
+                          (Responsive.isMobile(context) ? 2 : 1),
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        backgroundColor: ColorManager.BackgroundColor,
+                        clipBehavior: Clip.antiAlias,
+                        insetAnimationDuration:
+                            const Duration(milliseconds: 500),
+                        insetAnimationCurve: Curves.easeIn,
+                        child: AddPropertyModal(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          width: Responsive.isDesktop(context)
+                              ? MediaQuery.of(context).size.width * 0.6
+                              : MediaQuery.of(context).size.width * 0.9,
+                          unsold: false,
+                        ),
+                      ),
+                    ).then((value) => context
+                        .read<AddPropertyCubit>()
+                        .reset(context.read<PropertyCubit>().properties));
+                  },
+                  icon: Icon(Icons.add),
+                  label: Text("Add New"),
+                ),
+              ],
             ),
           ],
         ),
@@ -68,7 +91,7 @@ class MyCategoriesWidget extends StatelessWidget {
           ),
           tablet: FileInfoCardGridView(),
           desktop: FileInfoCardGridView(
-            childAspectRatio: _size.width < 1400 ? 1.1 : 1.4,
+            childAspectRatio: _size.width < 1400 ? 1.1 : 1.2,
           ),
         ),
       ],
@@ -79,7 +102,7 @@ class MyCategoriesWidget extends StatelessWidget {
 class FileInfoCardGridView extends StatelessWidget {
   const FileInfoCardGridView({
     Key? key,
-    this.crossAxisCount = 4,
+    this.crossAxisCount = 5,
     this.childAspectRatio = 1,
   }) : super(key: key);
 

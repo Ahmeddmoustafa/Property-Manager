@@ -4,7 +4,6 @@ import 'package:admin/data/local/app_preferences.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/notpaid_usecase.dart';
 import 'package:admin/domain/Usecases/update_property_usecase.dart';
-import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:http/http.dart' as http;
 
 //MONGO DB DATA
@@ -18,15 +17,19 @@ class PropertyRemoteSource {
       Map<String, dynamic> propertyData = property.toJson();
       String requestBody = json.encode(propertyData);
       final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.post(
         Uri.parse("http://localhost:5000/properties/add"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
+          'Refresh_Token': refreshToken
         },
         body: requestBody, // Pass the encoded JSON data
       );
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = json.decode(response.body);
         property.id = body['_id'];
@@ -38,12 +41,47 @@ class PropertyRemoteSource {
     }
   }
 
-  //Overwrites the property data in the Firebase
+  // Sell existing property
+  Future<PropertyModel> soldProperty(PropertyModel property) async {
+    try {
+      print("sell property");
+      Map<String, dynamic> propertyData = property.toJson();
+      String requestBody = json.encode(propertyData);
+
+      final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
+
+      final response = await http.put(
+        Uri.parse(
+            "http://localhost:5000/properties/soldproperty/${property.id}"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+          'Refresh_Token': refreshToken
+        },
+        body: requestBody, // Pass the encoded JSON data
+      );
+
+      await AppPreferences.setToken(response.headers['authorization'] ?? token);
+
+      if (response.statusCode == 200) {
+        // final Map<String, dynamic> body = json.decode(response.body);
+        // property.id = body['_id'];
+        return property;
+      }
+      throw "INVALID REQUEST";
+    } catch (err) {
+      throw err.toString();
+    }
+  }
+
+  //Overwrites the property data
   Future<void> updateProperty(UpdatePropertyParams params) async {
     try {
       Map<String, dynamic> propertyData = params.updatedData;
       String requestBody = json.encode(propertyData);
       final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.put(
         Uri.parse(
@@ -51,9 +89,12 @@ class PropertyRemoteSource {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
+          'Refresh_Token': refreshToken
         },
         body: requestBody, // Pass the encoded JSON data
       );
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode == 200) {
         return;
       }
@@ -68,16 +109,19 @@ class PropertyRemoteSource {
       Map<String, dynamic> propertyData = {"properties": params.updatedData};
       String requestBody = json.encode(propertyData);
       final String token = await AppPreferences.getToken();
-      print("request made");
+      final String refreshToken = await AppPreferences.getRefreshToken();
+
       final response = await http.put(
-          Uri.parse("http://localhost:5000/properties/updateproperties"),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token,
-          },
-          body: requestBody // Pass the encoded JSON data
-          );
-      print(" the response is ${response.body}");
+        Uri.parse("http://localhost:5000/properties/updateproperties"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+          'Refresh_Token': refreshToken
+        },
+        body: requestBody, // Pass the encoded JSON data
+      );
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode == 200) {
         return;
       }
@@ -93,13 +137,21 @@ class PropertyRemoteSource {
     try {
       print("GETTING DATA FROM REMOTE DB....");
       final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
+
       final response = await http.get(
         Uri.parse("http://localhost:5000/properties/all"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
+          'Refresh_Token': refreshToken
         },
       );
+      print("got properties and new ref token ${response.headers}");
+      print(
+          "got properties and new acc token ${response.headers['authorization']}");
+
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
 
       final List<PropertyModel> properties = [];
       // print(" no of properties ${snapshot.docs.length}");

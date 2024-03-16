@@ -22,23 +22,23 @@ class PropertyRepositoryImpl implements PropertyRepository {
     // throw UnimplementedError();
     try {
       // if 30 mins passed then we will fetch from the remote DB
-      bool updated = await AppPreferences.isLocalUpdated();
+      // bool updated = await AppPreferences.isLocalUpdated();
       // the app is up to date with the remote DB, so no need to fetch again
-      if (false) {
-        print("Still less than 30 mins");
-        final List<PropertyModel> list =
-            await propertyLocalSource.getProperties();
-        return right(list);
+      // if (false) {
+      //   print("Still less than 30 mins");
+      //   final List<PropertyModel> list =
+      //       await propertyLocalSource.getProperties();
+      //   return right(list);
 
-        // 30 MINUTES passed, then fetch data again
-      } else {
-        final List<PropertyModel> models =
-            await propertyRemoteSource.getProperties();
-        await propertyLocalSource.addProperties(models);
-        print("GOT THE DATA");
-        await AppPreferences.updateAppStatus();
-        return right(models);
-      }
+      //   // 30 MINUTES passed, then fetch data again
+      // } else {
+      final List<PropertyModel> models =
+          await propertyRemoteSource.getProperties();
+      await propertyLocalSource.addProperties(models);
+      print("GOT THE DATA");
+      await AppPreferences.updateAppStatus();
+      return right(models);
+      // }
     } catch (err) {
       print(err.toString());
       return left(ServerFailure(msg: err.toString()));
@@ -52,7 +52,7 @@ class PropertyRepositoryImpl implements PropertyRepository {
       // params.forEach((param) async {
       // });
       await propertyRemoteSource.setPropertyNotPaid(params);
-      await propertyLocalSource.updateProperties(params);
+      // await propertyLocalSource.updateProperties(params);
       // AppPreferences.updateAppStatus();
       return Right("");
     } catch (err) {
@@ -68,7 +68,6 @@ class PropertyRepositoryImpl implements PropertyRepository {
       //Update local and remote DB for consistency
       await propertyRemoteSource.updateProperty(params);
       await propertyLocalSource.updateProperty(params.model);
-      // AppPreferences.updateAppStatus();
       return Right("");
     } catch (err) {
       return Left(ServerFailure(msg: err.toString()));
@@ -80,9 +79,19 @@ class PropertyRepositoryImpl implements PropertyRepository {
     try {
       final PropertyModel model =
           await propertyRemoteSource.createProperty(property);
-      print(" the new assigned id is ${model.id}");
       await propertyLocalSource.addProperty(model);
-      // AppPreferences.updateAppStatus(true, DateTime.now());
+      return Right("");
+    } catch (err) {
+      return Left(ServerFailure(msg: err.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> soldProperty(PropertyModel property) async {
+    try {
+      final PropertyModel model =
+          await propertyRemoteSource.soldProperty(property);
+      // await propertyLocalSource.addProperty(model);
       return Right("");
     } catch (err) {
       return Left(ServerFailure(msg: err.toString()));

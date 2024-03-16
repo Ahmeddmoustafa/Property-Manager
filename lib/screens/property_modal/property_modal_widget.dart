@@ -1,11 +1,15 @@
 import 'package:admin/constants.dart';
+import 'package:admin/cubit/add_property/add_property_cubit.dart';
 import 'package:admin/cubit/edit_property/property_modal_cubit.dart';
 import 'package:admin/cubit/get_property/property_cubit.dart';
 import 'package:admin/cubit/stepper/stepper_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
+import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
+import 'package:admin/resources/Utils/responsive.dart';
+import 'package:admin/screens/add_property/add_property_modal.dart';
 import 'package:admin/screens/main/components/loading_widget.dart';
 import 'package:admin/screens/property_modal/components/property_chart.dart';
 import 'package:admin/screens/property_modal/components/installment_widget.dart';
@@ -130,16 +134,19 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                                 Text("Property"),
                               ],
                             ),
-                            InkWell(
-                              onTap: () => openWhatsApp("number"),
-                              child: SvgPicture.asset(
-                                AssetsManager.WhatsAppIcon,
-                                colorFilter: ColorFilter.mode(
-                                    ColorManager.Green, BlendMode.srcIn),
-                                height: 20,
-                                width: 20,
+                            if (widget.propertyModel.type !=
+                                AppStrings.UnSoldType)
+                              InkWell(
+                                onTap: () => openWhatsApp(
+                                    widget.propertyModel.buyerNumber),
+                                child: SvgPicture.asset(
+                                  AssetsManager.WhatsAppIcon,
+                                  colorFilter: ColorFilter.mode(
+                                      ColorManager.Green, BlendMode.srcIn),
+                                  height: 20,
+                                  width: 20,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         PropertyChart(
@@ -208,55 +215,128 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                       thickness: 0.2,
                     ),
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        "Property Installments:",
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.left,
-                      ),
+                  widget.propertyModel.type != AppStrings.UnSoldType
+                      ? Column(
+                          children: [
+                            Text(
+                              "Property Installments:",
+                              style: Theme.of(context).textTheme.bodyLarge,
+                              textAlign: TextAlign.left,
+                            ),
 
-                      SizedBox(
-                          width: width * 0.3,
-                          child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount:
-                                  (widget.propertyModel.installments.length /
-                                          10)
-                                      .ceil(),
-                              itemBuilder: (context, index) {
-                                int start = index * 10;
-                                int end = start + 10;
-                                if (end >
-                                    widget.propertyModel.installments.length) {
-                                  end =
-                                      widget.propertyModel.installments.length;
-                                }
-                                // List<Installment> installments = widget
-                                //     .propertyModel.installments
-                                //     .sublist(start, end);
+                            SizedBox(
+                                width: width * 0.3,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: (widget.propertyModel
+                                                .installments.length /
+                                            10)
+                                        .ceil(),
+                                    itemBuilder: (context, index) {
+                                      int start = index * 10;
+                                      int end = start + 10;
+                                      if (end >
+                                          widget.propertyModel.installments
+                                              .length) {
+                                        end = widget
+                                            .propertyModel.installments.length;
+                                      }
+                                      // List<Installment> installments = widget
+                                      //     .propertyModel.installments
+                                      //     .sublist(start, end);
 
-                                return BlocProvider(
-                                  create: (context) => StepperCubit(),
-                                  child: SizedBox(
-                                    width: width * 0.3,
-                                    child: InstallmentsStepperWidget(
-                                      propertyModel: widget.propertyModel,
-                                      start: start,
-                                      end: end,
+                                      return BlocProvider(
+                                        create: (context) => StepperCubit(),
+                                        child: SizedBox(
+                                          width: width * 0.3,
+                                          child: InstallmentsStepperWidget(
+                                            propertyModel: widget.propertyModel,
+                                            start: start,
+                                            end: end,
+                                          ),
+                                        ),
+                                      );
+                                    })),
+                            // SizedBox(
+                            //   width: width * 0.3,
+                            //   child: InstallmentsStepperWidget(
+                            //     propertyModel: widget.propertyModel,
+                            //   ),
+                            // ),
+                          ],
+                        )
+                      : Center(
+                          child: SizedBox(
+                            height: height,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) => Dialog(
+                                                  backgroundColor: ColorManager
+                                                      .BackgroundColor,
+                                                  clipBehavior: Clip.antiAlias,
+                                                  insetAnimationDuration:
+                                                      const Duration(
+                                                          milliseconds: 500),
+                                                  insetAnimationCurve:
+                                                      Curves.easeIn,
+                                                  child: AddPropertyModal(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.7,
+                                                    width: Responsive.isDesktop(
+                                                            context)
+                                                        ? MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.6
+                                                        : MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.9,
+                                                    unsold: true,
+                                                    model: widget.propertyModel,
+                                                  ),
+                                                )).then((value) {
+                                          context
+                                              .read<AddPropertyCubit>()
+                                              .reset(context
+                                                  .read<PropertyCubit>()
+                                                  .properties);
+                                          Navigator.pop(context);
+                                        });
+                                      },
+                                      child: Text(
+                                        "Property Sold",
+                                        style: TextStyle(
+                                            color: ColorManager.LightSilver),
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStatePropertyAll(
+                                                ColorManager.Black),
+                                      ),
+                                      // color: ColorManager.Green,
+                                      // highlightColor: ColorManager.Green,
+                                      // focusColor: ColorManager.Green,
                                     ),
-                                  ),
-                                );
-                              })),
-                      // SizedBox(
-                      //   width: width * 0.3,
-                      //   child: InstallmentsStepperWidget(
-                      //     propertyModel: widget.propertyModel,
-                      //   ),
-                      // ),
-                    ],
-                  ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                 ],
               );
             },

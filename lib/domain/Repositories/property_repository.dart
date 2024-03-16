@@ -9,4 +9,5 @@ abstract class PropertyRepository {
   Future<Either<Failure, void>> setNotPaid(SetNotPaidParams params);
   Future<Either<Failure, void>> updateProperty(UpdatePropertyParams property);
   Future<Either<Failure, void>> createProperty(PropertyModel property);
+  Future<Either<Failure, void>> soldProperty(PropertyModel property);
 }

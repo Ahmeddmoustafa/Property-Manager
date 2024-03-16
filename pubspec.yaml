@@ -42,6 +42,7 @@ dependencies:
   email_validator:
   get_it:
   url_launcher:
+  sticky_headers:
   
 
 

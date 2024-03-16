@@ -59,7 +59,8 @@ class StorageDetails extends StatelessWidget {
                 color: demoMyFiles[2].color,
                 amountOfFiles: chartFormatPrice(cubit.totalAmount -
                         cubit.paidAmount -
-                        cubit.notPaidAmount) +
+                        cubit.notPaidAmount -
+                        cubit.unSoldAmount) +
                     " EGP",
                 numOfFiles: cubit.upcomingproperties.length,
               ),
@@ -69,6 +70,13 @@ class StorageDetails extends StatelessWidget {
                 color: demoMyFiles[3].color,
                 amountOfFiles: chartFormatPrice(cubit.notPaidAmount) + " EGP",
                 numOfFiles: cubit.notPaidproperties.length,
+              ),
+              StorageCardWidget(
+                svgSrc: demoMyFiles[4].svgSrc,
+                title: demoMyFiles[4].title,
+                color: demoMyFiles[4].color,
+                amountOfFiles: chartFormatPrice(cubit.unSoldAmount) + " EGP",
+                numOfFiles: cubit.unsoldproperties.length,
               ),
             ],
           );

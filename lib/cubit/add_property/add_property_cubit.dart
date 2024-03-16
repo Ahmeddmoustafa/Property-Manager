@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:admin/data/models/dummy.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/domain/Usecases/create_property_usecase.dart';
+import 'package:admin/domain/Usecases/sold_property_usecase.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,8 +13,10 @@ part 'add_property_state.dart';
 
 class AddPropertyCubit extends Cubit<AddPropertyState> {
   final CreatePropertyUsecase createPropertyUsecase;
+  final SoldPropertyUsecase soldPropertyUsecase;
   String type = AppStrings.UpcomingType;
   double notpaid = 0;
+  List<bool> sold = [true, false];
 
   bool loading = false;
   // final List<PropertyModel> _models = demoPropertyModels;
@@ -43,7 +47,8 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   bool priceValidationError = false;
   bool installmentError = false;
 
-  AddPropertyCubit({required this.createPropertyUsecase})
+  AddPropertyCubit(
+      {required this.soldPropertyUsecase, required this.createPropertyUsecase})
       : super(AddPropertyState(error: true));
   Future<void> reset(List<PropertyModel> list) async {
     // getRandomData().forEach((element) async {
@@ -62,6 +67,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     regularInstallmentsGenerated = false;
     type = AppStrings.UpcomingType;
     notpaid = 0;
+    sold = [true, false];
 
     loading = false;
     descriptionController.text = "";
@@ -75,6 +81,12 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     lastInstallment = DateTime.now();
     installmentsAmountController.text = "";
     installmentsDurationController.text = "";
+  }
+
+  void toggleSold(int index) {
+    sold = [false, false];
+    sold[index] = true;
+    emit(state.copyWith(err: false));
   }
 
   int differenceInMonths(DateTime start, DateTime end) {
@@ -298,7 +310,45 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     emit(state.copyWith(err: false));
   }
 
-  Future<PropertyModel?> addProperty() async {
+  Future<PropertyModel?> addUnsoldProperty() async {
+    loading = true;
+    priceValidationError = false;
+    installmentError = false;
+    emit(state.copyWith(err: false));
+    //init variables
+    final String description = descriptionController.text;
+    final String price = priceController.text.replaceAll(',', '');
+
+    description.isEmpty ? descriptionError = true : descriptionError = false;
+    price.isEmpty ? priceError = true : priceError = false;
+
+    if (descriptionError || priceError) {
+      emit(state.copyWith(err: true));
+      loading = false;
+      return null;
+    }
+    final model = PropertyModel(
+      id: "",
+      installments: [],
+      type: AppStrings.UnSoldType,
+      description: description,
+      price: double.parse(price),
+      paid: 0,
+      notPaid: 0,
+      buyerName: "NA",
+      buyerNumber: "NA",
+      submissionDate: DateTime.now(),
+      contractDate: DateTime.now(),
+    );
+
+    await createPropertyUsecase(model);
+    loading = false;
+    emit(state.copyWith(err: false));
+    return model;
+  }
+
+  Future<PropertyModel?> addProperty(
+      {bool unsold = false, String id = ""}) async {
     loading = true;
     emit(state.copyWith(err: false));
     //init variables
@@ -319,14 +369,13 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     validatePrice();
 
     if (hasError()) {
-      print("errror in the modal");
       emit(state.copyWith(err: true));
       loading = false;
       return null;
     } else {
       List<Installment> installments = controllerToInstallments();
       final model = PropertyModel(
-        id: "",
+        id: id,
         installments: installments,
         type: type,
         description: description,
@@ -338,12 +387,13 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
         submissionDate: submissionDate,
         contractDate: contractDate,
       );
-      await createPropertyUsecase(model);
-      // print(
-      //     "${model.description} ${model.price} ${model.paid} ${model.buyerName} ${model.buyerNumber} ${model.installments[1].date}");
+      final result = !unsold
+          ? await createPropertyUsecase(model)
+          : await soldPropertyUsecase(model);
       loading = false;
       emit(state.copyWith(err: false));
-      return model;
+      bool success = result.fold((l) => false, (r) => true);
+      return success ? model : null;
 
       // _models.add(model);
       // add property

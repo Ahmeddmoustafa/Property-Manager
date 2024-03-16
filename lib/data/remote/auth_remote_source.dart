@@ -22,6 +22,10 @@ class AuthRemoteSource {
       );
       if (response.statusCode == 200) {
         final Map<String, dynamic> body = json.decode(response.body);
+
+        AppPreferences.setToken(body["token"]);
+        AppPreferences.setRefreshToken(body["refresh_token"]);
+        print(" the ref token ${body["refresh_token"]}");
         return body["token"];
       }
       throw Exception("INVALID CREDENTIALS");
@@ -33,17 +37,26 @@ class AuthRemoteSource {
   Future<void> validateToken() async {
     try {
       final String token = await AppPreferences.getToken();
-      final response = await http.get(
+      final String refreshToken = await AppPreferences.getRefreshToken();
+      print("validated ref token is $refreshToken");
+      print("validated acctoken is $token");
+
+      final http.Response response = await http.get(
         Uri.parse("http://localhost:5000/auth/validate-token"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
+          'Refresh_Token': refreshToken
         },
       );
+      // print("the response ${response.headers["authorization"]}");
+
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode != 200) {
-        throw Exception("NOT VALID TOKEN");
+        throw "NOT VALID TOKEN";
       }
-      print("token is valid $token");
+      print("valid token");
     } catch (err) {
       throw Exception(err.toString());
     }
@@ -55,15 +68,21 @@ class AuthRemoteSource {
         'password': params.oldPassword,
       };
       String requestBody = json.encode(loginData);
+
       final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
+
       final response = await http.put(
         Uri.parse("http://localhost:5000/auth/check-password"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
+          'Refresh_Token': refreshToken
         },
         body: requestBody, // Pass the encoded JSON data
       );
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode == 401) {
         throw "INCORRECT PASSWORD";
       } else if (response.statusCode != 200) {
@@ -77,25 +96,30 @@ class AuthRemoteSource {
   Future<void> changePassword(ChangePasswordParams params) async {
     try {
       final String token = await AppPreferences.getToken();
+      final String refreshToken = await AppPreferences.getRefreshToken();
 
       Map<String, String> loginData = {
         'oldPassword': params.oldPassword,
         'newPassword': params.newPassword,
-        "token": token
       };
       String requestBody = json.encode(loginData);
       final response = await http.put(
         Uri.parse("http://localhost:5000/auth/change-password"),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token,
+          'Refresh_Token': refreshToken
         },
         body: requestBody,
       );
+      await AppPreferences.setToken(response.headers['authorization'] ?? "");
+
       if (response.statusCode == 401) {
         throw "INCORRECT PASSWORD";
       } else if (response.statusCode != 200) {
         throw "NOT VALID TOKEN";
       }
+
       // print("token is valid $token");
     } catch (err) {
       throw Exception(err.toString());

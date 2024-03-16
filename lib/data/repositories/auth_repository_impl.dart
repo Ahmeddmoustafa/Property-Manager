@@ -15,7 +15,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final String response =
           await remoteDataSource.login(params.email, params.password);
-      AppPreferences.setToken(response);
       print(await AppPreferences.getToken());
       return Right("");
     } catch (err) {
