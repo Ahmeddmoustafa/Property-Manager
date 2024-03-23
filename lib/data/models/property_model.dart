@@ -1,8 +1,9 @@
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Utils/functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
-part 'property_model.g.dart';
+// part 'property_model.g.dart';
 
 @HiveType(typeId: 1)
 class PropertyModel {
@@ -28,6 +29,8 @@ class PropertyModel {
   final DateTime submissionDate;
   @HiveField(10)
   double notPaid;
+  @HiveField(11)
+  int lastActiveIndex;
 
   PropertyModel({
     required this.notPaid,
@@ -41,26 +44,50 @@ class PropertyModel {
     required this.buyerNumber,
     required this.installments,
     required this.type,
+    required this.lastActiveIndex,
   });
 
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
-    return PropertyModel(
-      submissionDate: DateTime.parse(json['submissiondate']),
-      contractDate: DateTime.parse(json['contractdate']),
-      id: json['_id'] as String,
-      description: json['description'] as String,
-      price: json['price'] as double,
-      paid: json['paid'] as double,
-      buyerName: json['buyername'] as String,
-      buyerNumber: json['buyernumber'] as String,
-      installments: installmentsFromJson(
-        json['installments'] as List,
-      ),
-      notPaid: json['notpaid'] as double,
-      type: json['type'] as String,
+    print("the last index ${json['lastActiveIndex']}");
+    if (kIsWeb) {
+      return PropertyModel(
+          submissionDate: DateTime.parse(json['submissiondate']),
+          contractDate: DateTime.parse(json['contractdate']),
+          id: json['_id'] as String,
+          description: json['description'] as String,
+          price: json['price'] as double,
+          paid: json['paid'] as double,
+          buyerName: json['buyername'] as String,
+          buyerNumber: json['buyernumber'] as String,
+          installments: installmentsFromJson(
+            json['installments'] as List,
+          ),
+          notPaid: json['notpaid'] as double,
+          type: json['type'] as String,
+          lastActiveIndex: json['lastActiveIndex'] ?? -1
 
-      // installments: [],
-    );
+          // installments: [],
+          );
+    } else {
+      return PropertyModel(
+          submissionDate: DateTime.parse(json['submissiondate']),
+          contractDate: DateTime.parse(json['contractdate']),
+          id: json['_id'] as String,
+          description: json['description'] as String,
+          price: (json['price'] as int).toDouble(),
+          paid: (json['paid'] as int).toDouble(),
+          buyerName: json['buyername'] as String,
+          buyerNumber: json['buyernumber'] as String,
+          installments: installmentsFromJson(
+            json['installments'] as List,
+          ),
+          notPaid: (json['notpaid'] as int).toDouble(),
+          type: json['type'] as String,
+          lastActiveIndex: json['lastActiveIndex'] ?? -1
+
+          // installments: [],
+          );
+    }
     // return PropertyModel(
     //   submissionDate: DateTime.parse(json['submissiondate']),
     //   contractDate: DateTime.parse(json['contractdate']),
@@ -92,6 +119,7 @@ class PropertyModel {
       "installments": installmentsToJson(installments),
       "contractdate": dateToString(contractDate),
       "submissiondate": dateToString(submissionDate),
+      "lastActiveIndex": lastActiveIndex,
     };
   }
 
@@ -151,12 +179,14 @@ class PropertyModel {
     DateTime currDateWithoutTime =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     DateTime instDate = DateTime.now();
-    for (Installment inst in installments) {
+    for (int i = lastActiveIndex + 1; i < installments.length; i++) {
+      final Installment inst = installments[i];
       instDate = DateTime(inst.date.year, inst.date.month, inst.date.day);
       if (instDate.compareTo(currDateWithoutTime) <= 0) {
         if (inst.isNotPaid()) {
           type = AppStrings.NotPaidType;
           notPaid += inst.amount;
+          lastActiveIndex++;
           isnotPaid = true;
           notpaidIndices.add(index);
           // return;
@@ -224,24 +254,31 @@ class Installment {
   });
 
   factory Installment.fromJson(Map<String, dynamic> json) {
-    return Installment(
-      remindedOn: DateTime.parse(json['remindedon']),
-      type: json['type'] as String,
-      reminded: json['reminded'] as bool,
-      id: json['id'] as String,
-      name: json['name'] as String,
-      date: DateTime.parse(json['date']),
-      amount: json['amount'] as double,
-    );
-    // return Installment(
-    //   remindedOn: DateTime.parse(json['remindedon']),
-    //   type: json['type'] as String,
-    //   reminded: json['reminded'] as bool,
-    //   id: json['id'] as String,
-    //   name: json['name'] as String,
-    //   date: DateTime.parse(json['date']),
-    //   amount: (json['amount'] as int).toDouble(),
-    // );
+    // switch(json['amount'].runtimeType){
+    //   case double:
+    // }
+    print(json['reminded'] == null);
+    if (kIsWeb) {
+      return Installment(
+        remindedOn: DateTime.parse(json['remindedon']),
+        type: json['type'] as String,
+        reminded: json['reminded'] as bool,
+        id: json['id'] as String,
+        name: json['name'] as String,
+        date: DateTime.parse(json['date']),
+        amount: json['amount'] as double,
+      );
+    } else {
+      return Installment(
+        remindedOn: DateTime.parse(json['remindedon']),
+        type: json['type'] as String,
+        reminded: json['reminded'] as bool,
+        id: json['id'] as String,
+        name: json['name'] as String,
+        date: DateTime.parse(json['date']),
+        amount: (json['amount'] as int).toDouble(),
+      );
+    }
   }
   Map<String, dynamic> toJson() {
     return {

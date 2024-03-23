@@ -20,14 +20,19 @@ import 'components/storage_details.dart';
 
 class DashboardScreen extends StatelessWidget {
   final double width;
+  // late ScrollCubit scrollCubit = ScrollCubit();
 
-  const DashboardScreen({Key? key, required this.width}) : super(key: key);
+  DashboardScreen({Key? key, required this.width}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+    final scrollCubit = context.read<ScrollCubit>();
+    scrollCubit.page = 1;
     scrollCubit.propertiesScrollController
-        .addListener(() => scrollListener(context));
+        .addListener(() async => await scrollListener(context, scrollCubit));
+
+    // widget.scrollCubit.propertiesScrollController
+    //     .addListener(() => scrollListener(context, widget.scrollCubit));
     return Container(
       // padding: EdgeInsets.all(defaultPadding),
       width: width,
@@ -110,6 +115,38 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
+//  @override
+//   void initState() {
+//     // TODO: implement initState
+//     super.initState();
+//     if (mounted && context.mounted) {
+//       final scrollCubit = context.read<ScrollCubit>();
+//       scrollCubit.propertiesScrollController = ScrollController();
+// scrollCubit.propertiesScrollController!
+//     .addListener(() => scrollListener(context, scrollCubit));
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     final scrollCubit = context.read<ScrollCubit>();
+//     scrollCubit.propertiesScrollController!
+//         .removeListener(() => scrollListener);
+//     scrollCubit.propertiesScrollController!.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   void didChangeDependencies() {
+//     if (mounted && context.mounted) {
+//       final scrollCubit = context.read<ScrollCubit>();
+//       // scrollCubit.propertiesScrollController = ScrollController();
+//       scrollCubit.propertiesScrollController!
+//           .addListener(() => scrollListener(context, scrollCubit));
+//     }
+//     super.didChangeDependencies();
+//   }
+
 void _showNotPaidAlarm(BuildContext context) {
   showDialog(
     context: context,
@@ -143,20 +180,23 @@ void _showNotPaidAlarm(BuildContext context) {
   );
 }
 
-void scrollListener(BuildContext context) async {
-  final ScrollCubit scrollCubit = context.read<ScrollCubit>();
+Future<void> scrollListener(
+    BuildContext context, ScrollCubit scrollCubit) async {
+  // final ScrollCubit scrollCubit = context.read<ScrollCubit>();
   final PropertyCubit propertyCubit = context.read<PropertyCubit>();
   if (scrollCubit.loading) return;
 
-  if (scrollCubit.propertiesScrollController.position.pixels ==
-      scrollCubit.propertiesScrollController.position.maxScrollExtent) {
+  if (scrollCubit.propertiesScrollController!.position.pixels ==
+      scrollCubit.propertiesScrollController!.position.maxScrollExtent) {
     print("scrolled");
     // scrollCubit.loading = true;
 
     scrollCubit.toogleLoading();
+    print("fetching new data");
+
     if (scrollCubit.incrementPagination()) {
       await Future.delayed(Duration(seconds: 1));
-      propertyCubit.getPropertiesByCategory(
+      await propertyCubit.getPropertiesByCategory(
         index: propertyCubit.selectedCategory,
         pagination: scrollCubit.page,
       );

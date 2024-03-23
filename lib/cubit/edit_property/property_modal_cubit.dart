@@ -14,6 +14,9 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
   late double upcomingToPaid = 0.0;
   late double notpaidToPaid = 0.0;
   bool loading = false;
+  int lastActiveIndex = 0;
+  int newActiveIndices = 0;
+
   PropertyModalCubit({required this.updatePropertyUsecase})
       : super(PropertyModalState(property: null));
 
@@ -25,7 +28,11 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
   void payInstallment(int installmentIndex) {
     final Installment installment = property!.installments[installmentIndex];
     if (property != null) {
-      print("user paid ${installment.name}");
+      if (installmentIndex ==
+          property!.lastActiveIndex + 1 + newActiveIndices) {
+        newActiveIndices++;
+        print("new indices added $newActiveIndices");
+      }
       paidInstallments.add(installment);
       paidInstallmentsIndex.add(installmentIndex);
       if (installment.getType() == AppStrings.UpcomingType)
@@ -59,6 +66,7 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
         installment.payInstallment();
       });
       property!.updateType();
+      property!.lastActiveIndex += newActiveIndices;
       final result = await updatePropertyUsecase(
         UpdatePropertyParams(
           model: property!,
@@ -69,6 +77,7 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
             'notpaid': property!.notPaid,
             'type': property!.type,
             'installments': getupdatedIndicesData(),
+            'lastActiveIndex': property!.lastActiveIndex
           },
         ),
       );
@@ -111,6 +120,22 @@ class PropertyModalCubit extends Cubit<PropertyModalState> {
     paidInstallmentsIndex = [];
     upcomingToPaid = 0.0;
     notpaidToPaid = 0.0;
+    newActiveIndices = 0;
     emit(state.copyWith(prop: property!));
+  }
+
+  void setLastActiveIndex(PropertyModel model) {
+    final DateTime nowDate = DateTime(
+        DateTime.now().year, DateTime.now().month, DateTime.now().day + 1);
+    int index = 0;
+    for (Installment inst in model.installments) {
+      print('loop');
+
+      if (inst.date.isAfter(nowDate)) {
+        lastActiveIndex = index;
+        return;
+      }
+      index++;
+    }
   }
 }

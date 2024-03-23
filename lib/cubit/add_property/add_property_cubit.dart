@@ -17,6 +17,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   String type = AppStrings.UpcomingType;
   double notpaid = 0;
   List<bool> sold = [true, false];
+  int lastIndexActive = -1;
 
   bool loading = false;
   // final List<PropertyModel> _models = demoPropertyModels;
@@ -68,6 +69,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     type = AppStrings.UpcomingType;
     notpaid = 0;
     sold = [true, false];
+    lastIndexActive = -1;
 
     loading = false;
     descriptionController.text = "";
@@ -94,39 +96,39 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   }
 
 //******************* PRACTICAL DATA INSTALLMENTS  ************************ */
-  void generateRegularInstallments() {
-    if (lastInstallment.isAfter(firstInstallment)) {
-      installmentsConttrollers = [];
-      installmentDates = [];
-      double installmentAmount =
-          double.parse(installmentsAmountController.text.replaceAll(',', ''));
-      int numberOfInstallments =
-          (differenceInMonths(firstInstallment, lastInstallment) /
-                      int.parse(installmentsDurationController.text))
-                  .ceil() +
-              2;
+  // void generateRegularInstallments() {
+  //   if (lastInstallment.isAfter(firstInstallment)) {
+  //     installmentsConttrollers = [];
+  //     installmentDates = [];
+  //     double installmentAmount =
+  //         double.parse(installmentsAmountController.text.replaceAll(',', ''));
+  //     int numberOfInstallments =
+  //         (differenceInMonths(firstInstallment, lastInstallment) /
+  //                     int.parse(installmentsDurationController.text))
+  //                 .ceil() +
+  //             2;
 
-      Duration installmentPeriod =
-          Duration(days: int.parse(installmentsDurationController.text) * 30);
+  //     Duration installmentPeriod =
+  //         Duration(days: int.parse(installmentsDurationController.text) * 30);
 
-      for (int i = 0; i < numberOfInstallments; i++) {
-        // DateTime dueDate = DateTime(year);
-        DateTime dueDate = firstInstallment.add(installmentPeriod * i);
-        dueDate = dueDate.copyWith(day: firstInstallment.day);
-        if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
-        installmentsConttrollers.add(
-          TextEditingController(
-            text: installmentAmount.toString(),
-          ),
-        );
-        installmentDates.add(dueDate);
-        // installments
-        //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
-      }
-      regularInstallmentsGenerated = true;
-      emit(state.copyWith(err: false));
-    }
-  }
+  //     for (int i = 0; i < numberOfInstallments; i++) {
+  //       // DateTime dueDate = DateTime(year);
+  //       DateTime dueDate = firstInstallment.add(installmentPeriod * i);
+  //       dueDate = dueDate.copyWith(day: firstInstallment.day);
+  //       if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
+  //       installmentsConttrollers.add(
+  //         TextEditingController(
+  //           text: installmentAmount.toString(),
+  //         ),
+  //       );
+  //       installmentDates.add(dueDate);
+  //       // installments
+  //       //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+  //     }
+  //     regularInstallmentsGenerated = true;
+  //     emit(state.copyWith(err: false));
+  //   }
+  // }
 
   void addTestData() {
     Random random = Random();
@@ -141,20 +143,20 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     buyerNumberController.text = "01100${random.nextInt(999999)}";
     installmentsConttrollers = [];
     installmentDates = [];
-    int firstdate = random.nextInt(10) + 7;
+    int firstdate = random.nextInt(2);
     firstInstallment = DateTime.now().add(Duration(days: firstdate));
-    // lastInstallment =
-    //     firstInstallment.add(Duration(days: 10 + random.nextInt(30)));
     lastInstallment =
-        firstInstallment.add(Duration(days: 365 + random.nextInt(365)));
+        firstInstallment.add(Duration(days: 10 + random.nextInt(30)));
+    // lastInstallment =
+    //     firstInstallment.add(Duration(days: 365 + random.nextInt(365)));
     int duration = lastInstallment.difference(firstInstallment).inDays;
-    int installment = (int.parse(priceController.text) -
-            int.parse(paidAmountController.text)) ~/
-        duration *
-        30;
     // int installment = (int.parse(priceController.text) -
     //         int.parse(paidAmountController.text)) ~/
-    //     duration;
+    //     duration *
+    //     30;
+    int installment = (int.parse(priceController.text) -
+            int.parse(paidAmountController.text)) ~/
+        duration;
     installmentsAmountController.text = "$installment";
     installmentsDurationController.text = "1";
     regularInstallmentsGenerated = true;
@@ -224,52 +226,52 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
   //   }
   // }
 // ***********************TEST WITH DAILY INSTALLMENTS*****************
-  // void generateRegularInstallments() {
-  //   if (lastInstallment.isAfter(firstInstallment)) {
-  //     installmentsConttrollers = [];
-  //     installmentDates = [];
-  //     double price = double.parse(priceController.text.replaceAll(",", ""));
-  //     double paid = double.parse(paidAmountController.text.replaceAll(",", ""));
+  void generateRegularInstallments() {
+    if (lastInstallment.isAfter(firstInstallment)) {
+      installmentsConttrollers = [];
+      installmentDates = [];
+      double price = double.parse(priceController.text.replaceAll(",", ""));
+      double paid = double.parse(paidAmountController.text.replaceAll(",", ""));
 
-  //     double installmentAmount =
-  //         double.parse(installmentsAmountController.text.replaceAll(',', ''));
-  //     int numberOfInstallments =
-  //         (lastInstallment.difference(firstInstallment).inDays /
-  //                     int.parse(installmentsDurationController.text))
-  //                 .ceil() +
-  //             1;
+      double installmentAmount =
+          double.parse(installmentsAmountController.text.replaceAll(',', ''));
+      int numberOfInstallments =
+          (lastInstallment.difference(firstInstallment).inDays /
+                      int.parse(installmentsDurationController.text))
+                  .ceil() +
+              1;
 
-  //     Duration installmentPeriod =
-  //         Duration(days: int.parse(installmentsDurationController.text));
-  //     double totalinstallments = 0;
-  //     for (int i = 0; i < numberOfInstallments; i++) {
-  //       DateTime dueDate = DateTime(firstInstallment.year);
-  //       dueDate = firstInstallment.add(installmentPeriod * i);
-  //       // dueDate = dueDate.copyWith(day: firstInstallment.day);
-  //       if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
-  //       totalinstallments += installmentAmount;
-  //       if (totalinstallments > (price - paid)) {
-  //         installmentsConttrollers.add(
-  //           TextEditingController(
-  //             text: (price - paid - totalinstallments + installmentAmount)
-  //                 .toString(),
-  //           ),
-  //         );
-  //       } else {
-  //         installmentsConttrollers.add(
-  //           TextEditingController(
-  //             text: installmentAmount.toString(),
-  //           ),
-  //         );
-  //       }
-  //       installmentDates.add(dueDate);
-  //       // installments
-  //       //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
-  //     }
-  //     regularInstallmentsGenerated = true;
-  //     emit(state.copyWith(err: false));
-  //   }
-  // }
+      Duration installmentPeriod =
+          Duration(days: int.parse(installmentsDurationController.text));
+      double totalinstallments = 0;
+      for (int i = 0; i < numberOfInstallments; i++) {
+        DateTime dueDate = DateTime(firstInstallment.year);
+        dueDate = firstInstallment.add(installmentPeriod * i);
+        // dueDate = dueDate.copyWith(day: firstInstallment.day);
+        if (dueDate.isAfter(lastInstallment.add(Duration(days: 1)))) break;
+        totalinstallments += installmentAmount;
+        if (totalinstallments > (price - paid)) {
+          installmentsConttrollers.add(
+            TextEditingController(
+              text: (price - paid - totalinstallments + installmentAmount)
+                  .toString(),
+            ),
+          );
+        } else {
+          installmentsConttrollers.add(
+            TextEditingController(
+              text: installmentAmount.toString(),
+            ),
+          );
+        }
+        installmentDates.add(dueDate);
+        // installments
+        //     .add(Installment(dueDate: dueDate, amount: installmentAmount));
+      }
+      regularInstallmentsGenerated = true;
+      emit(state.copyWith(err: false));
+    }
+  }
   //***************************************************************** */
 
   void selectFirstInstallment(DateTime date) {
@@ -329,6 +331,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     }
     final model = PropertyModel(
       id: "",
+      lastActiveIndex: -1,
       installments: [],
       type: AppStrings.UnSoldType,
       description: description,
@@ -374,8 +377,10 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
       return null;
     } else {
       List<Installment> installments = controllerToInstallments();
+      print("the last actiive is $lastIndexActive");
       final model = PropertyModel(
         id: id,
+        lastActiveIndex: lastIndexActive,
         installments: installments,
         type: type,
         description: description,
@@ -454,6 +459,7 @@ class AddPropertyCubit extends Cubit<AddPropertyState> {
     for (int i = 0; i < installmentDates.length; i++) {
       if (installmentDates[i]!.isBefore(DateTime.now())) {
         type = AppStrings.NotPaidType;
+        lastIndexActive++;
         notpaid +=
             double.parse(installmentsConttrollers[i].text.replaceAll(',', ''));
       }

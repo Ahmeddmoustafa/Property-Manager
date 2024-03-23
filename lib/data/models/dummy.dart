@@ -108,6 +108,7 @@ List<PropertyModel> getRandomData() {
 
     models.add(PropertyModel(
       id: id,
+      lastActiveIndex: -1,
       type: AppStrings.UpcomingType,
       description: description,
       price: price,

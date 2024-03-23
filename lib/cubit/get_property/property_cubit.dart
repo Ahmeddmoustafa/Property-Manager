@@ -320,7 +320,10 @@ class PropertyCubit extends Cubit<PropertyState> {
         int index = 0;
         bool found = false;
         List<int> notPaidIndices = [];
-        for (Installment installment in property.installments) {
+        for (int i = property.lastActiveIndex + 1;
+            i < property.installments.length;
+            i++) {
+          final Installment installment = property.installments[i];
           DateTime instDate = DateTime(installment.date.year,
               installment.date.month, installment.date.day);
           if (instDate.compareTo(currDateWithoutTime) <= 0) {
@@ -328,6 +331,7 @@ class PropertyCubit extends Cubit<PropertyState> {
               notPaidIndices.add(index);
               installment.setType(AppStrings.NotPaidType);
               property.notPaid += installment.amount;
+              property.lastActiveIndex++;
               notPaidAmount += installment.amount;
               found = true;
             }
@@ -343,6 +347,7 @@ class PropertyCubit extends Cubit<PropertyState> {
             "paid": property.paid,
             "notpaid": property.notPaid,
             "type": property.type,
+            "lastActiveIndex": property.lastActiveIndex,
           });
           notPaidParams.models.add(property);
           // notpaidList.add(SetNotPaidParams(
@@ -367,6 +372,7 @@ class PropertyCubit extends Cubit<PropertyState> {
             "paid": property.paid,
             "notpaid": property.notPaid,
             "type": property.type,
+            "lastActiveIndex": property.lastActiveIndex,
           });
           notPaidParams.models.add(property);
 

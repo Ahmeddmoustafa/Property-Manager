@@ -87,11 +87,15 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> isLoggedIn() async {
+    loading = true;
+    emit(state.copyWith());
     if (!signedIn) {
       final result = await tokenUsecase(NoParams());
       bool validated = result.fold((l) => false, (r) => true);
       signedIn = validated;
     }
+    loading = false;
+    emit(state.copyWith());
   }
 
   Future<void> logout() async {

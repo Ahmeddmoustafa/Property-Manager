@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 
 //NODEJS & MONGODB AUTH
 class AuthRemoteSource {
+  // final String baseUrl = 'http://localhost:5000';
+  final String baseUrl = 'https://property-manager-backend-z2yr.onrender.com';
+
   Future<String> login(String email, String password) async {
     Map<String, String> loginData = {
       'email': email,
@@ -14,7 +17,7 @@ class AuthRemoteSource {
     String requestBody = json.encode(loginData);
     try {
       final response = await http.post(
-        Uri.parse("http://localhost:5000/auth/login"),
+        Uri.parse("$baseUrl/auth/login"),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -42,7 +45,7 @@ class AuthRemoteSource {
       print("validated acctoken is $token");
 
       final http.Response response = await http.get(
-        Uri.parse("http://localhost:5000/auth/validate-token"),
+        Uri.parse("$baseUrl/auth/validate-token"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -73,7 +76,7 @@ class AuthRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.put(
-        Uri.parse("http://localhost:5000/auth/check-password"),
+        Uri.parse("$baseUrl/auth/check-password"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -104,7 +107,7 @@ class AuthRemoteSource {
       };
       String requestBody = json.encode(loginData);
       final response = await http.put(
-        Uri.parse("http://localhost:5000/auth/change-password"),
+        Uri.parse("$baseUrl/auth/change-password"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,

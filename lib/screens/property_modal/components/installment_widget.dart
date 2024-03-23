@@ -96,61 +96,91 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
     final PropertyModalCubit cubit = context.read<PropertyModalCubit>();
     final bool isPaid = cubit.isPaid(i);
     final Installment installment = widget.propertyModel.installments[i];
+    final int installmentIndex = i;
+    final bool isActive = true;
+    print("inst rebuild");
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
       children: [
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (installment.reminded &&
-                (installment.type == AppStrings.UpcomingType ||
-                    installment.type == AppStrings.NotPaidType))
-              Text(
-                "Reminded",
-                style: TextStyle(
-                  color: ColorManager.LightGrey,
-                  fontSize: 12,
+            Column(
+              children: [
+                if (installment.reminded &&
+                    (installment.type == AppStrings.UpcomingType ||
+                        installment.type == AppStrings.NotPaidType))
+                  Text(
+                    "Reminded",
+                    style: TextStyle(
+                      color: ColorManager.LightGrey,
+                      fontSize: 12,
+                    ),
+                  ),
+                Text(
+                  "${formatDate(installment.date)}",
                 ),
-              ),
-            Text(
-              "${formatDate(installment.date)}",
+              ],
             ),
-          ],
-        ),
-        Column(
-          children: [
-            if (i != widget.start)
-              Container(
-                margin: EdgeInsets.symmetric(vertical: defaultPadding),
-                child: SizedBox(
-                  height: 100,
-                  child: VerticalDivider(
-                    color: ColorManager.DarkGrey,
+            Column(
+              children: [
+                if (i != widget.start)
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: defaultPadding),
+                    child: SizedBox(
+                      height: 100,
+                      child: VerticalDivider(
+                        color: ColorManager.DarkGrey,
+                      ),
+                    ),
+                  ),
+                InkWell(
+                  onTap: () {
+                    print("installment $installmentIndex");
+                    print(
+                        "active till ${widget.propertyModel.lastActiveIndex + 1 + cubit.newActiveIndices}");
+                    if (!isPaid &&
+                        installmentIndex <=
+                            widget.propertyModel.lastActiveIndex +
+                                1 +
+                                cubit.newActiveIndices)
+                      _showConfirmationDialog(context, widget.propertyModel, i);
+                  },
+                  child: Container(
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: getInstallmentColor(i, isPaid),
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-              ),
-            InkWell(
-              onTap: () {
-                if (!isPaid)
-                  _showConfirmationDialog(context, widget.propertyModel, i);
-              },
-              child: Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                  color: getInstallmentColor(i, isPaid),
-                  shape: BoxShape.circle,
+                Text(
+                  "${formatPrice(
+                    installment.amount,
+                  )} EGP",
                 ),
+              ],
+            )
+          ],
+        ),
+        if (i ==
+            widget.propertyModel.lastActiveIndex + 1 + cubit.newActiveIndices)
+          Container(
+            margin: EdgeInsets.symmetric(vertical: defaultPadding),
+            child: SizedBox(
+              width: 200,
+              height: 20,
+              child: Divider(
+                thickness: 5,
+                color: ColorManager.Green,
               ),
             ),
-            Text(
-              "${formatPrice(
-                installment.amount,
-              )} EGP",
-            ),
-          ],
-        )
+          ),
+        // Row(
+        //   children: [],
+        // )
       ],
     );
   }
@@ -177,8 +207,8 @@ class _InstallmentsStepperWidgetState extends State<InstallmentsStepperWidget> {
           return AlertDialog(
             backgroundColor: ColorManager.BackgroundColor,
             title: Text('Please Confirm'),
-            content:
-                Text('Client Paid ${model.installments[inst].amount} EGP ?'),
+            content: Text(
+                'Client Paid ${formatPrice(model.installments[inst].amount)} EGP ?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {

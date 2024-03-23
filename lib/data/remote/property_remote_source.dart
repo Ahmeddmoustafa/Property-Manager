@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 class PropertyRemoteSource {
   // final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final String baseUrl = 'http://localhost:5000';
+  final String baseUrl = 'https://property-manager-backend-z2yr.onrender.com';
 
 // Create new property
   Future<PropertyModel> createProperty(PropertyModel property) async {
@@ -20,7 +22,7 @@ class PropertyRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.post(
-        Uri.parse("http://localhost:5000/properties/add"),
+        Uri.parse("$baseUrl/properties/add"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -52,8 +54,7 @@ class PropertyRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.put(
-        Uri.parse(
-            "http://localhost:5000/properties/soldproperty/${property.id}"),
+        Uri.parse("$baseUrl/properties/soldproperty/${property.id}"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -84,8 +85,7 @@ class PropertyRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.put(
-        Uri.parse(
-            "http://localhost:5000/properties/updateproperty/${params.propertyId}"),
+        Uri.parse("$baseUrl/properties/updateproperty/${params.propertyId}"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -112,7 +112,7 @@ class PropertyRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.put(
-        Uri.parse("http://localhost:5000/properties/updateproperties"),
+        Uri.parse("$baseUrl/properties/updateproperties"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,
@@ -140,7 +140,7 @@ class PropertyRemoteSource {
       final String refreshToken = await AppPreferences.getRefreshToken();
 
       final response = await http.get(
-        Uri.parse("http://localhost:5000/properties/all"),
+        Uri.parse("$baseUrl/properties/all"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token,

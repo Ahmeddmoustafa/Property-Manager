@@ -6,6 +6,7 @@ import 'package:admin/resources/Managers/assets_manager.dart';
 import 'package:admin/resources/Managers/colors_manager.dart';
 import 'package:admin/resources/Managers/strings_manager.dart';
 import 'package:admin/resources/Managers/values_manager.dart';
+import 'package:admin/resources/Utils/functions.dart';
 import 'package:admin/resources/Utils/responsive.dart';
 import 'package:admin/screens/add_property/components/input_price_formatter.dart';
 import 'package:admin/screens/add_property/components/installments_widget.dart';
@@ -40,13 +41,19 @@ class _AddPropertyModalState extends State<AddPropertyModal> {
   @override
   void initState() {
     super.initState();
+
+    context.read<AddPropertyCubit>().addTestData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     if (widget.unsold && widget.model != null) {
       context.read<AddPropertyCubit>().descriptionController.text =
           widget.model!.description;
       context.read<AddPropertyCubit>().priceController.text =
-          widget.model!.price.toString();
+          formatPrice(widget.model!.price);
     }
-    // context.read<AddPropertyCubit>().addTestData();
   }
 
   @override

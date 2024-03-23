@@ -6,7 +6,7 @@ part 'scroll_state.dart';
 
 class ScrollCubit extends Cubit<ScrollState> {
   ScrollCubit() : super(ScrollState());
-  ScrollController propertiesScrollController = ScrollController();
+  final ScrollController propertiesScrollController = ScrollController();
   List<PropertyModel> properties = [];
   bool loading = false;
   int page = 1;
@@ -18,6 +18,10 @@ class ScrollCubit extends Cubit<ScrollState> {
   }
 
   bool incrementPagination() {
+    print('the length ${properties.length}');
+    print('page is $page');
+    print('step is $step');
+
     if (page * step > properties.length) {
       return false;
     }

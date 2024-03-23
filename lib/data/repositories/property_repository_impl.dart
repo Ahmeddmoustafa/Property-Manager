@@ -34,7 +34,7 @@ class PropertyRepositoryImpl implements PropertyRepository {
       // } else {
       final List<PropertyModel> models =
           await propertyRemoteSource.getProperties();
-      await propertyLocalSource.addProperties(models);
+      // await propertyLocalSource.addProperties(models);
       print("GOT THE DATA");
       await AppPreferences.updateAppStatus();
       return right(models);
@@ -67,7 +67,7 @@ class PropertyRepositoryImpl implements PropertyRepository {
       print("repo called");
       //Update local and remote DB for consistency
       await propertyRemoteSource.updateProperty(params);
-      await propertyLocalSource.updateProperty(params.model);
+      // await propertyLocalSource.updateProperty(params.model);
       return Right("");
     } catch (err) {
       return Left(ServerFailure(msg: err.toString()));
@@ -79,7 +79,7 @@ class PropertyRepositoryImpl implements PropertyRepository {
     try {
       final PropertyModel model =
           await propertyRemoteSource.createProperty(property);
-      await propertyLocalSource.addProperty(model);
+      // await propertyLocalSource.addProperty(model);
       return Right("");
     } catch (err) {
       return Left(ServerFailure(msg: err.toString()));

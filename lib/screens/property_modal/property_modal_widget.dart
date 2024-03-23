@@ -31,6 +31,14 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
   @override
   void initState() {
     super.initState();
+    context.read<PropertyModalCubit>().setLastActiveIndex(widget
+        .propertyModel); // context.read<PropertyModalCubit>().openPropety(widget.propertyModel);
+    print("the last active ${widget.propertyModel.lastActiveIndex}");
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     context.read<PropertyModalCubit>().openPropety(widget.propertyModel);
   }
 
@@ -86,10 +94,12 @@ class _PropertyModalWidgetState extends State<PropertyModalWidget> {
                                           modalcubit.property != null) {
                                         // propertycubit.updateProperty(
                                         //     modalcubit.property!);
+                                        print(widget.propertyModel.type);
                                         await propertycubit.categorize();
-                                        propertycubit.getPropertiesByCategory(
-                                            index:
-                                                propertycubit.selectedCategory);
+                                        await propertycubit
+                                            .getPropertiesByCategory(
+                                                index: propertycubit
+                                                    .selectedCategory);
 
                                         // Navigator.pushReplacementNamed(context,Routes.homeRoute);
                                       }

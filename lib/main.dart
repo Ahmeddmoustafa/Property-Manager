@@ -9,6 +9,7 @@ import 'package:admin/cubit/reminder/reminder_cubit.dart';
 import 'package:admin/cubit/scroll/scroll_cubit.dart';
 import 'package:admin/data/models/property_model.dart';
 import 'package:admin/resources/Managers/routes_manager.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,8 +21,8 @@ void main() async {
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
-  await Hive.initFlutter();
-  hiveInit();
+  // await Hive.initFlutter();
+  // hiveInit();
 
   runApp(MyApp());
 }
@@ -45,20 +46,20 @@ class MyApp extends StatelessWidget {
           create: (context) => di.sl<AddPropertyCubit>(),
         ),
         BlocProvider(
-          create: (context) => di.sl<LoginCubit>(),
+          create: (context) => di.sl<LoginCubit>()..isLoggedIn(),
         ),
         BlocProvider(
           create: (context) => ReminderCubit(),
         ),
-        BlocProvider(
-          create: (context) => ScrollCubit(),
-        ),
+        // BlocProvider(
+        //   create: (context) => ScrollCubit(),
+        // ),
       ],
       child: MaterialApp(
         scrollBehavior: MaterialScrollBehavior().copyWith(
           dragDevices: {
-            // PointerDeviceKind.mouse,
-            // PointerDeviceKind.trackpad,
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.trackpad,
             // PointerDeviceKind.touch,
           },
         ),
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void hiveInit() {
-  Hive.registerAdapter(PropertyModelAdapter());
-  Hive.registerAdapter(InstallmentAdapter());
-}
+// void hiveInit() {
+//   Hive.registerAdapter(PropertyModelAdapter());
+//   Hive.registerAdapter(InstallmentAdapter());
+// }
